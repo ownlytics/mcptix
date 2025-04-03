@@ -1,6 +1,6 @@
 {
-  "name": "epic-tracker",
-  "version": "1.0.0",
+  "name": "epic-tracker-mcp",
+  "version": "0.1.0",
   "description": "A simple, powerful ticket tracking system with AI assistant integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

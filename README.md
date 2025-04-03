@@ -1,6 +1,8 @@
-# Epic Tracker
+# Epic Tracker [![Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://github.com/epic-tracker/epic-tracker)
 
 A simple, powerful ticket tracking system with AI assistant integration.
+
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg)
 
 ![Epic Tracker Banner](https://via.placeholder.com/800x200?text=Epic+Tracker)
 
