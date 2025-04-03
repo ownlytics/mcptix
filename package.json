@@ -1,0 +1,79 @@
+{
+  "name": "epic-tracker",
+  "version": "1.0.0",
+  "description": "A simple, powerful ticket tracking system with AI assistant integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "epic-tracker": "./bin/epic-tracker.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates",
+    "public",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "api": "ts-node src/index.ts --api",
+    "mcp": "ts-node src/index.ts --mcp",
+    "start:all": "ts-node src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:api": "jest src/api",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "epic-tracker",
+    "ticket-tracking",
+    "kanban",
+    "project-management",
+    "task-management",
+    "mcp",
+    "model-context-protocol",
+    "ai-assistant",
+    "complexity-tracking"
+  ],
+  "author": "Epic Tracker Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/epic-tracker/epic-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/epic-tracker/epic-tracker/issues"
+  },
+  "homepage": "https://github.com/epic-tracker/epic-tracker#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "better-sqlite3": "^11.9.1",
+    "body-parser": "^2.2.0",
+    "commander": "^9.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "open": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.17",
+    "@types/supertest": "^6.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "rimraf": "^5.0.5",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

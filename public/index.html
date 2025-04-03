@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epic Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Include marked.js for markdown rendering (specific version) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+  <!-- Add debugging for marked library -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('Marked library loaded:', typeof marked);
+      if (typeof marked === 'function') {
+        console.log('Marked is a function');
+      } else if (marked && typeof marked.parse === 'function') {
+        console.log('Marked has a parse method');
+      }
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Epic Tracker</h1>
+    <div class="header-actions">
+      <button id="new-ticket-btn" class="btn primary">New Ticket</button>
+    </div>
+  </header>
+  
+  <main class="kanban-board">
+    <div class="column" id="backlog">
+      <h2>Backlog</h2>
+      <div class="ticket-container"></div>
+    </div>
+    
+    <div class="column" id="up-next">
+      <h2>Up Next</h2>
+      <div class="ticket-container"></div>
+    </div>
+    
+    <div class="column" id="in-progress">
+      <h2>In Progress</h2>
+      <div class="ticket-container"></div>
+    </div>
+    
+    <div class="column" id="in-review">
+      <h2>In Review</h2>
+      <div class="ticket-container"></div>
+    </div>
+    
+    <div class="column" id="completed">
+      <h2>Completed</h2>
+      <div class="ticket-container"></div>
+    </div>
+  </main>
+  
+  <!-- Ticket Editor Sidebar -->
+  <div class="sidebar-overlay" id="ticket-editor-overlay">
+    <div class="sidebar" id="ticket-editor">
+      <!-- Toast Notification -->
+      <div class="toast-notification" id="save-status-toast">
+        <span id="save-status">Saved</span>
+      </div>
+      <!-- Header Section -->
+      <div class="sidebar-header">
+        <div class="ticket-id-container">
+          <div class="ticket-id-wrapper">
+            <span id="ticket-id" class="ticket-id">Ticket ID</span>
+            <button type="button" class="copy-id-btn" id="copy-ticket-id" title="Copy ticket ID">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <input type="text" id="ticket-title" name="title" class="header-title-input" placeholder="Ticket title" required>
+        
+        <div class="ticket-meta">
+          <span id="ticket-created">Created: </span>
+          <span id="ticket-updated">Updated: </span>
+        </div>
+        <button type="button" class="close-btn" id="close-sidebar">&times;</button>
+      </div>
+
+      <!-- Scrollable Content Container -->
+      <div class="sidebar-content">
+        <!-- Main Details Section -->
+        <section class="sidebar-section details-section">
+          <!-- Title field moved to header -->
+          
+          <div class="form-group">
+            <label for="ticket-description">Description</label>
+            <textarea id="ticket-description" name="description" rows="10"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="ticket-status">Status</label>
+              <select id="ticket-status" name="status">
+                <option value="backlog">Backlog</option>
+                <option value="up-next">Up Next</option>
+                <option value="in-progress">In Progress</option>
+                <option value="in-review">In Review</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div class="form-group half-width">
+              <label for="ticket-priority">Priority</label>
+              <select id="ticket-priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Complexity Intelligence Engine (CIE) Section -->
+        <section class="sidebar-section complexity-section">
+          <div class="section-header" id="complexity-header">
+            <h3>Complexity Intelligence Engine</h3>
+            <div class="cie-score-container">
+              <div class="cie-score-label">CIE Score:</div>
+              <div id="cie-score" class="cie-score">0.0</div>
+            </div>
+            <button type="button" class="toggle-btn" id="toggle-complexity">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          
+          <div class="section-content collapsed" id="complexity-details">
+            <div class="complexity-group">
+              <h4>Code Surface Area</h4>
+              <div class="complexity-row">
+                <div class="complexity-field">
+                  <label for="files-touched">Files Touched</label>
+                  <input type="number" id="files-touched" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="modules-crossed">Modules Crossed</label>
+                  <input type="number" id="modules-crossed" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="stack-layers-involved">Stack Layers</label>
+                  <input type="number" id="stack-layers-involved" class="complexity-input" min="0" value="0">
+                </div>
+              </div>
+            </div>
+          
+            <div class="complexity-group">
+              <h4>Interconnectedness</h4>
+              <div class="complexity-row">
+                <div class="complexity-field">
+                  <label for="dependencies">Dependencies</label>
+                  <input type="number" id="dependencies" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="shared-state-touches">Shared State</label>
+                  <input type="number" id="shared-state-touches" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="cascade-impact-zones">Cascade Impact</label>
+                  <input type="number" id="cascade-impact-zones" class="complexity-input" min="0" value="0">
+                </div>
+              </div>
+            </div>
+            
+            <div class="complexity-group">
+              <h4>Cognitive Load</h4>
+              <div class="complexity-row">
+                <div class="complexity-field full-width">
+                  <label for="subjectivity-rating">Subjectivity Rating (0.0 - 1.0)</label>
+                  <input type="range" id="subjectivity-rating" class="complexity-input" min="0" max="1" step="0.1" value="0">
+                  <div class="range-value"><span id="subjectivity-value">0.0</span></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="complexity-group">
+              <h4>Change Volume</h4>
+              <div class="complexity-row">
+                <div class="complexity-field">
+                  <label for="loc-added">LOC Added</label>
+                  <input type="number" id="loc-added" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="loc-modified">LOC Modified</label>
+                  <input type="number" id="loc-modified" class="complexity-input" min="0" value="0">
+                </div>
+              </div>
+            </div>
+            
+            <div class="complexity-group">
+              <h4>Quality Surface Area</h4>
+              <div class="complexity-row">
+                <div class="complexity-field">
+                  <label for="test-cases-written">Test Cases</label>
+                  <input type="number" id="test-cases-written" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="edge-cases">Edge Cases</label>
+                  <input type="number" id="edge-cases" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="mocking-complexity">Mocking</label>
+                  <input type="number" id="mocking-complexity" class="complexity-input" min="0" value="0">
+                </div>
+              </div>
+            </div>
+            
+            <div class="complexity-group">
+              <h4>Process Friction</h4>
+              <div class="complexity-row">
+                <div class="complexity-field">
+                  <label for="coordination-touchpoints">Coordination</label>
+                  <input type="number" id="coordination-touchpoints" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="review-rounds">Review Rounds</label>
+                  <input type="number" id="review-rounds" class="complexity-input" min="0" value="0">
+                </div>
+                <div class="complexity-field">
+                  <label for="blockers-encountered">Blockers</label>
+                  <input type="number" id="blockers-encountered" class="complexity-input" min="0" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Comments Section -->
+        <section class="sidebar-section comments-section">
+          <div class="section-header" id="comments-header">
+            <h3>Comments <span class="comment-count" id="comment-count">(0)</span></h3>
+            <button type="button" class="toggle-btn" id="toggle-comments">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          
+          <div class="section-content" id="comments-details">
+            <!-- Comments container -->
+            <div id="comments-container" class="comments-container">
+              <!-- Comments will be rendered here -->
+            </div>
+            
+            <!-- Add comment form -->
+            <div class="comment-form-container">
+              <form id="comment-form" class="comment-form">
+                <div class="form-group">
+                  <label for="comment-content">New Comment</label>
+                  <textarea id="comment-content" name="content" rows="3" placeholder="Add your comment here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label for="comment-type">Comment Type</label>
+                  <select id="comment-type" name="type">
+                    <option value="comment">Regular Comment</option>
+                    <option value="request_changes">Request Changes</option>
+                    <option value="change_proposal">Change Proposal</option>
+                  </select>
+                </div>
+                
+                <div class="form-actions comment-actions">
+                  <button type="submit" id="add-comment" class="btn primary">Add Comment</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Danger Zone Section -->
+        <section class="sidebar-section danger-section">
+          <div class="section-header">
+            <h3>Danger Zone</h3>
+          </div>
+          <div class="danger-zone-content">
+            <p class="danger-warning">Deleting this ticket will permanently remove it and all associated data. This action cannot be undone.</p>
+            <div class="danger-action">
+              <button type="button" id="delete-ticket" class="btn danger">Delete Ticket</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Load JavaScript modules directly with type="module" -->
+  <script type="module">
+    // Import the modules
+    import { Storage } from './js/storage.js';
+    import { TicketRenderer } from './js/ticketRenderer.js';
+    import { TicketEditor } from './js/ticketEditor.js';
+    import { Comments } from './js/comments.js';
+    import { App } from './js/app.js';
+    
+    // Initialize the application when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Show loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'loading-overlay';
+      loadingIndicator.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div class="loading-message">Loading Epic Tracker...</div>
+      `;
+      document.body.appendChild(loadingIndicator);
+      
+      // Make modules available globally for debugging
+      window.Storage = Storage;
+      window.TicketRenderer = TicketRenderer;
+      window.TicketEditor = TicketEditor;
+      window.Comments = Comments;
+      window.App = App;
+      
+      // Initialize the app
+      App.initialize()
+        .then(() => {
+          // Load initial tickets
+          return App.loadInitialTickets();
+        })
+        .finally(() => {
+          // Remove loading indicator
+          setTimeout(() => {
+            loadingIndicator.classList.add('fade-out');
+            setTimeout(() => {
+              document.body.removeChild(loadingIndicator);
+            }, 500);
+          }, 500);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output
+# dist/ is commented out because we need our custom implementation for now
+# dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database files
+*.db
+*.db-journal
+
+# Coverage directory
+coverage/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+
+# Test project
+test-project/
+
+# Local development files
+.epic-tracker/

@@ -1,0 +1,218 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TicketQueries = void 0;
+class TicketQueries {
+    constructor(db) {
+        this.db = db;
+    }
+    // Get all tickets with optional filtering
+    getTickets(filters = {}, sort = 'updated', order = 'desc', limit = 100, offset = 0) {
+        // Build WHERE clause from filters
+        const whereConditions = [];
+        const params = {};
+        if (filters.status) {
+            whereConditions.push('status = :status');
+            params.status = filters.status;
+        }
+        if (filters.priority) {
+            whereConditions.push('priority = :priority');
+            params.priority = filters.priority;
+        }
+        if (filters.search) {
+            whereConditions.push('(title LIKE :search OR description LIKE :search)');
+            params.search = `%${filters.search}%`;
+        }
+        // Build query
+        const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+        const query = `
+      SELECT t.*
+      FROM tickets t
+      ${whereClause}
+      ORDER BY ${sort} ${order}
+      LIMIT :limit OFFSET :offset
+    `;
+        // Execute query
+        const stmt = this.db.prepare(query);
+        const tickets = stmt.all({ ...params, limit, offset });
+        // For each ticket, get its complexity score
+        for (const ticket of tickets) {
+            const complexityStmt = this.db.prepare('SELECT cie_score FROM complexity WHERE ticket_id = ?');
+            const complexity = complexityStmt.get(ticket.id);
+            if (complexity) {
+                ticket.complexity_metadata = { cie_score: complexity.cie_score };
+            }
+        }
+        return tickets;
+    }
+    // Get ticket by ID with comments and complexity
+    getTicketById(id) {
+        const ticketStmt = this.db.prepare('SELECT * FROM tickets WHERE id = ?');
+        const ticket = ticketStmt.get(id);
+        if (!ticket)
+            return null;
+        // Get comments
+        const commentsStmt = this.db.prepare('SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp');
+        ticket.comments = commentsStmt.all(id);
+        // Get complexity metadata
+        const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
+        ticket.complexity_metadata = complexityStmt.get(id);
+        return ticket;
+    }
+    // Create a new ticket
+    createTicket(ticket) {
+        const now = new Date().toISOString();
+        const ticketId = ticket.id || `ticket-${Date.now()}`;
+        // Start transaction
+        const transaction = this.db.transaction(() => {
+            // Insert ticket
+            const ticketStmt = this.db.prepare(`
+        INSERT INTO tickets (id, title, description, priority, status, created, updated)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+            ticketStmt.run(ticketId, ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, now);
+            // Insert complexity if provided
+            if (ticket.complexity_metadata) {
+                const complexityStmt = this.db.prepare(`
+          INSERT INTO complexity (
+            ticket_id, files_touched, modules_crossed, stack_layers_involved,
+            dependencies, shared_state_touches, cascade_impact_zones,
+            subjectivity_rating, loc_added, loc_modified,
+            test_cases_written, edge_cases, mocking_complexity,
+            coordination_touchpoints, review_rounds, blockers_encountered,
+            cie_score
+          ) VALUES (
+            ?, ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?
+          )
+        `);
+                complexityStmt.run(ticketId, ticket.complexity_metadata.files_touched || 0, ticket.complexity_metadata.modules_crossed || 0, ticket.complexity_metadata.stack_layers_involved || 0, ticket.complexity_metadata.dependencies || 0, ticket.complexity_metadata.shared_state_touches || 0, ticket.complexity_metadata.cascade_impact_zones || 0, ticket.complexity_metadata.subjectivity_rating || 0, ticket.complexity_metadata.loc_added || 0, ticket.complexity_metadata.loc_modified || 0, ticket.complexity_metadata.test_cases_written || 0, ticket.complexity_metadata.edge_cases || 0, ticket.complexity_metadata.mocking_complexity || 0, ticket.complexity_metadata.coordination_touchpoints || 0, ticket.complexity_metadata.review_rounds || 0, ticket.complexity_metadata.blockers_encountered || 0, ticket.complexity_metadata.cie_score || 0);
+            }
+            // Insert comments if provided
+            if (ticket.comments && ticket.comments.length > 0) {
+                const commentStmt = this.db.prepare(`
+          INSERT INTO comments (
+            id, ticket_id, content, type, author, status, timestamp,
+            summary, full_text, display
+          ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?
+          )
+        `);
+                for (const comment of ticket.comments) {
+                    commentStmt.run(comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`, ticketId, comment.content || '', comment.type || 'comment', comment.author || 'developer', comment.status || 'open', comment.timestamp || now, comment.summary || null, comment.fullText || null, comment.display || 'collapsed');
+                }
+            }
+            return ticketId;
+        });
+        // Execute transaction
+        return transaction();
+    }
+    // Update an existing ticket
+    updateTicket(ticket) {
+        const now = new Date().toISOString();
+        // Start transaction
+        const transaction = this.db.transaction(() => {
+            // Update ticket
+            const ticketStmt = this.db.prepare(`
+        UPDATE tickets
+        SET title = ?,
+            description = ?,
+            priority = ?,
+            status = ?,
+            updated = ?
+        WHERE id = ?
+      `);
+            const result = ticketStmt.run(ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, ticket.id);
+            if (result.changes === 0)
+                return false;
+            // Update complexity if provided
+            if (ticket.complexity_metadata) {
+                const complexityStmt = this.db.prepare(`
+          INSERT OR REPLACE INTO complexity (
+            ticket_id, files_touched, modules_crossed, stack_layers_involved,
+            dependencies, shared_state_touches, cascade_impact_zones,
+            subjectivity_rating, loc_added, loc_modified,
+            test_cases_written, edge_cases, mocking_complexity,
+            coordination_touchpoints, review_rounds, blockers_encountered,
+            cie_score
+          ) VALUES (
+            ?, ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?
+          )
+        `);
+                complexityStmt.run(ticket.id, ticket.complexity_metadata.files_touched || 0, ticket.complexity_metadata.modules_crossed || 0, ticket.complexity_metadata.stack_layers_involved || 0, ticket.complexity_metadata.dependencies || 0, ticket.complexity_metadata.shared_state_touches || 0, ticket.complexity_metadata.cascade_impact_zones || 0, ticket.complexity_metadata.subjectivity_rating || 0, ticket.complexity_metadata.loc_added || 0, ticket.complexity_metadata.loc_modified || 0, ticket.complexity_metadata.test_cases_written || 0, ticket.complexity_metadata.edge_cases || 0, ticket.complexity_metadata.mocking_complexity || 0, ticket.complexity_metadata.coordination_touchpoints || 0, ticket.complexity_metadata.review_rounds || 0, ticket.complexity_metadata.blockers_encountered || 0, ticket.complexity_metadata.cie_score || 0);
+            }
+            return true;
+        });
+        // Execute transaction
+        return transaction();
+    }
+    // Delete a ticket
+    deleteTicket(id) {
+        const stmt = this.db.prepare('DELETE FROM tickets WHERE id = ?');
+        const result = stmt.run(id);
+        return result.changes > 0;
+    }
+    // Add a comment to a ticket
+    addComment(ticketId, comment) {
+        const now = new Date().toISOString();
+        const commentId = comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const stmt = this.db.prepare(`
+      INSERT INTO comments (
+        id, ticket_id, content, type, author, status, timestamp,
+        summary, full_text, display
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?
+      )
+    `);
+        stmt.run(commentId, ticketId, comment.content || '', comment.type || 'comment', comment.author || 'developer', comment.status || 'open', comment.timestamp || now, comment.summary || null, comment.fullText || null, comment.display || 'collapsed');
+        // Update ticket's updated timestamp
+        this.db.prepare('UPDATE tickets SET updated = ? WHERE id = ?').run(now, ticketId);
+        return commentId;
+    }
+    // Export all data to JSON format (for Git compatibility)
+    exportToJson() {
+        const columns = [
+            { id: 'backlog', name: 'Backlog', tickets: [] },
+            { id: 'up-next', name: 'Up Next', tickets: [] },
+            { id: 'in-progress', name: 'In Progress', tickets: [] },
+            { id: 'in-review', name: 'In Review', tickets: [] },
+            { id: 'completed', name: 'Completed', tickets: [] }
+        ];
+        // Get all tickets with their complexity and comments
+        const ticketsStmt = this.db.prepare(`
+      SELECT t.*
+      FROM tickets t
+      ORDER BY t.updated DESC
+    `);
+        const tickets = ticketsStmt.all();
+        // Get complexity for each ticket
+        const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
+        // Get comments for each ticket
+        const commentsStmt = this.db.prepare('SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp');
+        // Organize tickets by column
+        for (const ticket of tickets) {
+            // Add complexity metadata
+            ticket.complexity_metadata = complexityStmt.get(ticket.id);
+            // Add comments
+            ticket.comments = commentsStmt.all(ticket.id);
+            // Add to appropriate column
+            const column = columns.find(col => col.id === ticket.status);
+            if (column) {
+                column.tickets.push(ticket);
+            }
+        }
+        return { columns };
+    }
+}
+exports.TicketQueries = TicketQueries;
+//# sourceMappingURL=queries.js.map
