@@ -90,10 +90,23 @@ function createMcpServersJsonFile(dbPath) {
     }
   };
 
+  // Add a comment at the top of the file
+  const mcpServersJsonWithComment =
+`// Epic Tracker MCP Server Configuration
+// This file is used by LLM agents (like Roo) to connect to the Epic Tracker MCP server.
+// Copy this file to your LLM agent's configuration directory.
+// For Roo, this would typically be .roo/mcp.json in your project root.
+//
+// IMPORTANT: The MCP server is started by the LLM agent, not by Epic Tracker.
+// You only need to run 'npx epic-tracker start' to start the UI.
+
+${JSON.stringify(mcpServersJson, null, 2)}`;
+
   // Write the file
-  fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpServersJson, null, 2));
+  fs.writeFileSync(mcpJsonPath, mcpServersJsonWithComment);
   console.log('Created MCP server configuration file at .epic-tracker/mcp-server-config.json');
-  console.log('You can use this file to configure your LLM agent to connect to the Epic Tracker MCP server.');
+  console.log('IMPORTANT: Copy this file to your LLM agent\'s configuration directory.');
+  console.log('For Roo, this would typically be .roo/mcp.json in your project root.');
 }
 
 module.exports = init;

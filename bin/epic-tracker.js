@@ -30,7 +30,7 @@ program
 // Start command
 program
   .command('start')
-  .description('Start the Epic Tracker UI')
+  .description('Start the Epic Tracker UI (API server only)')
   .option('-p, --port <port>', 'Port to run the server on', '3000')
   .option('-h, --host <host>', 'Host to run the server on', 'localhost')
   .option('--no-open', 'Do not open the browser automatically')
@@ -39,7 +39,7 @@ program
 // MCP command
 program
   .command('mcp')
-  .description('Start only the MCP server (for AI assistants)')
+  .description('Start only the MCP server (for development/testing purposes)')
   .action(mcp);
 
 // Parse arguments

@@ -57,7 +57,7 @@ export const defaultConfig: EpicTrackerConfig = {
   dbPath: './data/epic-tracker.db',
   apiPort: 3000,
   apiHost: 'localhost',
-  mcpEnabled: true,
+  mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
   apiEnabled: true,
   logLevel: 'info',
   clearDataOnInit: false

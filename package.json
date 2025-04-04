@@ -18,16 +18,13 @@
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "start": "node dist/index.js",
-    "dev": "nodemon --exec ts-node src/index.ts",
-    "api": "ts-node src/index.ts --api",
+    "start": "ts-node src/index.ts --api",
+    "dev": "nodemon --exec ts-node src/index.ts --api",
     "mcp": "ts-node src/index.ts --mcp",
-    "start:all": "ts-node src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:api": "jest src/api",
-    "clean": "rimraf dist",
-    "epic-tracker": "epic-tracker start"
+    "clean": "rimraf dist"
   },
   "keywords": [
     "epic-tracker",

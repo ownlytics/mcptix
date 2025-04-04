@@ -55,7 +55,11 @@ async function start(options) {
     // Import the Epic Tracker package
     const { createEpicTracker } = require(path.resolve(__dirname, '../../dist/index.js'));
     
-    // Create and start Epic Tracker
+    // Override config to enable API and disable MCP
+    config.apiEnabled = true;
+    config.mcpEnabled = false; // MCP server should be started by the LLM agent
+    
+    // Create and start Epic Tracker with API only
     const epicTracker = createEpicTracker(config);
     await epicTracker.start();
     

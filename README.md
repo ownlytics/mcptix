@@ -22,7 +22,7 @@ Epic Tracker is a ticket tracking system that helps you manage tasks, bugs, and 
 Open your terminal and run:
 
 ```bash
-npm install epic-tracker
+npm install epic-tracker-mcp
 ```
 
 ### Step 2: Initialize Epic Tracker in your project
@@ -34,12 +34,12 @@ npx epic-tracker init
 This will:
 - Create a `.epic-tracker` folder in your project
 - Add configuration files
-- Add an `epic-tracker` script to your package.json
+- Set up the necessary configuration files
 
 ### Step 3: Start Epic Tracker
 
 ```bash
-npm run epic-tracker
+npx epic-tracker start
 ```
 
 That's it! Epic Tracker will start and open in your browser automatically.
@@ -81,14 +81,14 @@ When you open Epic Tracker, you'll see a Kanban board with columns for different
 
 ## Connecting AI Assistants (MCP Configuration)
 
-Epic Tracker includes an MCP server that allows AI assistants to interact with your tickets. To connect your AI assistant to Epic Tracker, follow these steps:
+Epic Tracker includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by Epic Tracker itself.
 
 ### 1. Install Epic Tracker
 
 If you haven't already, install Epic Tracker:
 
 ```bash
-npm install epic-tracker
+npm install epic-tracker-mcp
 ```
 
 ### 2. Initialize Epic Tracker in your project
@@ -97,18 +97,37 @@ npm install epic-tracker
 npx epic-tracker init
 ```
 
-### 3. Add the Epic Tracker MCP Server Configuration
+This will create a `.epic-tracker` directory in your project with all necessary configuration files, including an MCP server configuration file at `.epic-tracker/mcp-server-config.json`.
 
-Add the following configuration to your MCP settings file:
+### 3. Configure your AI assistant to use the Epic Tracker MCP server
+
+Copy the MCP server configuration file to your AI assistant's configuration directory:
+
+For Roo:
+```bash
+cp .epic-tracker/mcp-server-config.json .roo/mcp.json
+```
+
+For other AI assistants, consult their documentation on how to configure MCP servers.
+
+The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server:
 
 ```json
+// Epic Tracker MCP Server Configuration
+// This file is used by LLM agents (like Roo) to connect to the Epic Tracker MCP server.
+// Copy this file to your LLM agent's configuration directory.
+// For Roo, this would typically be .roo/mcp.json in your project root.
+//
+// IMPORTANT: The MCP server is started by the LLM agent, not by Epic Tracker.
+// You only need to run 'npx epic-tracker start' to start the UI.
+
 {
   "mcpServers": {
     "epic-tracker": {
       "command": "node",
-      "args": ["./node_modules/epic-tracker/dist/mcp/index.js"],
+      "args": ["/absolute/path/to/node_modules/epic-tracker-mcp/dist/mcp/index.js"],
       "env": {
-        "EPIC_TRACKER_DB_PATH": "/path/to/your/.epic-tracker/data/epic-tracker.db",
+        "EPIC_TRACKER_DB_PATH": "/absolute/path/to/.epic-tracker/data/epic-tracker.db",
         "HOME": "/home/your-username"
       },
       "disabled": false,
@@ -118,11 +137,15 @@ Add the following configuration to your MCP settings file:
 }
 ```
 
-This configuration tells your AI assistant how to connect to the Epic Tracker MCP server. The path `./node_modules/epic-tracker/dist/mcp/index.js` points to the MCP server file in your project's node_modules directory. The `EPIC_TRACKER_DB_PATH` environment variable tells the MCP server where to find your database file.
+### 4. Start the Epic Tracker UI
 
-> **Note:** When you run `npx epic-tracker init`, Epic Tracker automatically creates this configuration file for you with the correct paths in `.epic-tracker/mcp-server-config.json`.
+```bash
+npx epic-tracker start
+```
 
-### 4. Start Using Epic Tracker with Your AI Assistant
+This will start only the Epic Tracker UI (API server). The MCP server will be started by your AI assistant when needed.
+
+### 5. Use Epic Tracker with your AI assistant
 
 Once configured, your AI assistant will be able to:
 - List, create, update, and delete tickets
@@ -146,7 +169,7 @@ module.exports = {
   apiHost: 'localhost',
   
   // Server options
-  mcpEnabled: true,
+  mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
   apiEnabled: true,
   
   // Logging configuration
@@ -160,7 +183,7 @@ module.exports = {
 ### Common Customizations
 
 - **Change the port**: If port 3000 is already in use, change `apiPort` to another number
-- **Disable MCP**: If you don't need AI assistant integration, set `mcpEnabled` to `false`
+- **Enable MCP for testing**: If you want to test the MCP server directly, set `mcpEnabled` to `true`
 - **Change data location**: If you want to store data elsewhere, change `dbPath`
 
 ## Troubleshooting
@@ -174,12 +197,12 @@ If Epic Tracker won't start, check:
 3. Is Node.js installed and up to date? Epic Tracker requires Node.js 14 or higher.
 
 ### Can't connect AI assistant
-
 If your AI assistant can't connect to Epic Tracker:
 
-1. Make sure Epic Tracker is running with MCP enabled
-2. Check that your MCP configuration is correct
+1. Check that your MCP configuration file is correctly copied to your AI assistant's configuration directory
+2. Verify that the paths in the MCP configuration file are correct
 3. Ensure your AI assistant supports the Model Context Protocol
+4. Make sure the database path is accessible to the MCP server
 
 ## Command Line Options
 
@@ -198,52 +221,45 @@ npx epic-tracker start --port 3001 --host 0.0.0.0
 # Start without opening the browser
 npx epic-tracker start --no-open
 
-# Start only the MCP server (for AI assistants)
+# Start only the MCP server (for development/testing purposes)
 npx epic-tracker mcp
 ```
 
-## Advanced MCP Server Configuration
+## Important Note About MCP Server
 
-Epic Tracker provides a standalone MCP server that can be used directly with AI assistants. This is useful if you want to integrate Epic Tracker with AI assistants without running the full UI.
+The MCP server is designed to be started by your AI assistant, not by Epic Tracker itself. This is why:
 
-### Option 1: Using the CLI Command
+1. The `mcpEnabled` option is set to `false` by default
+2. The `npx epic-tracker start` command only starts the UI (API server)
+3. The MCP server configuration file is generated during initialization
 
-The simplest way to start the MCP server is to use the CLI command:
+The `npx epic-tracker mcp` command is provided for development and testing purposes only. In normal operation, you should not need to start the MCP server manually.
 
-```bash
-npx epic-tracker mcp
-```
+When your AI assistant needs to interact with Epic Tracker, it will:
 
-This will start the MCP server using your project's configuration.
+1. Read the MCP configuration file from its configuration directory
+2. Start the MCP server as specified in the configuration
+3. Connect to the MCP server
+4. Use the tools and resources provided by the MCP server to interact with Epic Tracker
 
-### Option 2: Using the Standalone MCP Server
+This architecture ensures that:
 
-For more advanced use cases, you can use the standalone MCP server directly:
-
-```bash
-node ./node_modules/epic-tracker/dist/mcp/index.js
-```
-
-This is the method used in the MCP configuration example above. The standalone MCP server:
-
-- Loads configuration from your project's `.epic-tracker/epic-tracker.config.js` file if available
-- Initializes the database
-- Starts the MCP server
-- Handles graceful shutdown
-
-Both methods provide the same functionality, but the standalone server gives you more flexibility for integration with other tools.
+1. The MCP server is only running when needed
+2. The MCP server has access to the correct database
+3. The MCP server is properly configured for your AI assistant
 
 ## For Advanced Users
 
 If you're comfortable with code, you can also use Epic Tracker programmatically:
 
 ```javascript
-const { createEpicTracker } = require('epic-tracker');
+const { createEpicTracker } = require('epic-tracker-mcp');
 
 // Create an Epic Tracker instance
 const epicTracker = createEpicTracker();
 
-// Start the servers
+// Start the API server (UI)
+// Note: MCP server is disabled by default
 await epicTracker.start();
 
 // Get the ticket queries for programmatic access

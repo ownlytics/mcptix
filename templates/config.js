@@ -11,7 +11,7 @@ module.exports = {
   apiHost: 'localhost',
   
   // Server options
-  mcpEnabled: true,
+  mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
   apiEnabled: true,
   
   // Logging configuration

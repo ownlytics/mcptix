@@ -136,15 +136,19 @@ exports.EpicTracker = EpicTracker;
 function createEpicTracker(config) {
     return new EpicTracker(config);
 }
-// If this file is run directly, start the servers
+// If this file is run directly, start the servers based on command line arguments
 if (require.main === module) {
     const args = process.argv.slice(2);
     const runApi = args.includes('--api');
     const runMcp = args.includes('--mcp');
+    // Default to API only if no specific flags are provided
     const config = {
-        apiEnabled: runApi || (!runApi && !runMcp),
-        mcpEnabled: runMcp || (!runApi && !runMcp)
+        apiEnabled: runApi || (!runMcp), // Enable API if --api flag is present or --mcp is not present
+        mcpEnabled: runMcp // Enable MCP only if --mcp flag is present
     };
+    console.log(`Starting Epic Tracker with configuration:
+  - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
+  - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`);
     const epicTracker = createEpicTracker(config);
     epicTracker.start().catch((error) => {
         console.error('Failed to start Epic Tracker:', error);
