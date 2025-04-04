@@ -1,12 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TicketQueries = void 0;
+const complexityCalculator_1 = require("../utils/complexityCalculator");
 class TicketQueries {
     constructor(db) {
         this.db = db;
+        console.log(`[TicketQueries] Initialized with database at: ${this.db.name}`);
     }
     // Get all tickets with optional filtering
     getTickets(filters = {}, sort = 'updated', order = 'desc', limit = 100, offset = 0) {
+        console.log(`[TicketQueries] getTickets called with filters:`, JSON.stringify(filters));
+        console.log(`[TicketQueries] Database file:`, this.db.name);
         // Build WHERE clause from filters
         const whereConditions = [];
         const params = {};
@@ -33,13 +37,60 @@ class TicketQueries {
     `;
         // Execute query
         const stmt = this.db.prepare(query);
+        console.log(`[TicketQueries] Executing SQL query: ${query}`);
+        console.log(`[TicketQueries] With params:`, JSON.stringify({ ...params, limit, offset }));
         const tickets = stmt.all({ ...params, limit, offset });
-        // For each ticket, get its complexity score
+        console.log(`[TicketQueries] Found ${tickets.length} tickets`);
+        if (tickets.length > 0) {
+            console.log(`[TicketQueries] First ticket:`, JSON.stringify(tickets[0]));
+        }
+        // For each ticket, get its full complexity metadata
         for (const ticket of tickets) {
-            const complexityStmt = this.db.prepare('SELECT cie_score FROM complexity WHERE ticket_id = ?');
-            const complexity = complexityStmt.get(ticket.id);
-            if (complexity) {
-                ticket.complexity_metadata = { cie_score: complexity.cie_score };
+            const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
+            const complexityData = complexityStmt.get(ticket.id);
+            // Ensure all complexity fields are properly initialized
+            if (complexityData) {
+                ticket.complexity_metadata = {
+                    ticket_id: ticket.id,
+                    files_touched: complexityData.files_touched || 0,
+                    modules_crossed: complexityData.modules_crossed || 0,
+                    stack_layers_involved: complexityData.stack_layers_involved || 0,
+                    dependencies: complexityData.dependencies || 0,
+                    shared_state_touches: complexityData.shared_state_touches || 0,
+                    cascade_impact_zones: complexityData.cascade_impact_zones || 0,
+                    subjectivity_rating: complexityData.subjectivity_rating || 0,
+                    loc_added: complexityData.loc_added || 0,
+                    loc_modified: complexityData.loc_modified || 0,
+                    test_cases_written: complexityData.test_cases_written || 0,
+                    edge_cases: complexityData.edge_cases || 0,
+                    mocking_complexity: complexityData.mocking_complexity || 0,
+                    coordination_touchpoints: complexityData.coordination_touchpoints || 0,
+                    review_rounds: complexityData.review_rounds || 0,
+                    blockers_encountered: complexityData.blockers_encountered || 0,
+                    cie_score: complexityData.cie_score || 0
+                };
+            }
+            else {
+                // Initialize with default values if no complexity data exists
+                ticket.complexity_metadata = {
+                    ticket_id: ticket.id,
+                    files_touched: 0,
+                    modules_crossed: 0,
+                    stack_layers_involved: 0,
+                    dependencies: 0,
+                    shared_state_touches: 0,
+                    cascade_impact_zones: 0,
+                    subjectivity_rating: 0,
+                    loc_added: 0,
+                    loc_modified: 0,
+                    test_cases_written: 0,
+                    edge_cases: 0,
+                    mocking_complexity: 0,
+                    coordination_touchpoints: 0,
+                    review_rounds: 0,
+                    blockers_encountered: 0,
+                    cie_score: 0
+                };
             }
         }
         return tickets;
@@ -55,7 +106,51 @@ class TicketQueries {
         ticket.comments = commentsStmt.all(id);
         // Get complexity metadata
         const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
-        ticket.complexity_metadata = complexityStmt.get(id);
+        const complexityData = complexityStmt.get(id);
+        // Ensure all complexity fields are properly initialized
+        if (complexityData) {
+            ticket.complexity_metadata = {
+                ticket_id: id,
+                files_touched: complexityData.files_touched || 0,
+                modules_crossed: complexityData.modules_crossed || 0,
+                stack_layers_involved: complexityData.stack_layers_involved || 0,
+                dependencies: complexityData.dependencies || 0,
+                shared_state_touches: complexityData.shared_state_touches || 0,
+                cascade_impact_zones: complexityData.cascade_impact_zones || 0,
+                subjectivity_rating: complexityData.subjectivity_rating || 0,
+                loc_added: complexityData.loc_added || 0,
+                loc_modified: complexityData.loc_modified || 0,
+                test_cases_written: complexityData.test_cases_written || 0,
+                edge_cases: complexityData.edge_cases || 0,
+                mocking_complexity: complexityData.mocking_complexity || 0,
+                coordination_touchpoints: complexityData.coordination_touchpoints || 0,
+                review_rounds: complexityData.review_rounds || 0,
+                blockers_encountered: complexityData.blockers_encountered || 0,
+                cie_score: complexityData.cie_score || 0
+            };
+        }
+        else {
+            // Initialize with default values if no complexity data exists
+            ticket.complexity_metadata = {
+                ticket_id: id,
+                files_touched: 0,
+                modules_crossed: 0,
+                stack_layers_involved: 0,
+                dependencies: 0,
+                shared_state_touches: 0,
+                cascade_impact_zones: 0,
+                subjectivity_rating: 0,
+                loc_added: 0,
+                loc_modified: 0,
+                test_cases_written: 0,
+                edge_cases: 0,
+                mocking_complexity: 0,
+                coordination_touchpoints: 0,
+                review_rounds: 0,
+                blockers_encountered: 0,
+                cie_score: 0
+            };
+        }
         return ticket;
     }
     // Create a new ticket
@@ -72,6 +167,26 @@ class TicketQueries {
             ticketStmt.run(ticketId, ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, now);
             // Insert complexity if provided
             if (ticket.complexity_metadata) {
+                // Extract complexity metrics
+                const complexityMetrics = {
+                    files_touched: ticket.complexity_metadata.files_touched || 0,
+                    modules_crossed: ticket.complexity_metadata.modules_crossed || 0,
+                    stack_layers_involved: ticket.complexity_metadata.stack_layers_involved || 0,
+                    dependencies: ticket.complexity_metadata.dependencies || 0,
+                    shared_state_touches: ticket.complexity_metadata.shared_state_touches || 0,
+                    cascade_impact_zones: ticket.complexity_metadata.cascade_impact_zones || 0,
+                    subjectivity_rating: ticket.complexity_metadata.subjectivity_rating || 0,
+                    loc_added: ticket.complexity_metadata.loc_added || 0,
+                    loc_modified: ticket.complexity_metadata.loc_modified || 0,
+                    test_cases_written: ticket.complexity_metadata.test_cases_written || 0,
+                    edge_cases: ticket.complexity_metadata.edge_cases || 0,
+                    mocking_complexity: ticket.complexity_metadata.mocking_complexity || 0,
+                    coordination_touchpoints: ticket.complexity_metadata.coordination_touchpoints || 0,
+                    review_rounds: ticket.complexity_metadata.review_rounds || 0,
+                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0
+                };
+                // Calculate the CIE score on the server side
+                const cieScore = (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
                 const complexityStmt = this.db.prepare(`
           INSERT INTO complexity (
             ticket_id, files_touched, modules_crossed, stack_layers_involved,
@@ -89,7 +204,8 @@ class TicketQueries {
             ?
           )
         `);
-                complexityStmt.run(ticketId, ticket.complexity_metadata.files_touched || 0, ticket.complexity_metadata.modules_crossed || 0, ticket.complexity_metadata.stack_layers_involved || 0, ticket.complexity_metadata.dependencies || 0, ticket.complexity_metadata.shared_state_touches || 0, ticket.complexity_metadata.cascade_impact_zones || 0, ticket.complexity_metadata.subjectivity_rating || 0, ticket.complexity_metadata.loc_added || 0, ticket.complexity_metadata.loc_modified || 0, ticket.complexity_metadata.test_cases_written || 0, ticket.complexity_metadata.edge_cases || 0, ticket.complexity_metadata.mocking_complexity || 0, ticket.complexity_metadata.coordination_touchpoints || 0, ticket.complexity_metadata.review_rounds || 0, ticket.complexity_metadata.blockers_encountered || 0, ticket.complexity_metadata.cie_score || 0);
+                complexityStmt.run(ticketId, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore // Use the server-calculated score
+                );
             }
             // Insert comments if provided
             if (ticket.comments && ticket.comments.length > 0) {
@@ -131,6 +247,26 @@ class TicketQueries {
                 return false;
             // Update complexity if provided
             if (ticket.complexity_metadata) {
+                // Extract complexity metrics
+                const complexityMetrics = {
+                    files_touched: ticket.complexity_metadata.files_touched || 0,
+                    modules_crossed: ticket.complexity_metadata.modules_crossed || 0,
+                    stack_layers_involved: ticket.complexity_metadata.stack_layers_involved || 0,
+                    dependencies: ticket.complexity_metadata.dependencies || 0,
+                    shared_state_touches: ticket.complexity_metadata.shared_state_touches || 0,
+                    cascade_impact_zones: ticket.complexity_metadata.cascade_impact_zones || 0,
+                    subjectivity_rating: ticket.complexity_metadata.subjectivity_rating || 0,
+                    loc_added: ticket.complexity_metadata.loc_added || 0,
+                    loc_modified: ticket.complexity_metadata.loc_modified || 0,
+                    test_cases_written: ticket.complexity_metadata.test_cases_written || 0,
+                    edge_cases: ticket.complexity_metadata.edge_cases || 0,
+                    mocking_complexity: ticket.complexity_metadata.mocking_complexity || 0,
+                    coordination_touchpoints: ticket.complexity_metadata.coordination_touchpoints || 0,
+                    review_rounds: ticket.complexity_metadata.review_rounds || 0,
+                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0
+                };
+                // Calculate the CIE score on the server side
+                const cieScore = (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
                 const complexityStmt = this.db.prepare(`
           INSERT OR REPLACE INTO complexity (
             ticket_id, files_touched, modules_crossed, stack_layers_involved,
@@ -148,7 +284,8 @@ class TicketQueries {
             ?
           )
         `);
-                complexityStmt.run(ticket.id, ticket.complexity_metadata.files_touched || 0, ticket.complexity_metadata.modules_crossed || 0, ticket.complexity_metadata.stack_layers_involved || 0, ticket.complexity_metadata.dependencies || 0, ticket.complexity_metadata.shared_state_touches || 0, ticket.complexity_metadata.cascade_impact_zones || 0, ticket.complexity_metadata.subjectivity_rating || 0, ticket.complexity_metadata.loc_added || 0, ticket.complexity_metadata.loc_modified || 0, ticket.complexity_metadata.test_cases_written || 0, ticket.complexity_metadata.edge_cases || 0, ticket.complexity_metadata.mocking_complexity || 0, ticket.complexity_metadata.coordination_touchpoints || 0, ticket.complexity_metadata.review_rounds || 0, ticket.complexity_metadata.blockers_encountered || 0, ticket.complexity_metadata.cie_score || 0);
+                complexityStmt.run(ticket.id, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore // Use the server-calculated score
+                );
             }
             return true;
         });
@@ -202,7 +339,51 @@ class TicketQueries {
         // Organize tickets by column
         for (const ticket of tickets) {
             // Add complexity metadata
-            ticket.complexity_metadata = complexityStmt.get(ticket.id);
+            const complexityData = complexityStmt.get(ticket.id);
+            // Ensure all complexity fields are properly initialized
+            if (complexityData) {
+                ticket.complexity_metadata = {
+                    ticket_id: ticket.id,
+                    files_touched: complexityData.files_touched || 0,
+                    modules_crossed: complexityData.modules_crossed || 0,
+                    stack_layers_involved: complexityData.stack_layers_involved || 0,
+                    dependencies: complexityData.dependencies || 0,
+                    shared_state_touches: complexityData.shared_state_touches || 0,
+                    cascade_impact_zones: complexityData.cascade_impact_zones || 0,
+                    subjectivity_rating: complexityData.subjectivity_rating || 0,
+                    loc_added: complexityData.loc_added || 0,
+                    loc_modified: complexityData.loc_modified || 0,
+                    test_cases_written: complexityData.test_cases_written || 0,
+                    edge_cases: complexityData.edge_cases || 0,
+                    mocking_complexity: complexityData.mocking_complexity || 0,
+                    coordination_touchpoints: complexityData.coordination_touchpoints || 0,
+                    review_rounds: complexityData.review_rounds || 0,
+                    blockers_encountered: complexityData.blockers_encountered || 0,
+                    cie_score: complexityData.cie_score || 0
+                };
+            }
+            else {
+                // Initialize with default values if no complexity data exists
+                ticket.complexity_metadata = {
+                    ticket_id: ticket.id,
+                    files_touched: 0,
+                    modules_crossed: 0,
+                    stack_layers_involved: 0,
+                    dependencies: 0,
+                    shared_state_touches: 0,
+                    cascade_impact_zones: 0,
+                    subjectivity_rating: 0,
+                    loc_added: 0,
+                    loc_modified: 0,
+                    test_cases_written: 0,
+                    edge_cases: 0,
+                    mocking_complexity: 0,
+                    coordination_touchpoints: 0,
+                    review_rounds: 0,
+                    blockers_encountered: 0,
+                    cie_score: 0
+                };
+            }
             // Add comments
             ticket.comments = commentsStmt.all(ticket.id);
             // Add to appropriate column

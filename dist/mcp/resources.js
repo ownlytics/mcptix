@@ -2,7 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupResourceHandlers = setupResourceHandlers;
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
+const debug_logger_1 = require("./debug-logger");
 function setupResourceHandlers(server, ticketQueries) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    logger.log('Setting up MCP resource handlers');
     // Handler for resources/list
     server.setRequestHandler(types_js_1.ListResourcesRequestSchema, async () => {
         return {
@@ -35,9 +38,11 @@ function setupResourceHandlers(server, ticketQueries) {
     // Handler for resources/read
     server.setRequestHandler(types_js_1.ReadResourceRequestSchema, async (request) => {
         const { uri } = request.params;
+        logger.log(`Resource read request for URI: ${uri}`);
         try {
             // Parse the URI manually since URL class expects double slashes after protocol
             console.error(`Original URI: ${uri}`);
+            logger.log(`Parsing resource URI: ${uri}`);
             // Check if it's a tickets resource
             if (!uri.startsWith('tickets://')) {
                 throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Unknown resource protocol: ${uri.split(':')[0]}`);
@@ -45,6 +50,7 @@ function setupResourceHandlers(server, ticketQueries) {
             // Extract the path part (everything after tickets://)
             const path = uri.substring('tickets://'.length);
             console.error(`Path: ${path}`);
+            logger.log(`Resource path: ${path}`);
             // Handle different resource types
             let resourceContent;
             if (path === 'all') {
@@ -83,15 +89,19 @@ function setupResourceHandlers(server, ticketQueries) {
         }
         catch (error) {
             if (error instanceof types_js_1.McpError) {
+                logger.log(`MCP Error: ${error.message}`);
                 throw error;
             }
             const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.log(`Resource error: ${errorMessage}`);
             throw new types_js_1.McpError(types_js_1.ErrorCode.InternalError, `Error accessing resource: ${errorMessage}`);
         }
     });
 }
 // Handler for tickets://all
 async function handleAllTickets(ticketQueries, uri) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    logger.log(`Handling all tickets resource: ${uri}`);
     // Use default values for pagination and sorting
     const limit = 100;
     const offset = 0;
@@ -99,6 +109,11 @@ async function handleAllTickets(ticketQueries, uri) {
     const order = 'desc';
     // Get tickets with default parameters
     const tickets = ticketQueries.getTickets({}, sort, order, limit, offset);
+    // Log for debugging
+    console.log(`[MCP Resources] handleAllTickets: Found ${tickets.length} tickets`);
+    console.log('[MCP Resources] Database path:', process.cwd() + '/.epic-tracker/data/epic-tracker.db');
+    logger.log(`Found ${tickets.length} tickets`);
+    logger.log(`Database path: ${ticketQueries['db'].name}`);
     // Return tickets with metadata
     return {
         metadata: {
@@ -114,6 +129,8 @@ async function handleAllTickets(ticketQueries, uri) {
 }
 // Handler for tickets://status/[status]
 async function handleTicketsByStatus(ticketQueries, status, uri) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    logger.log(`Handling tickets by status: ${status}`);
     // Use default values for pagination and sorting
     const limit = 100;
     const offset = 0;
@@ -121,6 +138,7 @@ async function handleTicketsByStatus(ticketQueries, status, uri) {
     const order = 'desc';
     // Get tickets filtered by status
     const tickets = ticketQueries.getTickets({ status }, sort, order, limit, offset);
+    logger.log(`Found ${tickets.length} tickets with status: ${status}`);
     // Return tickets with metadata
     return {
         metadata: {
@@ -137,12 +155,16 @@ async function handleTicketsByStatus(ticketQueries, status, uri) {
 }
 // Handler for tickets://id/[id]
 async function handleTicketById(ticketQueries, id) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    logger.log(`Handling ticket by ID: ${id}`);
     // Get ticket by ID
     const ticket = ticketQueries.getTicketById(id);
     // Check if ticket exists
     if (!ticket) {
+        logger.log(`Ticket not found: ${id}`);
         throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Ticket with ID ${id} not found`);
     }
+    logger.log(`Found ticket: ${id}`);
     // Return ticket
     return {
         metadata: {

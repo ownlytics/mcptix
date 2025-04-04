@@ -6,3 +6,4 @@ import { TicketQueries } from '../db/queries';
  * @param ticketQueries The TicketQueries instance
  */
 export declare function setupRoutes(app: express.Application, ticketQueries: TicketQueries): void;
+//# sourceMappingURL=routes.d.ts.map

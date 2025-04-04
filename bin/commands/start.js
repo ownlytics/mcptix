@@ -17,7 +17,7 @@ async function start(options) {
 
   try {
     // Check if Epic Tracker is initialized
-    const configPath = path.resolve('./.epic-tracker/epic-tracker.config.js');
+    const configPath = path.join(process.cwd(), '.epic-tracker', 'epic-tracker.config.js');
     if (!fs.existsSync(configPath)) {
       console.error('Epic Tracker is not initialized in this project.');
       console.error('Run `npx epic-tracker init` to initialize Epic Tracker.');
@@ -26,6 +26,22 @@ async function start(options) {
 
     // Load configuration
     const config = loadConfig();
+    
+    console.log('[Start Command] Loaded configuration:', JSON.stringify(config, null, 2));
+    console.log('[Start Command] Current working directory:', process.cwd());
+    
+    // Check for db-config.json
+    const dbConfigPath = path.join(process.cwd(), '.epic-tracker', 'db-config.json');
+    if (fs.existsSync(dbConfigPath)) {
+      try {
+        const dbConfig = JSON.parse(fs.readFileSync(dbConfigPath, 'utf8'));
+        console.log('[Start Command] Found db-config.json with path:', dbConfig.dbPath);
+      } catch (error) {
+        console.warn('[Start Command] Error reading db-config.json:', error.message);
+      }
+    } else {
+      console.log('[Start Command] No db-config.json found');
+    }
     
     // Override config with command line options
     if (options.port) {

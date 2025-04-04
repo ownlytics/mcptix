@@ -11,7 +11,29 @@ export function ensureDataDirectory(dbPath: string): string {
   // Extract the directory from the database path
   const dbDir = path.dirname(dbPath);
   
-  // Create the directory if it doesn't exist
+  // Handle problematic paths
+  if (dbDir === '.' || dbDir === './data' || dbDir === '/.epic-tracker/data') {
+    // Get the current working directory, ensuring it's not '/'
+    let cwd = process.cwd();
+    if (cwd === '/') {
+      // If cwd is root, use the home directory instead
+      cwd = process.env.HOME || process.env.USERPROFILE || '/tmp';
+    }
+    
+    // Use an absolute path based on the safe cwd
+    const absoluteDir = path.join(cwd, '.epic-tracker', 'data');
+    
+    console.log(`Using safe data directory: ${absoluteDir}`);
+    
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(absoluteDir)) {
+      fs.mkdirSync(absoluteDir, { recursive: true });
+    }
+    
+    return absoluteDir;
+  }
+  
+  // Normal case - create the directory if it doesn't exist
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
@@ -24,8 +46,10 @@ export function ensureDataDirectory(dbPath: string): string {
  * @returns The default database path
  */
 export function getDefaultDbPath(): string {
-  const projectRoot = path.resolve(__dirname, '..', '..');
-  const dataDir = path.join(projectRoot, 'data');
+  // Use process.cwd() to get the current working directory (user's project)
+  // instead of __dirname which points to the package's directory
+  const projectRoot = process.cwd();
+  const dataDir = path.join(projectRoot, '.epic-tracker', 'data');
   return path.join(dataDir, 'epic-tracker.db');
 }
 
@@ -40,18 +64,30 @@ export const DB_PATH = getDefaultDbPath();
  */
 export function initializeDatabase(dbPath: string = DB_PATH, clearData: boolean = false): Database.Database {
   try {
+    console.log(`[initializeDatabase] Called with dbPath: ${dbPath}`);
+    console.log(`[initializeDatabase] Current working directory: ${process.cwd()}`);
+    console.log(`[initializeDatabase] Default DB_PATH: ${DB_PATH}`);
+    
     // Ensure the data directory exists
     const dataDir = ensureDataDirectory(dbPath);
     console.log(`Database directory: ${dataDir}`);
     
+    // Make sure we're using an absolute path for the database file
+    let absoluteDbPath = dbPath;
+    if (!path.isAbsolute(dbPath)) {
+      // If the path is not absolute, make it absolute
+      absoluteDbPath = path.join(dataDir, path.basename(dbPath));
+      console.log(`Using absolute database path: ${absoluteDbPath}`);
+    }
+    
     // If clearData is true and the database file exists, delete it
-    if (clearData && fs.existsSync(dbPath)) {
-      console.log(`Clearing existing database at ${dbPath}`);
-      fs.unlinkSync(dbPath);
+    if (clearData && fs.existsSync(absoluteDbPath)) {
+      console.log(`Clearing existing database at ${absoluteDbPath}`);
+      fs.unlinkSync(absoluteDbPath);
     }
     
     // Create or open the database
-    const db = new Database(dbPath);
+    const db = new Database(absoluteDbPath);
     
     // Enable foreign keys
     db.pragma('foreign_keys = ON');

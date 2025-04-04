@@ -6,9 +6,13 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 import { TicketQueries } from '../db/queries';
+import { DebugLogger } from './debug-logger';
 import { Ticket, Comment, ComplexityMetadata } from '../types';
 
 export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) {
+  const logger = DebugLogger.getInstance();
+  logger.log('Setting up MCP tool handlers');
+  
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
@@ -288,12 +292,14 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
       },
     ],
   }));
-
-  // Handle tool calls
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
+// Handle tool calls
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+  logger.log(`Tool call received: ${name}`);
+  logger.log(`Tool arguments: ${JSON.stringify(args)}`);
 
     try {
+      logger.log(`Processing tool call: ${name}`);
       switch (name) {
         case 'list_tickets':
           return handleListTickets(ticketQueries, args);
@@ -319,6 +325,7 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.log(`Tool call error: ${errorMessage}`);
       return {
         content: [
           {
@@ -334,11 +341,18 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
 
 // Handler for list_tickets tool
 function handleListTickets(ticketQueries: TicketQueries, args: any) {
+  const logger = DebugLogger.getInstance();
+  console.log('[MCP Tools] handleListTickets called with args:', JSON.stringify(args));
+  logger.log(`handleListTickets called with args: ${JSON.stringify(args)}`);
+  
   const filters = {
     status: args.status,
     priority: args.priority,
     search: args.search,
   };
+  
+  console.log('[MCP Tools] Using filters:', JSON.stringify(filters));
+  logger.log(`Using filters: ${JSON.stringify(filters)}`);
   
   const tickets = ticketQueries.getTickets(
     filters,
@@ -348,6 +362,7 @@ function handleListTickets(ticketQueries: TicketQueries, args: any) {
     args.offset || 0
   );
   
+  logger.log(`Found ${tickets.length} tickets`);
   return {
     content: [
       {

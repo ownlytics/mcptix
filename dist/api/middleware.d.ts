@@ -17,3 +17,4 @@ export declare function requestLogger(req: Request, res: Response, next: NextFun
  * @returns Middleware function
  */
 export declare function validateRequest(validator: (req: Request) => string | null): RequestHandler;
+//# sourceMappingURL=middleware.d.ts.map

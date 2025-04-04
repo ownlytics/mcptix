@@ -52,3 +52,4 @@ export interface ExportedData {
         tickets: Ticket[];
     }[];
 }
+//# sourceMappingURL=index.d.ts.map

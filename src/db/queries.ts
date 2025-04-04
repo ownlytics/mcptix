@@ -3,7 +3,9 @@ import { Ticket, Comment, ComplexityMetadata, TicketFilter, ExportedData } from 
 import { calculateComplexityScore } from '../utils/complexityCalculator';
 
 export class TicketQueries {
-  constructor(private db: Database.Database) {}
+  constructor(private db: Database.Database) {
+    console.log(`[TicketQueries] Initialized with database at: ${this.db.name}`);
+  }
 
   // Get all tickets with optional filtering
   getTickets(
@@ -13,6 +15,9 @@ export class TicketQueries {
     limit: number = 100, 
     offset: number = 0
   ): Ticket[] {
+    console.log(`[TicketQueries] getTickets called with filters:`, JSON.stringify(filters));
+    console.log(`[TicketQueries] Database file:`, this.db.name);
+    
     // Build WHERE clause from filters
     const whereConditions = [];
     const params: any = {};
@@ -41,10 +46,17 @@ export class TicketQueries {
       ORDER BY ${sort} ${order}
       LIMIT :limit OFFSET :offset
     `;
-    
     // Execute query
     const stmt = this.db.prepare(query);
+    console.log(`[TicketQueries] Executing SQL query: ${query}`);
+    console.log(`[TicketQueries] With params:`, JSON.stringify({...params, limit, offset}));
+    
     const tickets = stmt.all({...params, limit, offset}) as Ticket[];
+    console.log(`[TicketQueries] Found ${tickets.length} tickets`);
+    if (tickets.length > 0) {
+      console.log(`[TicketQueries] First ticket:`, JSON.stringify(tickets[0]));
+    }
+    
     
     // For each ticket, get its full complexity metadata
     for (const ticket of tickets) {

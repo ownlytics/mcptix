@@ -11,3 +11,4 @@ export declare class TicketQueries {
     addComment(ticketId: string, comment: Comment): string;
     exportToJson(): ExportedData;
 }
+//# sourceMappingURL=queries.d.ts.map

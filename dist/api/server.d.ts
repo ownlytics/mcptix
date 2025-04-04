@@ -27,10 +27,21 @@ export declare class ApiServer {
      * @param port The port to listen on (default: 3000)
      * @returns A promise that resolves when the server is started
      */
-    start(port?: number): Promise<void>;
+    /**
+     * Start the API server
+     * @param port The port to listen on (default: 3000)
+     * @param host The host to listen on (default: 'localhost')
+     * @returns A promise that resolves when the server is started
+     */
+    start(port?: number, host?: string): Promise<void>;
+    /**
+     * Stop the API server
+     * @returns A promise that resolves when the server is stopped
+     */
     /**
      * Stop the API server
      * @returns A promise that resolves when the server is stopped
      */
     stop(): Promise<void>;
 }
+//# sourceMappingURL=server.d.ts.map

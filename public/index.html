@@ -286,12 +286,68 @@
     </div>
   </div>
   
+  <!-- New Ticket Creator Sidebar -->
+  <div class="sidebar-overlay" id="ticket-creator-overlay">
+    <div class="sidebar" id="ticket-creator">
+      <!-- Header Section -->
+      <div class="sidebar-header">
+        <h2>Create New Ticket</h2>
+        <button type="button" class="close-btn" id="close-creator">&times;</button>
+      </div>
+
+      <!-- Scrollable Content Container -->
+      <div class="sidebar-content">
+        <!-- Main Details Section -->
+        <section class="sidebar-section details-section">
+          <div class="form-group">
+            <label for="new-ticket-title">Title</label>
+            <input type="text" id="new-ticket-title" name="title" class="form-control" placeholder="Enter ticket title" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="new-ticket-description">Description</label>
+            <textarea id="new-ticket-description" name="description" rows="10" class="form-control" placeholder="Enter ticket description"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="new-ticket-status">Status</label>
+              <select id="new-ticket-status" name="status" class="form-control">
+                <option value="backlog">Backlog</option>
+                <option value="up-next">Up Next</option>
+                <option value="in-progress">In Progress</option>
+                <option value="in-review">In Review</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div class="form-group half-width">
+              <label for="new-ticket-priority">Priority</label>
+              <select id="new-ticket-priority" name="priority" class="form-control">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="button" id="create-ticket" class="btn primary">Create</button>
+          <button type="button" id="cancel-create" class="btn secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Load JavaScript modules directly with type="module" -->
   <script type="module">
     // Import the modules
     import { Storage } from './js/storage.js';
     import { TicketRenderer } from './js/ticketRenderer.js';
     import { TicketEditor } from './js/ticketEditor.js';
+    import { TicketCreator } from './js/ticketCreator.js';
     import { Comments } from './js/comments.js';
     import { App } from './js/app.js';
     
@@ -310,6 +366,7 @@
       window.Storage = Storage;
       window.TicketRenderer = TicketRenderer;
       window.TicketEditor = TicketEditor;
+      window.TicketCreator = TicketCreator;
       window.Comments = Comments;
       window.App = App;
       

@@ -71,6 +71,9 @@ function setupRoutes(app, ticketQueries) {
                 };
             }
             const ticketId = ticketQueries.createTicket(ticket);
+            // Get the created ticket with the server-calculated CIE score
+            const createdTicket = ticketQueries.getTicketById(ticketId);
+            res.status(201).json(createdTicket || { id: ticketId, success: true });
             res.status(201).json({ id: ticketId, success: true });
         }
         catch (error) {
@@ -110,7 +113,9 @@ function setupRoutes(app, ticketQueries) {
             }
             // Update ticket
             const success = ticketQueries.updateTicket(ticket);
-            res.json({ id: req.params.id, success });
+            // Get the updated ticket with the server-calculated CIE score
+            const updatedTicket = ticketQueries.getTicketById(req.params.id);
+            res.json(updatedTicket || { id: req.params.id, success });
         }
         catch (error) {
             next(error);

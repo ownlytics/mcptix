@@ -23,3 +23,4 @@ export declare function validateCreateComment(req: Request): string | null;
  * @returns An error message or null if valid
  */
 export declare function validateSearch(req: Request): string | null;
+//# sourceMappingURL=validation.d.ts.map

@@ -11,3 +11,4 @@ export declare function createTestServer(ticketQueries: TicketQueries): {
     server: ApiServer;
     request: () => import("supertest/lib/agent")<request.SuperTestStatic.Test>;
 };
+//# sourceMappingURL=api-test-helper.d.ts.map

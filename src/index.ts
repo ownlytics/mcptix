@@ -4,7 +4,8 @@
  */
 
 import { EpicTrackerConfig, mergeConfig, validateConfig } from './config';
-import { initializeDatabase, closeDatabase, clearDatabase } from './db/schema';
+import { closeDatabase, clearDatabase } from './db/schema';
+import { DatabaseService } from './db/service';
 import { TicketQueries } from './db/queries';
 import { ApiServer } from './api/server';
 import { EpicTrackerMcpServer } from './mcp/server';
@@ -19,6 +20,7 @@ export * from './config';
  */
 export class EpicTracker {
   private config: EpicTrackerConfig;
+  private dbService: DatabaseService;
   private db: any;
   private ticketQueries: TicketQueries;
   private apiServer?: ApiServer;
@@ -33,8 +35,10 @@ export class EpicTracker {
     this.config = mergeConfig(userConfig);
     validateConfig(this.config);
     
-    // Initialize database
-    this.db = initializeDatabase(this.config.dbPath, this.config.clearDataOnInit);
+    // Initialize database using the singleton service
+    this.dbService = DatabaseService.getInstance();
+    this.db = this.dbService.initialize(this.config, this.config.clearDataOnInit);
+    console.log(`[EpicTracker] Database initialized at absolute path: ${this.db.name}`);
     this.ticketQueries = new TicketQueries(this.db);
     
     // Set up cleanup on process exit
@@ -87,10 +91,9 @@ export class EpicTracker {
         await this.apiServer.stop();
         this.apiServer = undefined;
       }
-      
       // Close database connection
       if (this.db) {
-        closeDatabase(this.db);
+        this.dbService.close();
         this.db = null;
       }
       
@@ -107,7 +110,9 @@ export class EpicTracker {
    */
   async clearData(): Promise<void> {
     try {
-      clearDatabase(this.db);
+      if (this.db) {
+        clearDatabase(this.db);
+      }
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);

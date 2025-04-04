@@ -31,12 +31,8 @@ class ApiServer {
         // Serve static files from the public directory
         const publicPath = path_1.default.join(__dirname, '../../public');
         this.app.use(express_1.default.static(publicPath));
-        // Serve index.html for all routes not handled by the API
-        this.app.get('*', (req, res, next) => {
-            // Skip if the request is for an API endpoint
-            if (req.path.startsWith('/api/')) {
-                return next();
-            }
+        // Serve index.html for the root route
+        this.app.get('/', (req, res) => {
             res.sendFile(path_1.default.join(publicPath, 'index.html'));
         });
         // Error handling
@@ -62,15 +58,22 @@ class ApiServer {
      * @param port The port to listen on (default: 3000)
      * @returns A promise that resolves when the server is started
      */
-    start(port = 3000) {
+    /**
+     * Start the API server
+     * @param port The port to listen on (default: 3000)
+     * @param host The host to listen on (default: 'localhost')
+     * @returns A promise that resolves when the server is started
+     */
+    start(port = 3000, host = 'localhost') {
         return new Promise((resolve, reject) => {
             try {
-                this.server = this.app.listen(port, () => {
-                    console.log(`API server running on port ${port}`);
+                this.server = this.app.listen(port, host, () => {
+                    console.log(`API server running at http://${host}:${port}`);
                     resolve();
                 });
             }
             catch (error) {
+                console.error(`Error starting API server: ${error instanceof Error ? error.message : String(error)}`);
                 reject(error);
             }
         });
@@ -79,18 +82,25 @@ class ApiServer {
      * Stop the API server
      * @returns A promise that resolves when the server is stopped
      */
+    /**
+     * Stop the API server
+     * @returns A promise that resolves when the server is stopped
+     */
     stop() {
         return new Promise((resolve, reject) => {
             if (!this.server) {
+                console.log('API server is not running');
                 resolve();
                 return;
             }
             this.server.close((err) => {
                 if (err) {
+                    console.error(`Error stopping API server: ${err.message}`);
                     reject(err);
                 }
                 else {
                     this.server = null;
+                    console.log('API server stopped');
                     resolve();
                 }
             });

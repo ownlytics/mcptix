@@ -2,7 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupToolHandlers = setupToolHandlers;
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
+const debug_logger_1 = require("./debug-logger");
 function setupToolHandlers(server, ticketQueries) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    logger.log('Setting up MCP tool handlers');
     // List available tools
     server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => ({
         tools: [
@@ -285,7 +288,10 @@ function setupToolHandlers(server, ticketQueries) {
     // Handle tool calls
     server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
+        logger.log(`Tool call received: ${name}`);
+        logger.log(`Tool arguments: ${JSON.stringify(args)}`);
         try {
+            logger.log(`Processing tool call: ${name}`);
             switch (name) {
                 case 'list_tickets':
                     return handleListTickets(ticketQueries, args);
@@ -309,6 +315,7 @@ function setupToolHandlers(server, ticketQueries) {
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.log(`Tool call error: ${errorMessage}`);
             return {
                 content: [
                     {
@@ -323,12 +330,18 @@ function setupToolHandlers(server, ticketQueries) {
 }
 // Handler for list_tickets tool
 function handleListTickets(ticketQueries, args) {
+    const logger = debug_logger_1.DebugLogger.getInstance();
+    console.log('[MCP Tools] handleListTickets called with args:', JSON.stringify(args));
+    logger.log(`handleListTickets called with args: ${JSON.stringify(args)}`);
     const filters = {
         status: args.status,
         priority: args.priority,
         search: args.search,
     };
+    console.log('[MCP Tools] Using filters:', JSON.stringify(filters));
+    logger.log(`Using filters: ${JSON.stringify(filters)}`);
     const tickets = ticketQueries.getTickets(filters, args.sort || 'updated', args.order || 'desc', args.limit || 100, args.offset || 0);
+    logger.log(`Found ${tickets.length} tickets`);
     return {
         content: [
             {

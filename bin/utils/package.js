@@ -10,12 +10,12 @@ const path = require('path');
  * Update the user's package.json file
  */
 function updatePackageJson() {
-  const packageJsonPath = path.resolve('./package.json');
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   
   // Check if package.json exists
   if (!fs.existsSync(packageJsonPath)) {
-    console.error('package.json not found. Are you in a Node.js project?');
-    process.exit(1);
+    console.warn('package.json not found. Skipping package.json update.');
+    return;
   }
   
   try {

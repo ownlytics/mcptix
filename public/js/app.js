@@ -6,14 +6,16 @@
 import { Storage } from './storage.js';
 import { TicketRenderer } from './ticketRenderer.js';
 import { TicketEditor } from './ticketEditor.js';
+import { TicketCreator } from './ticketCreator.js';
 
 /**
  * Initialize the application
  * @returns {Promise} A promise that resolves when the application is initialized
  */
 function initialize() {
-  // Initialize the ticket editor
+  // Initialize the ticket editor and creator
   TicketEditor.initialize();
+  TicketCreator.initialize();
   
   // Show loading state
   document.querySelectorAll('.ticket-container').forEach(container => {
@@ -34,11 +36,11 @@ function initialize() {
  * Set up event listeners
  */
 function setupEventListeners() {
-  // New ticket button
+  // New ticket button - use the new TicketCreator for new tickets
   const newTicketBtn = document.getElementById('new-ticket-btn');
   if (newTicketBtn) {
     newTicketBtn.addEventListener('click', () => {
-      TicketEditor.openEditor(null);
+      TicketCreator.openCreator();
     });
   }
   

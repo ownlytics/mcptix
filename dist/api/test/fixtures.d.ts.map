@@ -1,0 +1,1 @@
+{"version":3,"file":"fixtures.d.ts","sourceRoot":"","sources":["../../../src/api/test/fixtures.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,OAAO,EAAE,kBAAkB,EAAE,MAAM,aAAa,CAAC;AAGlE,eAAO,MAAM,aAAa,EAAE,MAAM,EA8CjC,CAAC;AAGF,eAAO,MAAM,cAAc,EAAE,OAAO,EA8CnC,CAAC;AAGF,eAAO,MAAM,uBAAuB,EAAE,kBAAkB,EAgGvD,CAAC;AAGF,wBAAgB,YAAY,CAAC,aAAa,EAAE,GAAG,GAAG,IAAI,CAcrD"}

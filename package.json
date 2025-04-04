@@ -26,7 +26,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:api": "jest src/api",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "epic-tracker": "epic-tracker start"
   },
   "keywords": [
     "epic-tracker",
