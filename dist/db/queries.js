@@ -185,8 +185,10 @@ class TicketQueries {
                     review_rounds: ticket.complexity_metadata.review_rounds || 0,
                     blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0,
                 };
-                // Calculate the CIE score on the server side
-                const cieScore = (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
+                // Use the provided CIE score if it exists, otherwise calculate it
+                const cieScore = ticket.complexity_metadata.cie_score !== undefined
+                    ? ticket.complexity_metadata.cie_score
+                    : (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
                 const complexityStmt = this.db.prepare(`
           INSERT INTO complexity (
             ticket_id, files_touched, modules_crossed, stack_layers_involved,
