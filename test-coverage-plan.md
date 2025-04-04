@@ -264,8 +264,9 @@ I propose implementing this test coverage improvement in phases:
 
 - ✅ Create tests for src/mcp/tools.ts
 - ✅ Create tests for src/mcp/debug-logger.ts
-- Create tests for src/mcp/index.ts
+- ✅ Create tests for src/mcp/index.ts
 - Create tests for src/mcp/resources.ts
+- Create tests for src/mcp/server.ts
 - Create tests for src/mcp/server.ts
 - Focus on mocking external dependencies
 
@@ -435,11 +436,16 @@ This comprehensive plan addresses all components of the mcptix package, with a f
 
 - ✅ Completed comprehensive test suite for src/mcp/tools.ts with 100% line coverage and 96.87% branch coverage
 - ✅ Completed comprehensive test suite for src/mcp/debug-logger.ts with 98.38% line coverage and 64.28% branch coverage
-- Overall MCP component coverage increased from 0% to 24.52%, and now to 16.71% for statements and 16.62% for lines
-  - Note: The overall percentage appears lower because we're now measuring against all files, including previously uncounted ones
+- ✅ Completed comprehensive test suite for src/mcp/index.ts with tests covering:
+  - Database path resolution strategy with different environment variables and file structures
+  - Database initialization and error handling
+  - MCP server creation and startup
+  - Signal handling (SIGINT, SIGTERM) for graceful shutdown
+  - Helper functions like findFileInParents
+- Overall MCP component coverage increased significantly with three of five MCP components now having comprehensive test coverage
 - Next focus areas:
-  - src/mcp/index.ts
   - src/mcp/resources.ts
   - src/mcp/server.ts
 
+The result will be a robust test suite that gives confidence in the reliability of the package as it moves toward release.
 The result will be a robust test suite that gives confidence in the reliability of the package as it moves toward release.
