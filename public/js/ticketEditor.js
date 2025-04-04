@@ -1,5 +1,5 @@
 /**
- * Ticket Editor module for the Epic Tracker
+ * Ticket Editor module for mcptix
  * Handles editing tickets in a modal dialog
  */
 
@@ -62,13 +62,13 @@ function initialize() {
   ticketUpdatedDisplay = document.getElementById('ticket-updated');
   saveStatusDisplay = document.getElementById('save-status');
   commentCountDisplay = document.getElementById('comment-count');
-  
+
   // Get toast notification element
   saveStatusToast = document.getElementById('save-status-toast');
-  
+
   // Set up event listeners
   setupEventListeners();
-  
+
   // Initialize the complexity engine
   ComplexityEngine.initialize();
 }
@@ -82,16 +82,19 @@ function queueComplexityUpdate() {
   if (complexityDebounceTimer) {
     clearTimeout(complexityDebounceTimer);
   }
-  
+
   // Update save status to "Calculating..."
   updateSaveStatus('Calculating...', true);
-  
+
   // Set a new timer with a longer delay for complexity updates
   complexityDebounceTimer = setTimeout(() => {
     saveTicket()
       .then(updatedTicket => {
         if (updatedTicket && updatedTicket.complexity_metadata) {
-          console.log('Complexity update complete. New score:', updatedTicket.complexity_metadata.cie_score);
+          console.log(
+            'Complexity update complete. New score:',
+            updatedTicket.complexity_metadata.cie_score,
+          );
           // Update the score display with the server-calculated score
           ComplexityEngine.updateScoreDisplay(updatedTicket.complexity_metadata.cie_score);
         } else {
@@ -112,27 +115,27 @@ function setupEventListeners() {
   if (closeButton) {
     closeButton.addEventListener('click', closeEditor);
   }
-  
+
   // Copy ticket ID button
   const copyTicketIdButton = document.getElementById('copy-ticket-id');
   if (copyTicketIdButton) {
     copyTicketIdButton.addEventListener('click', copyTicketIdToClipboard);
   }
-  
+
   // Delete button
   if (deleteButton) {
     deleteButton.addEventListener('click', handleDeleteClick);
   }
-  
+
   // Comment form submission
   if (commentForm) {
     commentForm.addEventListener('submit', handleCommentSubmit);
   }
-  
+
   // Toggle complexity section
   const toggleComplexity = document.getElementById('toggle-complexity');
   const complexityDetails = document.getElementById('complexity-details');
-  
+
   if (toggleComplexity && complexityDetails) {
     toggleComplexity.addEventListener('click', () => {
       complexityDetails.classList.toggle('collapsed');
@@ -140,11 +143,11 @@ function setupEventListeners() {
       icon.textContent = complexityDetails.classList.contains('collapsed') ? '▼' : '▲';
     });
   }
-  
+
   // Toggle comments section
   const toggleComments = document.getElementById('toggle-comments');
   const commentsDetails = document.getElementById('comments-details');
-  
+
   if (toggleComments && commentsDetails) {
     toggleComments.addEventListener('click', () => {
       commentsDetails.classList.toggle('collapsed');
@@ -152,40 +155,40 @@ function setupEventListeners() {
       icon.textContent = commentsDetails.classList.contains('collapsed') ? '▼' : '▲';
     });
   }
-  
+
   // Close sidebar when clicking outside
-  sidebarOverlay.addEventListener('click', (event) => {
+  sidebarOverlay.addEventListener('click', event => {
     if (event.target === sidebarOverlay) {
       closeEditor();
     }
   });
-  
+
   // Set up auto-save for form fields
   if (titleInput) {
     titleInput.addEventListener('input', queueAutoSave);
   }
-  
+
   if (descriptionInput) {
     descriptionInput.addEventListener('input', queueAutoSave);
   }
-  
+
   if (prioritySelect) {
     prioritySelect.addEventListener('change', queueAutoSave);
   }
-  
+
   if (statusSelect) {
     statusSelect.addEventListener('change', queueAutoSave);
   }
-  
+
   // Set up debounced auto-save for complexity fields
   const complexityInputs = document.querySelectorAll('.complexity-input');
   complexityInputs.forEach(input => {
     input.addEventListener('input', queueComplexityUpdate);
     input.addEventListener('change', queueComplexityUpdate);
   });
-  
+
   // Add keyboard shortcut for closing (Escape key)
-  document.addEventListener('keydown', (event) => {
+  document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && sidebarOverlay.style.display === 'block') {
       closeEditor();
     }
@@ -198,14 +201,14 @@ function setupEventListeners() {
  * @returns {Promise} A promise that resolves when the editor is opened
  */
 function openEditor(ticket) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     currentTicket = ticket;
-    
+
     // Reset auto-save state
     clearTimeout(autoSaveTimer);
     isSaving = false;
     updateSaveStatus('Saved');
-    
+
     if (ticket) {
       // Editing an existing ticket
       // Title is now in the header
@@ -213,29 +216,28 @@ function openEditor(ticket) {
       descriptionInput.value = ticket.description || '';
       prioritySelect.value = ticket.priority || 'medium';
       statusSelect.value = ticket.status || 'backlog';
-      
+
       // Update ticket metadata displays
       ticketIdDisplay.textContent = ticket.id || 'New Ticket';
       ticketCreatedDisplay.textContent = `Created: ${formatDate(ticket.created)}`;
       ticketUpdatedDisplay.textContent = `Updated: ${formatDate(ticket.updated)}`;
-      
+
       // Load complexity metadata if available
       console.log('Ticket complexity metadata:', ticket.complexity_metadata);
       ComplexityEngine.loadComplexityData(ticket.complexity_metadata || {});
-      
+
       // Update the score display with the server-calculated score
       if (ticket.complexity_metadata && ticket.complexity_metadata.cie_score !== undefined) {
         ComplexityEngine.updateScoreDisplay(ticket.complexity_metadata.cie_score);
       }
-      
+
       // Load comments
-      Comments.loadComments(commentsContainer, ticket)
-        .then(() => {
-          // Update comment count
-          const commentCount = ticket.comments ? ticket.comments.length : 0;
-          commentCountDisplay.textContent = `(${commentCount})`;
-        });
-      
+      Comments.loadComments(commentsContainer, ticket).then(() => {
+        // Update comment count
+        const commentCount = ticket.comments ? ticket.comments.length : 0;
+        commentCountDisplay.textContent = `(${commentCount})`;
+      });
+
       // Show delete button
       deleteButton.style.display = 'block';
     } else {
@@ -245,30 +247,30 @@ function openEditor(ticket) {
       descriptionInput.value = '';
       prioritySelect.value = 'medium';
       statusSelect.value = 'backlog';
-      
+
       // Update ticket metadata displays
       ticketIdDisplay.textContent = 'New Ticket';
       ticketCreatedDisplay.textContent = 'Created: Just now';
       ticketUpdatedDisplay.textContent = '';
       commentCountDisplay.textContent = '(0)';
-      
+
       // Reset complexity metadata
       ComplexityEngine.resetComplexityData();
-      
+
       // Clear comments
       Comments.clearComments(commentsContainer);
-      
+
       // Hide delete button
       deleteButton.style.display = 'none';
     }
-    
+
     // Show the sidebar
     sidebarOverlay.style.display = 'block';
-    
+
     // Trigger animation in the next frame
     requestAnimationFrame(() => {
       sidebarOverlay.classList.add('active');
-      
+
       // Focus on the title input after animation
       setTimeout(() => {
         titleInput.focus();
@@ -285,7 +287,7 @@ function openEditor(ticket) {
  */
 function formatDate(dateString) {
   if (!dateString) return '';
-  
+
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now - date;
@@ -293,7 +295,7 @@ function formatDate(dateString) {
   const diffMin = Math.floor(diffSec / 60);
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
-  
+
   if (diffDay > 30) {
     return date.toLocaleDateString();
   } else if (diffDay > 0) {
@@ -316,10 +318,10 @@ function closeEditor() {
     clearTimeout(autoSaveTimer);
     saveTicket();
   }
-  
+
   // Hide the sidebar with animation
   sidebarOverlay.classList.remove('active');
-  
+
   // After animation completes, hide the overlay
   setTimeout(() => {
     sidebarOverlay.style.display = 'none';
@@ -334,10 +336,10 @@ function queueAutoSave() {
   if (autoSaveTimer) {
     clearTimeout(autoSaveTimer);
   }
-  
+
   // Update save status to "Saving..."
   updateSaveStatus('Saving...', true);
-  
+
   // Set a new timer
   autoSaveTimer = setTimeout(() => {
     saveTicket();
@@ -358,7 +360,7 @@ function updateSaveStatus(status, saving = false) {
       saveStatusDisplay.classList.remove('saving');
     }
   }
-  
+
   // Show toast notification
   if (saveStatusToast) {
     // Clear any existing hide timer
@@ -366,11 +368,11 @@ function updateSaveStatus(status, saving = false) {
       clearTimeout(saveStatusToast.hideTimer);
       saveStatusToast.hideTimer = null;
     }
-    
+
     // Update toast content and show it
     saveStatusToast.classList.add('show');
     saveStatusToast.classList.remove('hide');
-    
+
     // Set a timer to hide the toast after 2 seconds
     saveStatusToast.hideTimer = setTimeout(() => {
       saveStatusToast.classList.remove('show');
@@ -379,17 +381,16 @@ function updateSaveStatus(status, saving = false) {
   }
 }
 
-
 /**
  * Copy the ticket ID to clipboard
  */
 function copyTicketIdToClipboard() {
   const ticketId = document.getElementById('ticket-id').textContent;
-  
+
   if (!ticketId || ticketId === 'New Ticket') {
     return;
   }
-  
+
   // Create a temporary textarea element to copy from
   const textarea = document.createElement('textarea');
   textarea.value = ticketId;
@@ -397,18 +398,18 @@ function copyTicketIdToClipboard() {
   textarea.style.position = 'absolute';
   textarea.style.left = '-9999px';
   document.body.appendChild(textarea);
-  
+
   // Select and copy the text
   textarea.select();
   document.execCommand('copy');
-  
+
   // Remove the temporary element
   document.body.removeChild(textarea);
-  
+
   // Visual feedback
   const copyButton = document.getElementById('copy-ticket-id');
   copyButton.classList.add('copied');
-  
+
   // Reset after a short delay
   setTimeout(() => {
     copyButton.classList.remove('copied');
@@ -424,26 +425,26 @@ function saveTicket() {
   if (isSaving) {
     return Promise.resolve();
   }
-  
+
   // Set saving flag
   isSaving = true;
-  
+
   // Get form values
   const title = titleInput.value.trim();
   const description = descriptionInput.value.trim();
   const priority = prioritySelect.value;
   const status = statusSelect.value;
-  
+
   // Validate form
   if (!title) {
     updateSaveStatus('Error: Title required', false);
     isSaving = false;
     return Promise.resolve();
   }
-  
+
   // Get complexity metadata
   const complexityMetadata = ComplexityEngine.getComplexityData();
-  
+
   // Create or update ticket
   if (currentTicket) {
     // Update existing ticket
@@ -454,9 +455,9 @@ function saveTicket() {
       priority,
       status,
       updated: new Date().toISOString(),
-      complexity_metadata: complexityMetadata
+      complexity_metadata: complexityMetadata,
     };
-    
+
     // Queue the update
     Storage.queueChange('update', updatedTicket);
   } else {
@@ -470,21 +471,21 @@ function saveTicket() {
       created: new Date().toISOString(),
       updated: new Date().toISOString(),
       complexity_metadata: complexityMetadata,
-      comments: []
+      comments: [],
     };
-    
+
     // Queue the addition
     Storage.queueChange('add', newTicket);
-    
+
     // Update current ticket
     currentTicket = newTicket;
-    
+
     // Update ticket ID display
     if (ticketIdDisplay) {
       ticketIdDisplay.textContent = newTicket.id;
     }
   }
-  
+
   // Apply changes and render tickets
   return Storage.applyChanges()
     .then(() => {
@@ -499,28 +500,31 @@ function saveTicket() {
         .then(updatedTicket => {
           // Update the current ticket with the server data
           currentTicket = updatedTicket;
-          
+
           // Update the score display with the server-calculated score
           if (updatedTicket && updatedTicket.complexity_metadata) {
-            console.log('Updating score display with server value:', updatedTicket.complexity_metadata.cie_score);
+            console.log(
+              'Updating score display with server value:',
+              updatedTicket.complexity_metadata.cie_score,
+            );
             ComplexityEngine.updateScoreDisplay(updatedTicket.complexity_metadata.cie_score);
           }
-          
+
           return TicketRenderer.renderTickets();
         });
     })
     .then(() => {
       // Update save status
       updateSaveStatus('Saved', false);
-      
+
       // Update ticket updated timestamp
       if (ticketUpdatedDisplay) {
         ticketUpdatedDisplay.textContent = `Updated: Just now`;
       }
-      
+
       // Clear saving flag
       isSaving = false;
-      
+
       // Return the updated ticket for further processing
       return currentTicket;
     })
@@ -539,15 +543,15 @@ function handleDeleteClick() {
   if (!currentTicket) {
     return;
   }
-  
+
   // Confirm deletion
   if (!confirm('Are you sure you want to delete this ticket?')) {
     return;
   }
-  
+
   // Queue the deletion
   Storage.queueChange('delete', currentTicket);
-  
+
   // Apply changes and render tickets
   Storage.applyChanges()
     .then(() => TicketRenderer.renderTickets())
@@ -567,28 +571,28 @@ function handleDeleteClick() {
  */
 function handleCommentSubmit(event) {
   event.preventDefault();
-  
+
   if (!currentTicket) {
     return;
   }
-  
+
   // Get form values
   const content = commentContent.value.trim();
   const type = commentType.value;
-  
+
   // Validate form
   if (!content) {
     alert('Please enter a comment');
     commentContent.focus();
     return;
   }
-  
+
   // Add the comment
   Comments.addComment(currentTicket.id, content, type)
     .then(() => {
       // Clear the form
       commentContent.value = '';
-      
+
       // Reload comments
       return Comments.loadComments(commentsContainer, currentTicket);
     })
@@ -607,5 +611,5 @@ function handleCommentSubmit(event) {
 export const TicketEditor = {
   initialize,
   openEditor,
-  closeEditor
+  closeEditor,
 };

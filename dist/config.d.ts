@@ -3,7 +3,7 @@
  * Provides types and utilities for configuring the McpTix package
  */
 /**
- * Configuration interface for Epic Tracker
+ * Configuration interface for mcptix
  */
 export interface McpTixConfig {
     /**

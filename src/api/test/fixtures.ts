@@ -5,7 +5,7 @@ export const sampleTickets: Ticket[] = [
   {
     id: 'ticket-1',
     title: 'Implement API server',
-    description: 'Create a RESTful API server for the Epic Tracker',
+    description: 'Create a RESTful API server for mcptix',
     priority: 'high',
     status: 'in-progress',
     created: '2025-04-01T12:00:00Z',

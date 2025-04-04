@@ -4,7 +4,7 @@
  */
 
 /**
- * Configuration interface for Epic Tracker
+ * Configuration interface for mcptix
  */
 export interface McpTixConfig {
   /**

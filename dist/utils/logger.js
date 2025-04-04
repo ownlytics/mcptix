@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Epic Tracker Logger
+ * mcptix Logger
  * A centralized logging system with color-coded output
  */
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -22,7 +22,7 @@ var LogLevel;
     LogLevel["REQUEST"] = "request";
 })(LogLevel || (LogLevel = {}));
 /**
- * Centralized logger for Epic Tracker
+ * Centralized logger for mcptix
  * Provides consistent, color-coded logging across all components
  */
 class Logger {

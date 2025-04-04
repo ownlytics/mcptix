@@ -1,6 +1,6 @@
-# Contributing to Epic Tracker
+# Contributing to mcptix
 
-Thank you for your interest in contributing to Epic Tracker! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to mcptix! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -62,4 +62,4 @@ If you have an idea for a new feature, please create an issue on GitHub with the
 
 ## License
 
-By contributing to Epic Tracker, you agree that your contributions will be licensed under the project's MIT license.
+By contributing to mcptix, you agree that your contributions will be licensed under the project's MIT license.

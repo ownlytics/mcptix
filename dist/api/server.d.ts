@@ -1,7 +1,7 @@
 import express from 'express';
 import { TicketQueries } from '../db/queries';
 /**
- * API Server class for the Epic Tracker MCP
+ * API Server class for the mcptix MCP
  */
 export declare class ApiServer {
     private app;

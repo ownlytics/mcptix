@@ -1,5 +1,5 @@
 /**
- * Epic Tracker Logger
+ * mcptix Logger
  * A centralized logging system with color-coded output
  */
 
@@ -27,7 +27,7 @@ interface LoggerConfig {
 }
 
 /**
- * Centralized logger for Epic Tracker
+ * Centralized logger for mcptix
  * Provides consistent, color-coded logging across all components
  */
 export class Logger {

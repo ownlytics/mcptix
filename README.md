@@ -13,11 +13,11 @@ McpTix is a ticket tracking system that helps you manage tasks, bugs, and featur
 - 📋 **Track tickets** - Create, update, and manage tickets for your projects
 - 🧠 **Measure complexity** - Track how complex your tickets are with the Complexity Intelligence Engine
 - 💬 **Add comments** - Collaborate with comments on tickets
-- 🤖 **AI integration** - Connect your AI assistants to Epic Tracker
+- 🤖 **AI integration** - Connect your AI assistants to mcptix
 
 ## Super Easy Setup (For Everyone)
 
-### Step 1: Install Epic Tracker
+### Step 1: Install mcptix
 
 Open your terminal and run:
 
@@ -25,7 +25,7 @@ Open your terminal and run:
 npm install mcptix
 ```
 
-### Step 2: Initialize Epic Tracker in your project
+### Step 2: Initialize mcptix in your project
 
 ```bash
 npx mcptix init
@@ -37,14 +37,14 @@ This will:
 - Add configuration files
 - Set up the necessary configuration files
 
-### Step 3: Start Epic Tracker
+### Step 3: Start mcptix
 
 ```bash
 npx mcptix start
 ```
 
 That's it! McpTix will start and open in your browser automatically.
-That's it! Epic Tracker will start and open in your browser automatically.
+That's it! mcptix will start and open in your browser automatically.
 
 ## Using McpTix
 
@@ -85,7 +85,7 @@ When you open McpTix, you'll see a Kanban board with columns for different ticke
 
 McpTix includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by McpTix itself.
 
-### 1. Install Epic Tracker
+### 1. Install mcptix
 
 If you haven't already, install Epic Tracker:
 
@@ -93,7 +93,7 @@ If you haven't already, install Epic Tracker:
 npm install mcptix
 ```
 
-### 2. Initialize Epic Tracker in your project
+### 2. Initialize mcptix in your project
 
 ```bash
 npx mcptix init
@@ -101,7 +101,7 @@ npx mcptix init
 
 This will create a `.mcptix` directory in your project with all necessary configuration files, including an MCP server configuration file at `.mcptix/mcp-server-config.json`.
 
-### 3. Configure your AI assistant to use the Epic Tracker MCP server
+### 3. Configure your AI assistant to use the mcptix MCP server
 
 Copy the MCP server configuration file to your AI assistant's configuration directory:
 
@@ -140,16 +140,16 @@ The configuration file contains all the necessary information for your AI assist
 }
 ```
 
-### 4. Start the Epic Tracker UI
+### 4. Start the mcptix UI
 
 ```bash
 npx mcptix start
 ```
 
 This will start only the McpTix UI (API server). The MCP server will be started by your AI assistant when needed.
-This will start only the Epic Tracker UI (API server). The MCP server will be started by your AI assistant when needed.
+This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
 
-### 5. Use Epic Tracker with your AI assistant
+### 5. Use mcptix with your AI assistant
 
 Once configured, your AI assistant will be able to:
 
@@ -160,7 +160,7 @@ Once configured, your AI assistant will be able to:
 
 The MCP server provides these capabilities through tools and resources that your AI assistant can use.
 
-## Customizing Epic Tracker
+## Customizing mcptix
 
 You can customize McpTix by editing the `.mcptix/mcptix.config.js` file in your project:
 
@@ -195,13 +195,13 @@ module.exports = {
 
 ### McpTix won't start
 
-### Epic Tracker won't start
+### mcptix won't start
 
 If McpTix won't start, check:
 
 1. Is another application using port 3000? Change the port in the config file.
 2. Do you have permission to write to the data directory? Check file permissions.
-3. Is Node.js installed and up to date? Epic Tracker requires Node.js 14 or higher.
+3. Is Node.js installed and up to date? mcptix requires Node.js 14 or higher.
 
 ### Can't connect AI assistant
 
@@ -214,7 +214,7 @@ If your AI assistant can't connect to McpTix:
 
 ## Command Line Options
 
-Epic Tracker provides several command line options:
+mcptix provides several command line options:
 
 ```bash
 # Initialize McpTix in your project
@@ -258,7 +258,7 @@ This architecture ensures that:
 
 ## For Advanced Users
 
-If you're comfortable with code, you can also use Epic Tracker programmatically:
+If you're comfortable with code, you can also use mcptix programmatically:
 
 ```javascript
 const { createMcpTix } = require('mcptix');

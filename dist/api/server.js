@@ -12,7 +12,7 @@ const logger_1 = require("../utils/logger");
 const middleware_1 = require("./middleware");
 const routes_1 = require("./routes");
 /**
- * API Server class for the Epic Tracker MCP
+ * API Server class for the mcptix MCP
  */
 class ApiServer {
     /**

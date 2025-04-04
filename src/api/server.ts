@@ -12,7 +12,7 @@ import { errorHandler, notFoundHandler, requestLogger } from './middleware';
 import { setupRoutes } from './routes';
 
 /**
- * API Server class for the Epic Tracker MCP
+ * API Server class for the mcptix MCP
  */
 export class ApiServer {
   private app: express.Application;

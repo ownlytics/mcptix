@@ -1,4 +1,4 @@
-// Base types for the Epic Tracker
+// Base types for mcptix
 
 export interface Ticket {
   id: string;

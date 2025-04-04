@@ -1,5 +1,5 @@
 /**
- * Main application module for the Epic Tracker
+ * Main application module for mcptix
  * Initializes the application and handles the overall flow
  */
 
@@ -16,20 +16,19 @@ function initialize() {
   // Initialize the ticket editor and creator
   TicketEditor.initialize();
   TicketCreator.initialize();
-  
+
   // Show loading state
   document.querySelectorAll('.ticket-container').forEach(container => {
     container.innerHTML = '<div class="loading">Loading tickets...</div>';
   });
-  
+
   // Set up event listeners
   setupEventListeners();
-  
+
   // Render the initial tickets
-  return TicketRenderer.renderTickets()
-    .catch(error => {
-      console.error('Error initializing application:', error);
-    });
+  return TicketRenderer.renderTickets().catch(error => {
+    console.error('Error initializing application:', error);
+  });
 }
 
 /**
@@ -43,9 +42,9 @@ function setupEventListeners() {
       TicketCreator.openCreator();
     });
   }
-  
+
   // Listen for openTicketEditor events from the ticket renderer
-  document.addEventListener('openTicketEditor', (e) => {
+  document.addEventListener('openTicketEditor', e => {
     TicketEditor.openEditor(e.detail);
   });
 }
@@ -60,7 +59,7 @@ function loadInitialTickets() {
   document.querySelectorAll('.ticket-container').forEach(container => {
     container.innerHTML = '<div class="loading">Loading tickets...</div>';
   });
-  
+
   // Check if we already have tickets
   return Storage.loadTickets()
     .then(existingTickets => {
@@ -69,25 +68,24 @@ function loadInitialTickets() {
         console.log('Using existing tickets');
         return TicketRenderer.renderTickets();
       }
-      
+
       console.log('Loading initial tickets');
-      
+
       // Create empty board - no initial tickets
       // If you want to add example tickets, you can do so here
       const tickets = [];
-      
+
       // Add each ticket to the board if there are any
       tickets.forEach(ticket => {
         Storage.queueChange('add', ticket);
       });
-      
+
       // Apply changes and render tickets
-      return Storage.applyChanges()
-        .then(() => TicketRenderer.renderTickets());
+      return Storage.applyChanges().then(() => TicketRenderer.renderTickets());
     })
     .catch(error => {
       console.error('Error loading initial tickets:', error);
-      
+
       // Show error state
       document.querySelectorAll('.ticket-container').forEach(container => {
         container.innerHTML = '<div class="error">Error loading tickets</div>';
@@ -99,5 +97,5 @@ function loadInitialTickets() {
 export const App = {
   initialize,
   setupEventListeners,
-  loadInitialTickets
+  loadInitialTickets,
 };

@@ -1,5 +1,5 @@
 /**
- * Epic Tracker Logger
+ * mcptix Logger
  * A centralized logging system with color-coded output
  */
 /**
@@ -11,7 +11,7 @@ interface LoggerConfig {
     logLevel: 'debug' | 'info' | 'warn' | 'error';
 }
 /**
- * Centralized logger for Epic Tracker
+ * Centralized logger for mcptix
  * Provides consistent, color-coded logging across all components
  */
 export declare class Logger {

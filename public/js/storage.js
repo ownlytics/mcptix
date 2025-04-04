@@ -1,5 +1,5 @@
 /**
- * Storage module for the Epic Tracker
+ * Storage module for mcptix
  * Handles saving and loading tickets from the server
  */
 
@@ -26,19 +26,19 @@ function applyChanges() {
   if (changeQueue.length === 0) {
     return Promise.resolve();
   }
-  
+
   // Keep track of the last ticket for returning
   let lastTicket = null;
   let lastOperation = null;
-  
+
   // Process all changes locally first
   const promises = changeQueue.map(change => {
     const { type, ticket } = change;
-    
+
     // Keep track of the last ticket for returning
     lastTicket = ticket;
     lastOperation = type;
-    
+
     // Apply the change to the local data
     switch (type) {
       case 'add':
@@ -59,16 +59,16 @@ function applyChanges() {
         return updateTicketOnServer(ticket);
     }
   });
-  
+
   // Clear the queue
   changeQueue = [];
-  
+
   // Wait for all server operations to complete
   return Promise.all(promises)
     .then(results => {
       // Save to localStorage as a backup
       saveToLocalStorage();
-      
+
       // Return the updated ticket data from the server if available
       if (results && results.length > 0 && lastOperation !== 'delete') {
         const lastResult = results[results.length - 1];
@@ -77,7 +77,7 @@ function applyChanges() {
           return getTicketById(lastResult.id);
         }
       }
-      
+
       return lastTicket;
     })
     .catch(error => {
@@ -92,7 +92,7 @@ function applyChanges() {
  * Save the current tickets to localStorage
  */
 function saveToLocalStorage() {
-  localStorage.setItem('epic-tickets-backup', JSON.stringify(currentTickets));
+  localStorage.setItem('mcptix-tickets-backup', JSON.stringify(currentTickets));
 }
 
 /**
@@ -104,37 +104,37 @@ function createTicketOnServer(ticket) {
   return fetch('/api/tickets', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       title: ticket.title,
       description: ticket.description || '',
       priority: ticket.priority || 'medium',
       status: ticket.status || 'backlog',
-      complexity_metadata: ticket.complexity_metadata
+      complexity_metadata: ticket.complexity_metadata,
+    }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to create ticket');
+      }
+      return response.json();
     })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to create ticket');
-    }
-    return response.json();
-  })
-  .then(data => {
-    // If the server returned the full ticket, update our local copy
-    if (data && data.id && data.complexity_metadata) {
-      // Find the ticket in our local data
-      for (const column of currentTickets.columns) {
-        const index = column.tickets.findIndex(t => t.id === data.id);
-        if (index !== -1) {
-          // Update the ticket with the server data
-          column.tickets[index] = data;
-          break;
+    .then(data => {
+      // If the server returned the full ticket, update our local copy
+      if (data && data.id && data.complexity_metadata) {
+        // Find the ticket in our local data
+        for (const column of currentTickets.columns) {
+          const index = column.tickets.findIndex(t => t.id === data.id);
+          if (index !== -1) {
+            // Update the ticket with the server data
+            column.tickets[index] = data;
+            break;
+          }
         }
       }
-    }
-    return data;
-  });
+      return data;
+    });
 }
 
 /**
@@ -146,37 +146,37 @@ function updateTicketOnServer(ticket) {
   return fetch(`/api/tickets/${ticket.id}`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       title: ticket.title,
       description: ticket.description,
       priority: ticket.priority,
       status: ticket.status,
-      complexity_metadata: ticket.complexity_metadata
+      complexity_metadata: ticket.complexity_metadata,
+    }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update ticket');
+      }
+      return response.json();
     })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to update ticket');
-    }
-    return response.json();
-  })
-  .then(data => {
-    // If the server returned the full ticket, update our local copy
-    if (data && data.id && data.complexity_metadata) {
-      // Find the ticket in our local data
-      for (const column of currentTickets.columns) {
-        const index = column.tickets.findIndex(t => t.id === data.id);
-        if (index !== -1) {
-          // Update the ticket with the server data
-          column.tickets[index] = data;
-          break;
+    .then(data => {
+      // If the server returned the full ticket, update our local copy
+      if (data && data.id && data.complexity_metadata) {
+        // Find the ticket in our local data
+        for (const column of currentTickets.columns) {
+          const index = column.tickets.findIndex(t => t.id === data.id);
+          if (index !== -1) {
+            // Update the ticket with the server data
+            column.tickets[index] = data;
+            break;
+          }
         }
       }
-    }
-    return data;
-  });
+      return data;
+    });
 }
 
 /**
@@ -186,9 +186,8 @@ function updateTicketOnServer(ticket) {
  */
 function deleteTicketOnServer(ticketId) {
   return fetch(`/api/tickets/${ticketId}`, {
-    method: 'DELETE'
-  })
-  .then(response => {
+    method: 'DELETE',
+  }).then(response => {
     if (!response.ok) {
       throw new Error('Failed to delete ticket');
     }
@@ -203,7 +202,7 @@ function deleteTicketOnServer(ticketId) {
 function addTicket(ticket) {
   // Find the column for this ticket
   const column = currentTickets.columns.find(col => col.id === ticket.status);
-  
+
   if (column) {
     // Add the ticket to the column
     column.tickets.push(ticket);
@@ -218,13 +217,13 @@ function updateTicket(ticket) {
   // Find the ticket in all columns
   for (const column of currentTickets.columns) {
     const index = column.tickets.findIndex(t => t.id === ticket.id);
-    
+
     if (index !== -1) {
       // If the status has changed, move the ticket to the new column
       if (column.id !== ticket.status) {
         // Remove from current column
         column.tickets.splice(index, 1);
-        
+
         // Add to new column
         const newColumn = currentTickets.columns.find(col => col.id === ticket.status);
         if (newColumn) {
@@ -234,7 +233,7 @@ function updateTicket(ticket) {
         // Update in place
         column.tickets[index] = ticket;
       }
-      
+
       return;
     }
   }
@@ -248,7 +247,7 @@ function deleteTicket(ticketId) {
   // Find the ticket in all columns
   for (const column of currentTickets.columns) {
     const index = column.tickets.findIndex(t => t.id === ticketId);
-    
+
     if (index !== -1) {
       // Remove from column
       column.tickets.splice(index, 1);
@@ -264,8 +263,8 @@ function deleteTicket(ticketId) {
  */
 function saveTickets(tickets) {
   // Save to localStorage as a backup
-  localStorage.setItem('epic-tickets-backup', JSON.stringify(tickets));
-  
+  localStorage.setItem('mcptix-tickets-backup', JSON.stringify(tickets));
+
   // In the new API, we don't save all tickets at once
   // Instead, we use individual endpoints for each operation
   // This function is kept for compatibility with the original code
@@ -281,7 +280,7 @@ function loadTickets() {
   if (currentTickets) {
     return Promise.resolve(currentTickets);
   }
-  
+
   // Load from the server
   return fetch('/api/tickets')
     .then(response => {
@@ -297,31 +296,31 @@ function loadTickets() {
           {
             id: 'backlog',
             name: 'Backlog',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'up-next',
             name: 'Up Next',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'in-progress',
             name: 'In Progress',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'in-review',
             name: 'In Review',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'completed',
             name: 'Completed',
-            tickets: []
-          }
-        ]
+            tickets: [],
+          },
+        ],
       };
-      
+
       // Distribute tickets to their respective columns
       if (data.tickets && Array.isArray(data.tickets)) {
         data.tickets.forEach(ticket => {
@@ -329,23 +328,23 @@ function loadTickets() {
           if (!ticket.complexity_metadata) {
             ticket.complexity_metadata = {};
           }
-          
+
           const column = tickets.columns.find(col => col.id === ticket.status);
           if (column) {
             column.tickets.push(ticket);
           }
         });
       }
-      
+
       currentTickets = tickets;
       return tickets;
     })
     .catch(error => {
       console.error('Error loading tickets:', error);
-      
+
       // Try to load from localStorage as a fallback
       try {
-        const ticketsJson = localStorage.getItem('epic-tickets-backup');
+        const ticketsJson = localStorage.getItem('mcptix-tickets-backup');
         if (ticketsJson) {
           currentTickets = JSON.parse(ticketsJson);
           return currentTickets;
@@ -353,38 +352,38 @@ function loadTickets() {
       } catch (e) {
         console.error('Error loading tickets from localStorage:', e);
       }
-      
+
       // Create empty tickets structure
       currentTickets = {
         columns: [
           {
             id: 'backlog',
             name: 'Backlog',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'up-next',
             name: 'Up Next',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'in-progress',
             name: 'In Progress',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'in-review',
             name: 'In Review',
-            tickets: []
+            tickets: [],
           },
           {
             id: 'completed',
             name: 'Completed',
-            tickets: []
-          }
-        ]
+            tickets: [],
+          },
+        ],
       };
-      
+
       return currentTickets;
     });
 }
@@ -398,11 +397,11 @@ function getTicketById(ticketId) {
   if (!currentTickets) {
     return null;
   }
-  
+
   // Find the ticket in all columns
   for (const column of currentTickets.columns) {
     const ticket = column.tickets.find(t => t.id === ticketId);
-    
+
     if (ticket) {
       // Ensure complexity_metadata is properly initialized if missing
       if (!ticket.complexity_metadata) {
@@ -411,7 +410,7 @@ function getTicketById(ticketId) {
       return ticket;
     }
   }
-  
+
   // If not found in local cache, try to fetch from server
   return fetch(`/api/tickets/${ticketId}`)
     .then(response => {
@@ -442,16 +441,15 @@ function addComment(ticketId, comment) {
   return fetch(`/api/tickets/${ticketId}/comments`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       content: comment.content,
       type: comment.type || 'comment',
       author: comment.author || 'developer',
-      status: comment.status || 'open'
-    })
-  })
-  .then(response => {
+      status: comment.status || 'open',
+    }),
+  }).then(response => {
     if (!response.ok) {
       throw new Error('Failed to add comment');
     }
@@ -485,5 +483,5 @@ export const Storage = {
   loadTickets,
   getTicketById,
   addComment,
-  getComments
+  getComments,
 };

@@ -1,6 +1,6 @@
 /**
- * Epic Tracker Browser Utilities
- * Handles opening the browser to the Epic Tracker UI
+ * mcptix Browser Utilities
+ * Handles opening the browser to the mcptix UI
  */
 
 const open = require('open');
@@ -20,5 +20,5 @@ async function openBrowser(url) {
 }
 
 module.exports = {
-  openBrowser
+  openBrowser,
 };
