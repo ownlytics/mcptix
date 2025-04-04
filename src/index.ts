@@ -9,6 +9,7 @@ import { TicketQueries } from './db/queries';
 import { clearDatabase } from './db/schema';
 import { DatabaseService } from './db/service';
 import { EpicTrackerMcpServer } from './mcp/server';
+import { Logger } from './utils/logger';
 
 // Export all types and configuration for users
 export * from './types';
@@ -19,6 +20,7 @@ export * from './config';
  * Provides a unified interface for managing the Epic Tracker system
  */
 export class EpicTracker {
+  private static isShuttingDown = false;
   private config: EpicTrackerConfig;
   private dbService: DatabaseService;
   private db: any;
@@ -38,7 +40,7 @@ export class EpicTracker {
     // Initialize database using the singleton service
     this.dbService = DatabaseService.getInstance();
     this.db = this.dbService.initialize(this.config, this.config.clearDataOnInit);
-    console.log(`[EpicTracker] Database initialized at absolute path: ${this.db.name}`);
+    Logger.info('EpicTracker', `Database initialized at absolute path: ${this.db.name}`);
     this.ticketQueries = new TicketQueries(this.db);
 
     // Set up cleanup on process exit
@@ -77,7 +79,13 @@ export class EpicTracker {
    * @returns A promise that resolves when shutdown is complete
    */
   async shutdown(): Promise<void> {
-    console.log('Shutting down Epic Tracker...');
+    // Prevent duplicate shutdown messages
+    if (EpicTracker.isShuttingDown) {
+      return Promise.resolve();
+    }
+
+    EpicTracker.isShuttingDown = true;
+    Logger.info('EpicTracker', 'Gracefully shutting down...');
 
     try {
       // Stop MCP server if running
@@ -97,11 +105,9 @@ export class EpicTracker {
         this.db = null;
       }
 
-      console.log('Epic Tracker shut down successfully');
+      Logger.success('EpicTracker', 'Shut down successfully');
     } catch (error) {
-      console.error(
-        `Error during shutdown: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      Logger.error('EpicTracker', 'Error during shutdown', error);
       throw error;
     }
   }
@@ -151,14 +157,17 @@ if (require.main === module) {
     mcpEnabled: runMcp, // Enable MCP only if --mcp flag is present
   };
 
-  console.log(`Starting Epic Tracker with configuration:
+  Logger.info(
+    'EpicTracker',
+    `Starting with configuration:
   - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
-  - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`);
+  - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`,
+  );
 
   const epicTracker = createEpicTracker(config);
 
   epicTracker.start().catch(error => {
-    console.error('Failed to start Epic Tracker:', error);
+    Logger.error('EpicTracker', 'Failed to start', error);
     process.exit(1);
   });
 }

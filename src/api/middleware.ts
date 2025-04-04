@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
+import { Logger } from '../utils/logger';
+
 /**
  * Middleware for handling 404 Not Found errors
  */
@@ -16,7 +18,7 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void | Response {
-  console.error('API Error:', err);
+  Logger.error('API', 'Request error', err);
 
   // Handle specific error types
   if (err.name === 'SyntaxError') {
@@ -31,7 +33,17 @@ export function errorHandler(
  * Middleware for logging requests
  */
 export function requestLogger(req: Request, res: Response, next: NextFunction): void {
-  console.log(`${req.method} ${req.path}`);
+  const start = Date.now();
+
+  // Log the request
+  Logger.request(req.method, req.path);
+
+  // Add response listener to log after completion
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    Logger.request(req.method, req.path, res.statusCode, duration);
+  });
+
   next();
 }
 

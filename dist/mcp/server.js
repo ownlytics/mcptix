@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EpicTrackerMcpServer = void 0;
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
+const logger_1 = require("../utils/logger");
 const debug_logger_1 = require("./debug-logger");
 const resources_1 = require("./resources");
 const tools_1 = require("./tools");
@@ -25,9 +26,9 @@ class EpicTrackerMcpServer {
         const dbPath = config.dbPath;
         const actualDbPath = ticketQueries['db'].name;
         const cwd = process.cwd();
-        console.log('[MCP Server] Database path from config:', dbPath);
-        console.log('[MCP Server] Actual database file path:', actualDbPath);
-        console.log('[MCP Server] Current working directory:', cwd);
+        logger_1.Logger.info('McpServer', 'Database path from config: ' + dbPath);
+        logger_1.Logger.info('McpServer', 'Actual database file path: ' + actualDbPath);
+        logger_1.Logger.debug('McpServer', 'Current working directory: ' + cwd);
         // Write to debug log
         this.logger.log('MCP Server initialized');
         this.logger.log(`Database path from config: ${dbPath}`);
@@ -50,7 +51,7 @@ class EpicTrackerMcpServer {
         (0, resources_1.setupResourceHandlers)(this.server, this.ticketQueries);
         // Error handling
         this.server.onerror = error => {
-            console.error('[MCP Error]', error);
+            logger_1.Logger.error('McpServer', 'MCP Error', error);
             this.logger.log(`MCP Error: ${error instanceof Error ? error.message : String(error)}`);
         };
         // Log server initialization
@@ -62,20 +63,20 @@ class EpicTrackerMcpServer {
      */
     async run() {
         if (this.isRunning) {
-            console.log('MCP server is already running');
+            logger_1.Logger.info('McpServer', 'Server is already running');
             return this;
         }
         try {
             const transport = new stdio_js_1.StdioServerTransport();
             await this.server.connect(transport);
             this.isRunning = true;
-            console.log('Epic Tracker MCP server running on stdio');
+            logger_1.Logger.success('McpServer', 'Server running on stdio');
             this.logger.log('Epic Tracker MCP server running on stdio');
             return this;
         }
         catch (error) {
             const errorMsg = `Error starting MCP server: ${error instanceof Error ? error.message : String(error)}`;
-            console.error(errorMsg);
+            logger_1.Logger.error('McpServer', errorMsg);
             this.logger.log(errorMsg);
             throw error;
         }
@@ -93,18 +94,18 @@ class EpicTrackerMcpServer {
      */
     async close() {
         if (!this.isRunning) {
-            console.log('MCP server is not running');
+            logger_1.Logger.info('McpServer', 'Server is not running');
             return;
         }
         try {
             await this.server.close();
             this.isRunning = false;
-            console.log('MCP server closed');
+            logger_1.Logger.success('McpServer', 'Server closed');
             this.logger.log('MCP server closed');
         }
         catch (error) {
             const errorMsg = `Error closing MCP server: ${error instanceof Error ? error.message : String(error)}`;
-            console.error(errorMsg);
+            logger_1.Logger.error('McpServer', errorMsg);
             this.logger.log(errorMsg);
             throw error;
         }

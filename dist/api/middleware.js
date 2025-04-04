@@ -4,6 +4,7 @@ exports.notFoundHandler = notFoundHandler;
 exports.errorHandler = errorHandler;
 exports.requestLogger = requestLogger;
 exports.validateRequest = validateRequest;
+const logger_1 = require("../utils/logger");
 /**
  * Middleware for handling 404 Not Found errors
  */
@@ -14,7 +15,7 @@ function notFoundHandler(req, res, _next) {
  * Middleware for handling errors
  */
 function errorHandler(err, req, res, _next) {
-    console.error('API Error:', err);
+    logger_1.Logger.error('API', 'Request error', err);
     // Handle specific error types
     if (err.name === 'SyntaxError') {
         return res.status(400).json({ error: 'Invalid JSON' });
@@ -26,7 +27,14 @@ function errorHandler(err, req, res, _next) {
  * Middleware for logging requests
  */
 function requestLogger(req, res, next) {
-    console.log(`${req.method} ${req.path}`);
+    const start = Date.now();
+    // Log the request
+    logger_1.Logger.request(req.method, req.path);
+    // Add response listener to log after completion
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger_1.Logger.request(req.method, req.path, res.statusCode, duration);
+    });
     next();
 }
 /**

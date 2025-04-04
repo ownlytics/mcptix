@@ -11,6 +11,7 @@ export * from './config';
  * Provides a unified interface for managing the Epic Tracker system
  */
 export declare class EpicTracker {
+    private static isShuttingDown;
     private config;
     private dbService;
     private db;

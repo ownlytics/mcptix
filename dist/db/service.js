@@ -8,6 +8,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 /**
  * Singleton service for managing database connections
  * Ensures consistent database access across all components
@@ -36,17 +37,17 @@ class DatabaseService {
      */
     initialize(config, clearData = false) {
         // Log the stack trace to see who's calling this
-        console.log('[DatabaseService] Initialize called from:');
+        logger_1.Logger.debug('DatabaseService', 'Initialize called from:');
         const stackLines = new Error().stack?.split('\n').slice(2, 5);
         if (stackLines) {
-            stackLines.forEach(line => console.log(`  ${line.trim()}`));
+            stackLines.forEach(line => logger_1.Logger.debug('DatabaseService', `  ${line.trim()}`));
         }
         // Get the database path from config
         const dbPath = typeof config === 'string' ? config : config.dbPath || (0, schema_1.getDefaultDbPath)();
-        console.log(`[DatabaseService] Initializing with path: ${dbPath}`);
+        logger_1.Logger.info('DatabaseService', `Initializing with path: ${dbPath}`);
         // If already initialized with the same path, return the existing connection
         if (this.db && this.dbPath === dbPath) {
-            console.log(`[DatabaseService] Reusing existing database connection: ${this.dbPath}`);
+            logger_1.Logger.info('DatabaseService', `Reusing existing database connection: ${this.dbPath}`);
             return this.db;
         }
         // Close existing connection if any
@@ -54,35 +55,36 @@ class DatabaseService {
         // Store the database path - ENSURE it's safe
         if (path_1.default.isAbsolute(dbPath) && dbPath.startsWith('/') && path_1.default.dirname(dbPath) === '/') {
             // This is a dangerous path at the root - redirect to a safe location
-            console.log(`[DatabaseService] WARNING: Unsafe path detected: ${dbPath}`);
+            logger_1.Logger.warn('DatabaseService', `Unsafe path detected: ${dbPath}`);
             // Use home directory or current directory instead
             const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
             const safePath = path_1.default.join(safeDir, '.epic-tracker', 'data', 'epic-tracker.db');
+            logger_1.Logger.info('DatabaseService', `Redirecting to safe path: ${safePath}`);
             console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
             this.dbPath = safePath;
         }
         else {
             this.dbPath = dbPath;
         }
-        console.log(`[DatabaseService] Initializing database at: ${this.dbPath}`);
-        console.log(`[DatabaseService] Current working directory: ${process.cwd()}`);
+        logger_1.Logger.info('DatabaseService', `Initializing database at: ${this.dbPath}`);
+        logger_1.Logger.debug('DatabaseService', `Current working directory: ${process.cwd()}`);
         // Ensure the directory exists
         const dbDir = path_1.default.dirname(this.dbPath);
         if (!fs_1.default.existsSync(dbDir)) {
             try {
                 fs_1.default.mkdirSync(dbDir, { recursive: true });
-                console.log(`[DatabaseService] Created directory: ${dbDir}`);
+                logger_1.Logger.info('DatabaseService', `Created directory: ${dbDir}`);
             }
             catch (error) {
-                console.error(`[DatabaseService] Failed to create directory: ${error instanceof Error ? error.message : String(error)}`);
+                logger_1.Logger.error('DatabaseService', `Failed to create directory: ${dbDir}`, error);
                 // Fall back to a directory we know we can write to
                 const fallbackDir = path_1.default.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.epic-tracker', 'data');
-                console.log(`[DatabaseService] Falling back to: ${fallbackDir}`);
+                logger_1.Logger.info('DatabaseService', `Falling back to: ${fallbackDir}`);
                 // Create the fallback directory
                 fs_1.default.mkdirSync(fallbackDir, { recursive: true });
                 // Update the database path
                 this.dbPath = path_1.default.join(fallbackDir, 'epic-tracker.db');
-                console.log(`[DatabaseService] Using fallback path: ${this.dbPath}`);
+                logger_1.Logger.info('DatabaseService', `Using fallback path: ${this.dbPath}`);
             }
         }
         // Initialize the database
@@ -108,7 +110,7 @@ class DatabaseService {
             this.db.close();
             this.db = null;
             this.dbPath = null;
-            console.log('[DatabaseService] Database connection closed');
+            logger_1.Logger.info('DatabaseService', 'Database connection closed');
         }
     }
     /**
@@ -121,7 +123,7 @@ class DatabaseService {
         try {
             // If clearData is true and the database file exists, delete it
             if (clearData && fs_1.default.existsSync(dbPath)) {
-                console.log(`[DatabaseService] Clearing existing database at ${dbPath}`);
+                logger_1.Logger.info('DatabaseService', `Clearing existing database at ${dbPath}`);
                 fs_1.default.unlinkSync(dbPath);
             }
             // Create or open the database
@@ -184,11 +186,11 @@ class DatabaseService {
         CREATE INDEX IF NOT EXISTS idx_comments_ticket_id ON comments(ticket_id);
         CREATE INDEX IF NOT EXISTS idx_complexity_cie_score ON complexity(cie_score);
       `);
-            console.log(`[DatabaseService] Database initialized at ${dbPath}`);
+            logger_1.Logger.success('DatabaseService', `Database initialized at ${dbPath}`);
             return db;
         }
         catch (error) {
-            console.error(`[DatabaseService] Error initializing database: ${error instanceof Error ? error.message : String(error)}`);
+            logger_1.Logger.error('DatabaseService', 'Error initializing database', error);
             throw error;
         }
     }

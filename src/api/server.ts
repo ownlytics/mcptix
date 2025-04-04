@@ -6,6 +6,7 @@ import cors from 'cors';
 import express from 'express';
 
 import { TicketQueries } from '../db/queries';
+import { Logger } from '../utils/logger';
 
 import { errorHandler, notFoundHandler, requestLogger } from './middleware';
 import { setupRoutes } from './routes';
@@ -79,13 +80,11 @@ export class ApiServer {
     return new Promise((resolve, reject) => {
       try {
         this.server = this.app.listen(port, host, () => {
-          console.log(`API server running at http://${host}:${port}`);
+          Logger.success('ApiServer', `Server running at http://${host}:${port}`);
           resolve();
         });
       } catch (error) {
-        console.error(
-          `Error starting API server: ${error instanceof Error ? error.message : String(error)}`,
-        );
+        Logger.error('ApiServer', `Failed to start server on port ${port}`, error);
         reject(error);
       }
     });
@@ -102,21 +101,40 @@ export class ApiServer {
   public stop(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.server) {
-        console.log('API server is not running');
+        Logger.info('ApiServer', 'Server is not running');
         resolve();
         return;
       }
 
-      this.server.close(err => {
-        if (err) {
-          console.error(`Error stopping API server: ${err.message}`);
-          reject(err);
-        } else {
+      try {
+        this.server.close(err => {
+          if (err) {
+            // Only log as warning if it's a "server not running" error
+            if (err instanceof Error && err.message.includes('Server is not running')) {
+              Logger.warn('ApiServer', `Server already stopped: ${err.message}`);
+              this.server = null;
+              resolve();
+            } else {
+              Logger.error('ApiServer', `Error stopping server`, err);
+              reject(err);
+            }
+          } else {
+            this.server = null;
+            Logger.success('ApiServer', 'Server stopped successfully');
+            resolve();
+          }
+        });
+      } catch (err) {
+        // Handle any synchronous errors from close()
+        if (err instanceof Error && err.message.includes('Server is not running')) {
+          Logger.warn('ApiServer', `Server already stopped: ${err.message}`);
           this.server = null;
-          console.log('API server stopped');
           resolve();
+        } else {
+          Logger.error('ApiServer', `Error stopping server`, err);
+          reject(err);
         }
-      });
+      }
     });
   }
 }

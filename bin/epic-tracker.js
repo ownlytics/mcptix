@@ -8,7 +8,21 @@
 const { program } = require('commander');
 const path = require('path');
 const fs = require('fs');
+const chalk = require('chalk');
 const packageJson = require('../package.json');
+
+// Print a colorful banner
+console.log(
+  chalk.cyan(`
+ ███████╗██████╗ ██╗ ██████╗    ████████╗██████╗  █████╗  ██████╗██╗  ██╗███████╗██████╗
+ ██╔════╝██╔══██╗██║██╔════╝    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+ █████╗  ██████╔╝██║██║            ██║   ██████╔╝███████║██║     █████╔╝ █████╗  ██████╔╝
+ ██╔══╝  ██╔═══╝ ██║██║            ██║   ██╔══██╗██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+ ███████╗██║     ██║╚██████╗       ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║
+ ╚══════╝╚═╝     ╚═╝ ╚═════╝       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+                                                                           v${packageJson.version}
+`),
+);
 
 // Import commands
 const init = require('./commands/init');
@@ -22,10 +36,7 @@ program
   .version(packageJson.version);
 
 // Init command
-program
-  .command('init')
-  .description('Initialize Epic Tracker in your project')
-  .action(init);
+program.command('init').description('Initialize Epic Tracker in your project').action(init);
 
 // Start command
 program
