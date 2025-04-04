@@ -107,7 +107,10 @@ Add the following configuration to your MCP settings file:
     "epic-tracker": {
       "command": "node",
       "args": ["./node_modules/epic-tracker/dist/mcp/index.js"],
-      "env": {},
+      "env": {
+        "EPIC_TRACKER_DB_PATH": "/path/to/your/.epic-tracker/data/epic-tracker.db",
+        "HOME": "/home/your-username"
+      },
       "disabled": false,
       "alwaysAllow": []
     }
@@ -115,7 +118,9 @@ Add the following configuration to your MCP settings file:
 }
 ```
 
-This configuration tells your AI assistant how to connect to the Epic Tracker MCP server. The path `./node_modules/epic-tracker/dist/mcp/index.js` points to the MCP server file in your project's node_modules directory.
+This configuration tells your AI assistant how to connect to the Epic Tracker MCP server. The path `./node_modules/epic-tracker/dist/mcp/index.js` points to the MCP server file in your project's node_modules directory. The `EPIC_TRACKER_DB_PATH` environment variable tells the MCP server where to find your database file.
+
+> **Note:** When you run `npx epic-tracker init`, Epic Tracker automatically creates this configuration file for you with the correct paths in `.epic-tracker/mcp-server-config.json`.
 
 ### 4. Start Using Epic Tracker with Your AI Assistant
 

@@ -42,7 +42,7 @@ function init() {
     createConfigFile();
 
     // Create example MCP servers JSON file for Roo
-    createMcpServersJsonFile();
+    createMcpServersJsonFile(dbPath);
 
     // Update package.json
     updatePackageJson();
@@ -58,7 +58,7 @@ function init() {
 /**
  * Create a ready-to-use MCP servers configuration file
  */
-function createMcpServersJsonFile() {
+function createMcpServersJsonFile(dbPath) {
   const epicTrackerDir = path.join(process.cwd(), '.epic-tracker');
   
   // The file will be placed in the .epic-tracker directory
@@ -74,13 +74,16 @@ function createMcpServersJsonFile() {
   const projectPath = process.cwd();
   const absoluteMcpServerPath = path.join(projectPath, 'node_modules', 'epic-tracker-mcp', 'dist', 'mcp', 'index.js');
   
-  // Create the MCP servers JSON content with the absolute path
+  // Create the MCP servers JSON content with the absolute path and database path
   const mcpServersJson = {
     "mcpServers": {
       "epic-tracker": {
         "command": "node",
         "args": [absoluteMcpServerPath],
-        "env": {},
+        "env": {
+          "EPIC_TRACKER_DB_PATH": dbPath,
+          "HOME": process.env.HOME || process.env.USERPROFILE // Cross-platform home directory
+        },
         "disabled": false,
         "alwaysAllow": []
       }

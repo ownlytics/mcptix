@@ -51,18 +51,42 @@ class DatabaseService {
         }
         // Close existing connection if any
         this.close();
-        // Store the database path
-        this.dbPath = dbPath;
-        console.log(`[DatabaseService] Initializing database at: ${dbPath}`);
+        // Store the database path - ENSURE it's safe
+        if (path_1.default.isAbsolute(dbPath) && dbPath.startsWith('/') && path_1.default.dirname(dbPath) === '/') {
+            // This is a dangerous path at the root - redirect to a safe location
+            console.log(`[DatabaseService] WARNING: Unsafe path detected: ${dbPath}`);
+            // Use home directory or current directory instead
+            const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
+            const safePath = path_1.default.join(safeDir, '.epic-tracker', 'data', 'epic-tracker.db');
+            console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
+            this.dbPath = safePath;
+        }
+        else {
+            this.dbPath = dbPath;
+        }
+        console.log(`[DatabaseService] Initializing database at: ${this.dbPath}`);
         console.log(`[DatabaseService] Current working directory: ${process.cwd()}`);
         // Ensure the directory exists
-        const dbDir = path_1.default.dirname(dbPath);
+        const dbDir = path_1.default.dirname(this.dbPath);
         if (!fs_1.default.existsSync(dbDir)) {
-            fs_1.default.mkdirSync(dbDir, { recursive: true });
-            console.log(`[DatabaseService] Created directory: ${dbDir}`);
+            try {
+                fs_1.default.mkdirSync(dbDir, { recursive: true });
+                console.log(`[DatabaseService] Created directory: ${dbDir}`);
+            }
+            catch (error) {
+                console.error(`[DatabaseService] Failed to create directory: ${error instanceof Error ? error.message : String(error)}`);
+                // Fall back to a directory we know we can write to
+                const fallbackDir = path_1.default.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.epic-tracker', 'data');
+                console.log(`[DatabaseService] Falling back to: ${fallbackDir}`);
+                // Create the fallback directory
+                fs_1.default.mkdirSync(fallbackDir, { recursive: true });
+                // Update the database path
+                this.dbPath = path_1.default.join(fallbackDir, 'epic-tracker.db');
+                console.log(`[DatabaseService] Using fallback path: ${this.dbPath}`);
+            }
         }
         // Initialize the database
-        this.db = this.initializeDatabase(dbPath, clearData);
+        this.db = this.initializeDatabase(this.dbPath, clearData);
         return this.db;
     }
     /**
