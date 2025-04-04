@@ -48,28 +48,35 @@ All files                 |   30.42 |    28.86 |   38.84 |   30.54 |
 
 The MCP components represent a critical part of the application. We've made progress with tools.ts, but several files still need test coverage:
 
-### 1.1. src/mcp/index.ts
+### 1.1. src/mcp/index.ts (✅ 100% Line Coverage)
 
 This file contains the standalone MCP server initialization logic.
 
-**Testing Strategy:**
+**Implementation Status: COMPLETED**
 
-- Mock the DatabaseService, TicketQueries, and McpTixServer
-- Test the configuration loading logic with different environment variables and file structures
-- Test error handling for database initialization
-- Test the signal handling (SIGINT, SIGTERM) for proper shutdown
+A comprehensive test suite has been implemented for this file covering:
 
-### 1.2. src/mcp/server.ts
+- Database path resolution strategy with different environment variables and file structures
+- Database initialization and error handling
+- MCP server creation and startup
+- Signal handling (SIGINT, SIGTERM) for graceful shutdown
+- Helper functions like findFileInParents
+
+### 1.2. src/mcp/server.ts (✅ 100% Line Coverage, 100% Branch Coverage)
 
 This file contains the McpTixServer class that handles MCP protocol interactions.
 
-**Testing Strategy:**
+**Implementation Status: COMPLETED**
 
-- Mock the MCP SDK components
-- Test server initialization with various configurations
-- Test the run() method for successful startup
-- Test the close() method for proper shutdown
-- Test error handling scenarios
+A comprehensive test suite has been implemented for this file with 16 test cases covering:
+
+- Server initialization with proper configuration
+- Server startup and connection with StdioServerTransport
+- Server shutdown and cleanup
+- Error handling for both startup and shutdown
+- Handling of both Error objects and non-Error values in error scenarios
+- Server state tracking via isServerRunning
+- Proper logging of server activities
 
 ### 1.3. src/mcp/tools.ts (✅ 100% Line Coverage, 96.87% Branch Coverage)
 
@@ -86,16 +93,20 @@ A comprehensive test suite has been implemented for this file with 30 test cases
 
 The only uncovered branches are at lines 326 and 406, which are edge cases in the error handling logic.
 
-### 1.4. src/mcp/resources.ts
+### 1.4. src/mcp/resources.ts (✅ 100% Line Coverage, 100% Branch Coverage)
 
-This file likely contains resource definitions for the MCP server.
+This file contains resource definitions for the MCP server.
 
-**Testing Strategy:**
+**Implementation Status: COMPLETED**
 
-- Test each resource function individually
-- Mock any external dependencies
-- Test both success and error paths
-- Test input validation and edge cases
+A comprehensive test suite has been implemented for this file with 15 test cases covering:
+
+- All resource handlers (list_resources, list_resource_templates, read_resource)
+- All resource URI patterns (tickets://all, tickets://status/{status}, tickets://id/{id})
+- Success and error paths for each handler
+- Input validation and edge cases
+- Error handling for invalid URIs, unknown protocols, and unexpected errors
+- Both Error and non-Error object error handling
 
 ### 1.5. src/mcp/debug-logger.ts (✅ 98.38% Line Coverage, 64.28% Branch Coverage)
 
@@ -265,8 +276,7 @@ I propose implementing this test coverage improvement in phases:
 - ✅ Create tests for src/mcp/tools.ts
 - ✅ Create tests for src/mcp/debug-logger.ts
 - ✅ Create tests for src/mcp/index.ts
-- Create tests for src/mcp/resources.ts
-- Create tests for src/mcp/server.ts
+- ✅ Create tests for src/mcp/resources.ts
 - Create tests for src/mcp/server.ts
 - Focus on mocking external dependencies
 
@@ -442,10 +452,23 @@ This comprehensive plan addresses all components of the mcptix package, with a f
   - MCP server creation and startup
   - Signal handling (SIGINT, SIGTERM) for graceful shutdown
   - Helper functions like findFileInParents
-- Overall MCP component coverage increased significantly with three of five MCP components now having comprehensive test coverage
-- Next focus areas:
-  - src/mcp/resources.ts
-  - src/mcp/server.ts
+- ✅ Completed comprehensive test suite for src/mcp/resources.ts with 100% line coverage and 100% branch coverage, covering:
+  - All resource handlers and URI patterns
+  - Success and error paths
+  - Input validation and edge cases
+  - Error handling for various scenarios
+- ✅ Completed comprehensive test suite for src/mcp/server.ts with 100% line coverage and 100% branch coverage, covering:
+  - Server initialization with proper configuration
+  - Server startup and connection with StdioServerTransport
+  - Server shutdown and cleanup
+  - Error handling for both startup and shutdown
+  - Handling of both Error objects and non-Error values in error scenarios
+  - Server state tracking via isServerRunning
+  - Proper logging of server activities
+- Overall MCP component coverage is now complete with all five MCP components having comprehensive test coverage
+- Next focus area:
+  - src/db/service.ts (0% coverage)
+  - src/config.ts (0% coverage)
+  - src/index.ts (0% coverage)
 
-The result will be a robust test suite that gives confidence in the reliability of the package as it moves toward release.
 The result will be a robust test suite that gives confidence in the reliability of the package as it moves toward release.
