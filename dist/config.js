@@ -17,7 +17,7 @@ exports.defaultConfig = {
     mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
     apiEnabled: true,
     logLevel: 'info',
-    clearDataOnInit: false
+    clearDataOnInit: false,
 };
 /**
  * Merge user configuration with defaults

@@ -14,8 +14,8 @@ function setupResourceHandlers(server, ticketQueries) {
                     uri: 'tickets://all',
                     name: 'All Tickets',
                     description: 'Get all tickets, with optional filtering, sorting, and pagination',
-                }
-            ]
+                },
+            ],
         };
     });
     // Handler for resources/templates/list
@@ -31,8 +31,8 @@ function setupResourceHandlers(server, ticketQueries) {
                     uriTemplate: 'tickets://id/{id}',
                     name: 'Ticket by ID',
                     description: 'Get a specific ticket by ID',
-                }
-            ]
+                },
+            ],
         };
     });
     // Handler for resources/read
@@ -83,8 +83,8 @@ function setupResourceHandlers(server, ticketQueries) {
                     {
                         uri,
                         text: JSON.stringify(resourceContent, null, 2),
-                    }
-                ]
+                    },
+                ],
             };
         }
         catch (error) {

@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const server_1 = require("./server");
-const service_1 = require("../db/service");
-const queries_1 = require("../db/queries");
-const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const queries_1 = require("../db/queries");
+const service_1 = require("../db/service");
+const server_1 = require("./server");
 /**
  * Standalone MCP server for Epic Tracker
  * This file is designed to be executed directly by Node.js or by Roo
@@ -29,7 +29,7 @@ const config = {
     mcpEnabled: true,
     apiEnabled: false,
     logLevel: process.env.EPIC_TRACKER_LOG_LEVEL || 'info',
-    clearDataOnInit: false
+    clearDataOnInit: false,
 };
 // DATABASE PATH RESOLUTION STRATEGY
 // 1. Use environment variable if provided

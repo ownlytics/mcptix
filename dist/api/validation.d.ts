@@ -10,7 +10,7 @@ export declare function validateCreateTicket(req: Request): string | null;
  * @param req The request object
  * @returns An error message or null if valid
  */
-export declare function validateUpdateTicket(req: Request): string | null;
+export declare function validateUpdateTicket(_req: Request): string | null;
 /**
  * Validates a comment creation request
  * @param req The request object

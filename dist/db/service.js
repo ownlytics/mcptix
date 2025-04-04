@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseService = void 0;
-const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
-const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const schema_1 = require("../db/schema");
 /**
  * Singleton service for managing database connections
@@ -42,7 +42,7 @@ class DatabaseService {
             stackLines.forEach(line => console.log(`  ${line.trim()}`));
         }
         // Get the database path from config
-        const dbPath = typeof config === 'string' ? config : (config.dbPath || (0, schema_1.getDefaultDbPath)());
+        const dbPath = typeof config === 'string' ? config : config.dbPath || (0, schema_1.getDefaultDbPath)();
         console.log(`[DatabaseService] Initializing with path: ${dbPath}`);
         // If already initialized with the same path, return the existing connection
         if (this.db && this.dbPath === dbPath) {

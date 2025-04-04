@@ -7,11 +7,11 @@ import { Request } from 'express';
  */
 export function validateCreateTicket(req: Request): string | null {
   const { title } = req.body;
-  
+
   if (!title) {
     return 'Ticket title is required';
   }
-  
+
   return null;
 }
 
@@ -20,7 +20,7 @@ export function validateCreateTicket(req: Request): string | null {
  * @param req The request object
  * @returns An error message or null if valid
  */
-export function validateUpdateTicket(req: Request): string | null {
+export function validateUpdateTicket(_req: Request): string | null {
   // No specific validation for update, as all fields are optional
   return null;
 }
@@ -32,11 +32,11 @@ export function validateUpdateTicket(req: Request): string | null {
  */
 export function validateCreateComment(req: Request): string | null {
   const { content } = req.body;
-  
+
   if (!content) {
     return 'Comment content is required';
   }
-  
+
   return null;
 }
 
@@ -47,10 +47,10 @@ export function validateCreateComment(req: Request): string | null {
  */
 export function validateSearch(req: Request): string | null {
   const { q } = req.query;
-  
+
   if (!q) {
     return 'Search query is required';
   }
-  
+
   return null;
 }

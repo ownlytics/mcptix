@@ -1,8 +1,10 @@
-import { initializeDatabase, closeDatabase } from '../../db/schema';
-import { TicketQueries } from '../../db/queries';
-import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import Database from 'better-sqlite3';
+
+import { TicketQueries } from '../../db/queries';
+import { initializeDatabase, closeDatabase } from '../../db/schema';
 
 // Use a separate test database
 const TEST_DB_PATH = path.join(__dirname, '../../../data/test-epic-tracker.db');
@@ -14,18 +16,18 @@ export function initTestDatabase(): { db: Database.Database; ticketQueries: Tick
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
-  
+
   // Remove existing test database if it exists
   if (fs.existsSync(TEST_DB_PATH)) {
     fs.unlinkSync(TEST_DB_PATH);
   }
-  
+
   // Create a new database with write permissions
   const db = new Database(TEST_DB_PATH, { fileMustExist: false });
-  
+
   // Initialize the schema
   db.pragma('foreign_keys = ON');
-  
+
   // Create tables
   db.exec(`
     -- Tickets table
@@ -89,7 +91,7 @@ export function initTestDatabase(): { db: Database.Database; ticketQueries: Tick
 // Clean up test database
 export function cleanupTestDatabase(db: Database.Database): void {
   closeDatabase(db);
-  
+
   // Optionally remove the test database file
   if (fs.existsSync(TEST_DB_PATH)) {
     fs.unlinkSync(TEST_DB_PATH);

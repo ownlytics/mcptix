@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EpicTrackerMcpServer = void 0;
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
-const tools_1 = require("./tools");
-const resources_1 = require("./resources");
 const debug_logger_1 = require("./debug-logger");
+const resources_1 = require("./resources");
+const tools_1 = require("./tools");
 /**
  * Epic Tracker MCP Server
  * Provides Model Context Protocol functionality for Epic Tracker
@@ -49,7 +49,7 @@ class EpicTrackerMcpServer {
         // Setup resource handlers
         (0, resources_1.setupResourceHandlers)(this.server, this.ticketQueries);
         // Error handling
-        this.server.onerror = (error) => {
+        this.server.onerror = error => {
             console.error('[MCP Error]', error);
             this.logger.log(`MCP Error: ${error instanceof Error ? error.message : String(error)}`);
         };

@@ -67,7 +67,7 @@ function setupRoutes(app, ticketQueries) {
             if (complexity_metadata) {
                 ticket.complexity_metadata = {
                     ticket_id: ticket.id,
-                    ...complexity_metadata
+                    ...complexity_metadata,
                 };
             }
             const ticketId = ticketQueries.createTicket(ticket);
@@ -105,7 +105,7 @@ function setupRoutes(app, ticketQueries) {
                 ticket.complexity_metadata = {
                     ticket_id: req.params.id,
                     ...existingTicket.complexity_metadata,
-                    ...complexity_metadata
+                    ...complexity_metadata,
                 };
             }
             else if (existingTicket.complexity_metadata) {

@@ -67,7 +67,7 @@ class TicketQueries {
                     coordination_touchpoints: complexityData.coordination_touchpoints || 0,
                     review_rounds: complexityData.review_rounds || 0,
                     blockers_encountered: complexityData.blockers_encountered || 0,
-                    cie_score: complexityData.cie_score || 0
+                    cie_score: complexityData.cie_score || 0,
                 };
             }
             else {
@@ -89,7 +89,7 @@ class TicketQueries {
                     coordination_touchpoints: 0,
                     review_rounds: 0,
                     blockers_encountered: 0,
-                    cie_score: 0
+                    cie_score: 0,
                 };
             }
         }
@@ -126,7 +126,7 @@ class TicketQueries {
                 coordination_touchpoints: complexityData.coordination_touchpoints || 0,
                 review_rounds: complexityData.review_rounds || 0,
                 blockers_encountered: complexityData.blockers_encountered || 0,
-                cie_score: complexityData.cie_score || 0
+                cie_score: complexityData.cie_score || 0,
             };
         }
         else {
@@ -148,7 +148,7 @@ class TicketQueries {
                 coordination_touchpoints: 0,
                 review_rounds: 0,
                 blockers_encountered: 0,
-                cie_score: 0
+                cie_score: 0,
             };
         }
         return ticket;
@@ -183,7 +183,7 @@ class TicketQueries {
                     mocking_complexity: ticket.complexity_metadata.mocking_complexity || 0,
                     coordination_touchpoints: ticket.complexity_metadata.coordination_touchpoints || 0,
                     review_rounds: ticket.complexity_metadata.review_rounds || 0,
-                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0
+                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0,
                 };
                 // Calculate the CIE score on the server side
                 const cieScore = (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
@@ -204,8 +204,7 @@ class TicketQueries {
             ?
           )
         `);
-                complexityStmt.run(ticketId, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore // Use the server-calculated score
-                );
+                complexityStmt.run(ticketId, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore);
             }
             // Insert comments if provided
             if (ticket.comments && ticket.comments.length > 0) {
@@ -263,7 +262,7 @@ class TicketQueries {
                     mocking_complexity: ticket.complexity_metadata.mocking_complexity || 0,
                     coordination_touchpoints: ticket.complexity_metadata.coordination_touchpoints || 0,
                     review_rounds: ticket.complexity_metadata.review_rounds || 0,
-                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0
+                    blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0,
                 };
                 // Calculate the CIE score on the server side
                 const cieScore = (0, complexityCalculator_1.calculateComplexityScore)(complexityMetrics);
@@ -284,8 +283,7 @@ class TicketQueries {
             ?
           )
         `);
-                complexityStmt.run(ticket.id, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore // Use the server-calculated score
-                );
+                complexityStmt.run(ticket.id, complexityMetrics.files_touched, complexityMetrics.modules_crossed, complexityMetrics.stack_layers_involved, complexityMetrics.dependencies, complexityMetrics.shared_state_touches, complexityMetrics.cascade_impact_zones, complexityMetrics.subjectivity_rating, complexityMetrics.loc_added, complexityMetrics.loc_modified, complexityMetrics.test_cases_written, complexityMetrics.edge_cases, complexityMetrics.mocking_complexity, complexityMetrics.coordination_touchpoints, complexityMetrics.review_rounds, complexityMetrics.blockers_encountered, cieScore);
             }
             return true;
         });
@@ -323,7 +321,7 @@ class TicketQueries {
             { id: 'up-next', name: 'Up Next', tickets: [] },
             { id: 'in-progress', name: 'In Progress', tickets: [] },
             { id: 'in-review', name: 'In Review', tickets: [] },
-            { id: 'completed', name: 'Completed', tickets: [] }
+            { id: 'completed', name: 'Completed', tickets: [] },
         ];
         // Get all tickets with their complexity and comments
         const ticketsStmt = this.db.prepare(`
@@ -359,7 +357,7 @@ class TicketQueries {
                     coordination_touchpoints: complexityData.coordination_touchpoints || 0,
                     review_rounds: complexityData.review_rounds || 0,
                     blockers_encountered: complexityData.blockers_encountered || 0,
-                    cie_score: complexityData.cie_score || 0
+                    cie_score: complexityData.cie_score || 0,
                 };
             }
             else {
@@ -381,7 +379,7 @@ class TicketQueries {
                     coordination_touchpoints: 0,
                     review_rounds: 0,
                     blockers_encountered: 0,
-                    cie_score: 0
+                    cie_score: 0,
                 };
             }
             // Add comments

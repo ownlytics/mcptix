@@ -9,7 +9,7 @@ export const sampleTickets: Ticket[] = [
     priority: 'high',
     status: 'in-progress',
     created: '2025-04-01T12:00:00Z',
-    updated: '2025-04-01T12:00:00Z'
+    updated: '2025-04-01T12:00:00Z',
   },
   {
     id: 'ticket-2',
@@ -18,7 +18,7 @@ export const sampleTickets: Ticket[] = [
     priority: 'medium',
     status: 'backlog',
     created: '2025-04-01T12:30:00Z',
-    updated: '2025-04-01T12:30:00Z'
+    updated: '2025-04-01T12:30:00Z',
   },
   {
     id: 'ticket-3',
@@ -27,7 +27,7 @@ export const sampleTickets: Ticket[] = [
     priority: 'low',
     status: 'up-next',
     created: '2025-04-01T13:00:00Z',
-    updated: '2025-04-01T13:00:00Z'
+    updated: '2025-04-01T13:00:00Z',
   },
   {
     id: 'ticket-4',
@@ -36,7 +36,7 @@ export const sampleTickets: Ticket[] = [
     priority: 'medium',
     status: 'completed',
     created: '2025-04-01T13:30:00Z',
-    updated: '2025-04-01T14:00:00Z'
+    updated: '2025-04-01T14:00:00Z',
   },
   {
     id: 'ticket-5',
@@ -45,8 +45,8 @@ export const sampleTickets: Ticket[] = [
     priority: 'high',
     status: 'in-review',
     created: '2025-04-01T14:30:00Z',
-    updated: '2025-04-01T14:30:00Z'
-  }
+    updated: '2025-04-01T14:30:00Z',
+  },
 ];
 
 // Sample comments for testing
@@ -58,7 +58,7 @@ export const sampleComments: Comment[] = [
     type: 'comment',
     author: 'developer',
     status: 'open',
-    timestamp: '2025-04-01T12:30:00Z'
+    timestamp: '2025-04-01T12:30:00Z',
   },
   {
     id: 'comment-2',
@@ -67,7 +67,7 @@ export const sampleComments: Comment[] = [
     type: 'comment',
     author: 'agent',
     status: 'open',
-    timestamp: '2025-04-01T12:45:00Z'
+    timestamp: '2025-04-01T12:45:00Z',
   },
   {
     id: 'comment-3',
@@ -76,7 +76,7 @@ export const sampleComments: Comment[] = [
     type: 'comment',
     author: 'developer',
     status: 'open',
-    timestamp: '2025-04-01T13:00:00Z'
+    timestamp: '2025-04-01T13:00:00Z',
   },
   {
     id: 'comment-4',
@@ -85,7 +85,7 @@ export const sampleComments: Comment[] = [
     type: 'request_changes',
     author: 'agent',
     status: 'open',
-    timestamp: '2025-04-01T13:15:00Z'
+    timestamp: '2025-04-01T13:15:00Z',
   },
   {
     id: 'comment-5',
@@ -94,8 +94,8 @@ export const sampleComments: Comment[] = [
     type: 'comment',
     author: 'developer',
     status: 'resolved',
-    timestamp: '2025-04-01T14:15:00Z'
-  }
+    timestamp: '2025-04-01T14:15:00Z',
+  },
 ];
 
 // Sample complexity metrics for testing
@@ -117,7 +117,7 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
     coordination_touchpoints: 1,
     review_rounds: 1,
     blockers_encountered: 0,
-    cie_score: 45.5
+    cie_score: 45.5,
   },
   {
     ticket_id: 'ticket-2',
@@ -136,7 +136,7 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
     coordination_touchpoints: 0,
     review_rounds: 1,
     blockers_encountered: 0,
-    cie_score: 30.0
+    cie_score: 30.0,
   },
   {
     ticket_id: 'ticket-3',
@@ -155,7 +155,7 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
     coordination_touchpoints: 2,
     review_rounds: 2,
     blockers_encountered: 1,
-    cie_score: 60.0
+    cie_score: 60.0,
   },
   {
     ticket_id: 'ticket-4',
@@ -174,7 +174,7 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
     coordination_touchpoints: 0,
     review_rounds: 1,
     blockers_encountered: 0,
-    cie_score: 15.0
+    cie_score: 15.0,
   },
   {
     ticket_id: 'ticket-5',
@@ -193,8 +193,8 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
     coordination_touchpoints: 1,
     review_rounds: 1,
     blockers_encountered: 0,
-    cie_score: 40.0
-  }
+    cie_score: 40.0,
+  },
 ];
 
 // Helper to seed the database with test data
@@ -204,10 +204,10 @@ export function seedTestData(ticketQueries: any): void {
     // Create ticket
     ticketQueries.createTicket({
       ...ticket,
-      complexity_metadata: sampleComplexityMetrics[index]
+      complexity_metadata: sampleComplexityMetrics[index],
     });
   });
-  
+
   // Insert sample comments
   sampleComments.forEach(comment => {
     ticketQueries.addComment(comment.ticket_id, comment);

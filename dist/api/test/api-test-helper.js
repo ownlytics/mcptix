@@ -16,7 +16,7 @@ function createTestServer(ticketQueries) {
     return {
         app: apiServer.getApp(),
         server: apiServer,
-        request: () => (0, supertest_1.default)(apiServer.getApp())
+        request: () => (0, supertest_1.default)(apiServer.getApp()),
     };
 }
 //# sourceMappingURL=api-test-helper.js.map

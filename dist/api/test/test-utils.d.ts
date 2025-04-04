@@ -1,5 +1,5 @@
-import { TicketQueries } from '../../db/queries';
 import Database from 'better-sqlite3';
+import { TicketQueries } from '../../db/queries';
 export declare function initTestDatabase(): {
     db: Database.Database;
     ticketQueries: TicketQueries;

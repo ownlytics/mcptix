@@ -1,6 +1,7 @@
 import request from 'supertest';
-import { ApiServer } from '../server';
+
 import { TicketQueries } from '../../db/queries';
+import { ApiServer } from '../server';
 
 /**
  * Creates a test server for API testing
@@ -12,6 +13,6 @@ export function createTestServer(ticketQueries: TicketQueries) {
   return {
     app: apiServer.getApp(),
     server: apiServer,
-    request: () => request(apiServer.getApp())
+    request: () => request(apiServer.getApp()),
   };
 }

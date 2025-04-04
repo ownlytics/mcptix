@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { ApiServer } from '../server';
 import { TicketQueries } from '../../db/queries';
+import { ApiServer } from '../server';
 /**
  * Creates a test server for API testing
  * @param ticketQueries The TicketQueries instance to use

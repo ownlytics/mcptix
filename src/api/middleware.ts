@@ -3,21 +3,26 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 /**
  * Middleware for handling 404 Not Found errors
  */
-export function notFoundHandler(req: Request, res: Response, next: NextFunction): void | Response {
+export function notFoundHandler(req: Request, res: Response, _next: NextFunction): void | Response {
   res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
 }
 
 /**
  * Middleware for handling errors
  */
-export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void | Response {
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+): void | Response {
   console.error('API Error:', err);
-  
+
   // Handle specific error types
   if (err.name === 'SyntaxError') {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
-  
+
   // Default error response
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 }

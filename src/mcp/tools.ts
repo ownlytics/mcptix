@@ -5,14 +5,16 @@ import {
   ListToolsRequestSchema,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
+
 import { TicketQueries } from '../db/queries';
+import { Ticket, Comment } from '../types';
+
 import { DebugLogger } from './debug-logger';
-import { Ticket, Comment, ComplexityMetadata } from '../types';
 
 export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) {
   const logger = DebugLogger.getInstance();
   logger.log('Setting up MCP tool handlers');
-  
+
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
@@ -292,11 +294,11 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
       },
     ],
   }));
-// Handle tool calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-  logger.log(`Tool call received: ${name}`);
-  logger.log(`Tool arguments: ${JSON.stringify(args)}`);
+  // Handle tool calls
+  server.setRequestHandler(CallToolRequestSchema, async request => {
+    const { name, arguments: args } = request.params;
+    logger.log(`Tool call received: ${name}`);
+    logger.log(`Tool arguments: ${JSON.stringify(args)}`);
 
     try {
       logger.log(`Processing tool call: ${name}`);
@@ -318,10 +320,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         case 'get_stats':
           return handleGetStats(ticketQueries, args);
         default:
-          throw new McpError(
-            ErrorCode.MethodNotFound,
-            `Unknown tool: ${name}`
-          );
+          throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -344,24 +343,24 @@ function handleListTickets(ticketQueries: TicketQueries, args: any) {
   const logger = DebugLogger.getInstance();
   console.log('[MCP Tools] handleListTickets called with args:', JSON.stringify(args));
   logger.log(`handleListTickets called with args: ${JSON.stringify(args)}`);
-  
+
   const filters = {
     status: args.status,
     priority: args.priority,
     search: args.search,
   };
-  
+
   console.log('[MCP Tools] Using filters:', JSON.stringify(filters));
   logger.log(`Using filters: ${JSON.stringify(filters)}`);
-  
+
   const tickets = ticketQueries.getTickets(
     filters,
     args.sort || 'updated',
     args.order || 'desc',
     args.limit || 100,
-    args.offset || 0
+    args.offset || 0,
   );
-  
+
   logger.log(`Found ${tickets.length} tickets`);
   return {
     content: [
@@ -378,13 +377,13 @@ function handleGetTicket(ticketQueries: TicketQueries, args: any) {
   if (!args.id) {
     throw new Error('Ticket ID is required');
   }
-  
+
   const ticket = ticketQueries.getTicketById(args.id);
-  
+
   if (!ticket) {
     throw new Error(`Ticket with ID ${args.id} not found`);
   }
-  
+
   return {
     content: [
       {
@@ -400,7 +399,7 @@ function handleCreateTicket(ticketQueries: TicketQueries, args: any) {
   if (!args.title) {
     throw new Error('Ticket title is required');
   }
-  
+
   const ticket: Ticket = {
     id: `ticket-${Date.now()}`,
     title: args.title,
@@ -410,16 +409,16 @@ function handleCreateTicket(ticketQueries: TicketQueries, args: any) {
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
   };
-  
+
   if (args.complexity_metadata) {
     ticket.complexity_metadata = {
       ticket_id: ticket.id,
-      ...args.complexity_metadata
+      ...args.complexity_metadata,
     };
   }
-  
+
   const ticketId = ticketQueries.createTicket(ticket);
-  
+
   return {
     content: [
       {
@@ -435,13 +434,13 @@ function handleUpdateTicket(ticketQueries: TicketQueries, args: any) {
   if (!args.id) {
     throw new Error('Ticket ID is required');
   }
-  
+
   // Check if ticket exists
   const existingTicket = ticketQueries.getTicketById(args.id);
   if (!existingTicket) {
     throw new Error(`Ticket with ID ${args.id} not found`);
   }
-  
+
   // Create updated ticket object
   const ticket: Ticket = {
     id: args.id,
@@ -452,19 +451,19 @@ function handleUpdateTicket(ticketQueries: TicketQueries, args: any) {
     created: existingTicket.created,
     updated: new Date().toISOString(),
   };
-  
+
   // Update complexity metadata if provided
   if (args.complexity_metadata) {
     ticket.complexity_metadata = {
       ticket_id: args.id,
       ...existingTicket.complexity_metadata,
-      ...args.complexity_metadata
+      ...args.complexity_metadata,
     };
   }
-  
+
   // Update ticket
   const success = ticketQueries.updateTicket(ticket);
-  
+
   return {
     content: [
       {
@@ -480,16 +479,16 @@ function handleDeleteTicket(ticketQueries: TicketQueries, args: any) {
   if (!args.id) {
     throw new Error('Ticket ID is required');
   }
-  
+
   // Check if ticket exists
   const existingTicket = ticketQueries.getTicketById(args.id);
   if (!existingTicket) {
     throw new Error(`Ticket with ID ${args.id} not found`);
   }
-  
+
   // Delete ticket
   const success = ticketQueries.deleteTicket(args.id);
-  
+
   return {
     content: [
       {
@@ -505,17 +504,17 @@ function handleAddComment(ticketQueries: TicketQueries, args: any) {
   if (!args.ticket_id) {
     throw new Error('Ticket ID is required');
   }
-  
+
   if (!args.content) {
     throw new Error('Comment content is required');
   }
-  
+
   // Check if ticket exists
   const existingTicket = ticketQueries.getTicketById(args.ticket_id);
   if (!existingTicket) {
     throw new Error(`Ticket with ID ${args.ticket_id} not found`);
   }
-  
+
   // Create comment object
   const comment: Comment = {
     id: `comment-${Date.now()}`,
@@ -526,10 +525,10 @@ function handleAddComment(ticketQueries: TicketQueries, args: any) {
     status: args.status || 'open',
     timestamp: new Date().toISOString(),
   };
-  
+
   // Add comment
   const commentId = ticketQueries.addComment(args.ticket_id, comment);
-  
+
   return {
     content: [
       {
@@ -545,21 +544,21 @@ function handleSearchTickets(ticketQueries: TicketQueries, args: any) {
   if (!args.query) {
     throw new Error('Search query is required');
   }
-  
+
   const filters = {
     status: args.status,
     priority: args.priority,
     search: args.query,
   };
-  
+
   const tickets = ticketQueries.getTickets(
     filters,
     args.sort || 'updated',
     args.order || 'desc',
     args.limit || 100,
-    args.offset || 0
+    args.offset || 0,
   );
-  
+
   return {
     content: [
       {
@@ -573,18 +572,18 @@ function handleSearchTickets(ticketQueries: TicketQueries, args: any) {
 // Handler for get_stats tool
 function handleGetStats(ticketQueries: TicketQueries, args: any) {
   const groupBy = args.group_by || 'status';
-  
+
   // Get all tickets
   const tickets = ticketQueries.getTickets({}, 'updated', 'desc', 1000, 0);
-  
+
   // Group tickets by the specified field
   const stats: Record<string, number> = {};
-  
+
   for (const ticket of tickets) {
     const key = ticket[groupBy as keyof Ticket] as string;
     stats[key] = (stats[key] || 0) + 1;
   }
-  
+
   return {
     content: [
       {

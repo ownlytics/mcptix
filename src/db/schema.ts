@@ -1,6 +1,7 @@
-import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import Database from 'better-sqlite3';
 
 /**
  * Ensure the data directory exists for the given database path
@@ -10,7 +11,7 @@ import fs from 'fs';
 export function ensureDataDirectory(dbPath: string): string {
   // Extract the directory from the database path
   const dbDir = path.dirname(dbPath);
-  
+
   // Handle problematic paths
   if (dbDir === '.' || dbDir === './data' || dbDir === '/.epic-tracker/data') {
     // Get the current working directory, ensuring it's not '/'
@@ -19,25 +20,25 @@ export function ensureDataDirectory(dbPath: string): string {
       // If cwd is root, use the home directory instead
       cwd = process.env.HOME || process.env.USERPROFILE || '/tmp';
     }
-    
+
     // Use an absolute path based on the safe cwd
     const absoluteDir = path.join(cwd, '.epic-tracker', 'data');
-    
+
     console.log(`Using safe data directory: ${absoluteDir}`);
-    
+
     // Create the directory if it doesn't exist
     if (!fs.existsSync(absoluteDir)) {
       fs.mkdirSync(absoluteDir, { recursive: true });
     }
-    
+
     return absoluteDir;
   }
-  
+
   // Normal case - create the directory if it doesn't exist
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
-  
+
   return dbDir;
 }
 
@@ -62,16 +63,19 @@ export const DB_PATH = getDefaultDbPath();
  * @param clearData Whether to clear existing data (default: false)
  * @returns The database connection
  */
-export function initializeDatabase(dbPath: string = DB_PATH, clearData: boolean = false): Database.Database {
+export function initializeDatabase(
+  dbPath: string = DB_PATH,
+  clearData: boolean = false,
+): Database.Database {
   try {
     console.log(`[initializeDatabase] Called with dbPath: ${dbPath}`);
     console.log(`[initializeDatabase] Current working directory: ${process.cwd()}`);
     console.log(`[initializeDatabase] Default DB_PATH: ${DB_PATH}`);
-    
+
     // Ensure the data directory exists
     const dataDir = ensureDataDirectory(dbPath);
     console.log(`Database directory: ${dataDir}`);
-    
+
     // Make sure we're using an absolute path for the database file
     let absoluteDbPath = dbPath;
     if (!path.isAbsolute(dbPath)) {
@@ -79,19 +83,19 @@ export function initializeDatabase(dbPath: string = DB_PATH, clearData: boolean 
       absoluteDbPath = path.join(dataDir, path.basename(dbPath));
       console.log(`Using absolute database path: ${absoluteDbPath}`);
     }
-    
+
     // If clearData is true and the database file exists, delete it
     if (clearData && fs.existsSync(absoluteDbPath)) {
       console.log(`Clearing existing database at ${absoluteDbPath}`);
       fs.unlinkSync(absoluteDbPath);
     }
-    
+
     // Create or open the database
     const db = new Database(absoluteDbPath);
-    
+
     // Enable foreign keys
     db.pragma('foreign_keys = ON');
-    
+
     // Create tables with proper constraints and indexes
     db.exec(`
       -- Tickets table
@@ -148,11 +152,13 @@ export function initializeDatabase(dbPath: string = DB_PATH, clearData: boolean 
       CREATE INDEX IF NOT EXISTS idx_comments_ticket_id ON comments(ticket_id);
       CREATE INDEX IF NOT EXISTS idx_complexity_cie_score ON complexity(cie_score);
     `);
-    
+
     console.log(`Database initialized at ${dbPath}`);
     return db;
   } catch (error) {
-    console.error(`Error initializing database: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `Error initializing database: ${error instanceof Error ? error.message : String(error)}`,
+    );
     throw error;
   }
 }
@@ -166,7 +172,9 @@ export function closeDatabase(db: Database.Database): void {
     db.close();
     console.log('Database connection closed');
   } catch (error) {
-    console.error(`Error closing database: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `Error closing database: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -178,20 +186,22 @@ export function clearDatabase(db: Database.Database): void {
   try {
     // Start a transaction
     db.exec('BEGIN TRANSACTION;');
-    
+
     // Delete all data from tables
     db.exec('DELETE FROM comments;');
     db.exec('DELETE FROM complexity;');
     db.exec('DELETE FROM tickets;');
-    
+
     // Commit the transaction
     db.exec('COMMIT;');
-    
+
     console.log('Database cleared');
   } catch (error) {
     // Rollback on error
     db.exec('ROLLBACK;');
-    console.error(`Error clearing database: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `Error clearing database: ${error instanceof Error ? error.message : String(error)}`,
+    );
     throw error;
   }
 }

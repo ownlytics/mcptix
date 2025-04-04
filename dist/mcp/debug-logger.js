@@ -25,7 +25,7 @@ class DebugLogger {
             // Fall back to home directory
             path_1.default.join(process.env.HOME || process.env.USERPROFILE || '/tmp', '.epic-tracker-debug'),
             // Last resort
-            '/tmp'
+            '/tmp',
         ];
         console.log(`[DebugLogger] Searching for writable log directory...`);
         let logDir = '';

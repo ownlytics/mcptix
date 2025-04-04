@@ -12,37 +12,37 @@ export interface EpicTrackerConfig {
    * Default: './data/epic-tracker.db'
    */
   dbPath?: string;
-  
+
   /**
    * Port for the API server
    * Default: 3000
    */
   apiPort?: number;
-  
+
   /**
    * Host for the API server
    * Default: 'localhost'
    */
   apiHost?: string;
-  
+
   /**
    * Whether to enable the MCP server
    * Default: true
    */
   mcpEnabled?: boolean;
-  
+
   /**
    * Whether to enable the API server
    * Default: true
    */
   apiEnabled?: boolean;
-  
+
   /**
    * Log level for the application
    * Default: 'info'
    */
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
-  
+
   /**
    * Whether to clear existing data on initialization
    * Default: false
@@ -60,7 +60,7 @@ export const defaultConfig: EpicTrackerConfig = {
   mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
   apiEnabled: true,
   logLevel: 'info',
-  clearDataOnInit: false
+  clearDataOnInit: false,
 };
 
 /**
@@ -82,9 +82,11 @@ export function validateConfig(config: EpicTrackerConfig): void {
   if (config.apiPort !== undefined && (config.apiPort < 0 || config.apiPort > 65535)) {
     throw new Error(`Invalid API port: ${config.apiPort}. Must be between 0 and 65535.`);
   }
-  
+
   // Validate log level
   if (config.logLevel && !['debug', 'info', 'warn', 'error'].includes(config.logLevel)) {
-    throw new Error(`Invalid log level: ${config.logLevel}. Must be one of: debug, info, warn, error.`);
+    throw new Error(
+      `Invalid log level: ${config.logLevel}. Must be one of: debug, info, warn, error.`,
+    );
   }
 }

@@ -21,7 +21,7 @@ function validateCreateTicket(req) {
  * @param req The request object
  * @returns An error message or null if valid
  */
-function validateUpdateTicket(req) {
+function validateUpdateTicket(_req) {
     // No specific validation for update, as all fields are optional
     return null;
 }

@@ -1,10 +1,12 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { TicketQueries } from '../db/queries';
-import { setupToolHandlers } from './tools';
-import { setupResourceHandlers } from './resources';
+
 import { EpicTrackerConfig } from '../config';
+import { TicketQueries } from '../db/queries';
+
 import { DebugLogger } from './debug-logger';
+import { setupResourceHandlers } from './resources';
+import { setupToolHandlers } from './tools';
 
 /**
  * Epic Tracker MCP Server
@@ -26,16 +28,16 @@ export class EpicTrackerMcpServer {
     this.ticketQueries = ticketQueries;
     this.config = config;
     this.logger = DebugLogger.getInstance();
-    
+
     // Log database path for debugging
     const dbPath = config.dbPath;
     const actualDbPath = ticketQueries['db'].name;
     const cwd = process.cwd();
-    
+
     console.log('[MCP Server] Database path from config:', dbPath);
     console.log('[MCP Server] Actual database file path:', actualDbPath);
     console.log('[MCP Server] Current working directory:', cwd);
-    
+
     // Write to debug log
     this.logger.log('MCP Server initialized');
     this.logger.log(`Database path from config: ${dbPath}`);
@@ -54,21 +56,21 @@ export class EpicTrackerMcpServer {
           tools: {},
           resources: {},
         },
-      }
+      },
     );
 
     // Setup tool handlers
     setupToolHandlers(this.server, this.ticketQueries);
-    
+
     // Setup resource handlers
     setupResourceHandlers(this.server, this.ticketQueries);
 
     // Error handling
-    this.server.onerror = (error) => {
+    this.server.onerror = error => {
       console.error('[MCP Error]', error);
       this.logger.log(`MCP Error: ${error instanceof Error ? error.message : String(error)}`);
     };
-    
+
     // Log server initialization
     this.logger.log('MCP Server fully initialized');
   }

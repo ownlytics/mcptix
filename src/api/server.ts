@@ -1,12 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
 import { Server as HttpServer } from 'http';
 import path from 'path';
+
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import express from 'express';
+
 import { TicketQueries } from '../db/queries';
-import { setupRoutes } from './routes';
+
 import { errorHandler, notFoundHandler, requestLogger } from './middleware';
-import { EpicTrackerConfig } from '../config';
+import { setupRoutes } from './routes';
 
 /**
  * API Server class for the Epic Tracker MCP
@@ -23,24 +25,24 @@ export class ApiServer {
   constructor(ticketQueries: TicketQueries) {
     this.ticketQueries = ticketQueries;
     this.app = express();
-    
+
     // Configure middleware
     this.app.use(cors());
     this.app.use(bodyParser.json());
     this.app.use(requestLogger);
-    
+
     // Set up routes
     setupRoutes(this.app, this.ticketQueries);
-    
+
     // Serve static files from the public directory
     const publicPath = path.join(__dirname, '../../public');
     this.app.use(express.static(publicPath));
-    
+
     // Serve index.html for the root route
     this.app.get('/', (req, res) => {
       res.sendFile(path.join(publicPath, 'index.html'));
     });
-    
+
     // Error handling
     this.app.use(notFoundHandler as express.RequestHandler);
     this.app.use(errorHandler as express.ErrorRequestHandler);
@@ -81,7 +83,9 @@ export class ApiServer {
           resolve();
         });
       } catch (error) {
-        console.error(`Error starting API server: ${error instanceof Error ? error.message : String(error)}`);
+        console.error(
+          `Error starting API server: ${error instanceof Error ? error.message : String(error)}`,
+        );
         reject(error);
       }
     });
@@ -103,7 +107,7 @@ export class ApiServer {
         return;
       }
 
-      this.server.close((err) => {
+      this.server.close(err => {
         if (err) {
           console.error(`Error stopping API server: ${err.message}`);
           reject(err);

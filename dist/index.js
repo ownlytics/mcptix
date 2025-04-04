@@ -20,11 +20,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EpicTracker = void 0;
 exports.createEpicTracker = createEpicTracker;
+const server_1 = require("./api/server");
 const config_1 = require("./config");
+const queries_1 = require("./db/queries");
 const schema_1 = require("./db/schema");
 const service_1 = require("./db/service");
-const queries_1 = require("./db/queries");
-const server_1 = require("./api/server");
 const server_2 = require("./mcp/server");
 // Export all types and configuration for users
 __exportStar(require("./types"), exports);
@@ -143,14 +143,14 @@ if (require.main === module) {
     const runMcp = args.includes('--mcp');
     // Default to API only if no specific flags are provided
     const config = {
-        apiEnabled: runApi || (!runMcp), // Enable API if --api flag is present or --mcp is not present
-        mcpEnabled: runMcp // Enable MCP only if --mcp flag is present
+        apiEnabled: runApi || !runMcp, // Enable API if --api flag is present or --mcp is not present
+        mcpEnabled: runMcp, // Enable MCP only if --mcp flag is present
     };
     console.log(`Starting Epic Tracker with configuration:
   - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
   - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`);
     const epicTracker = createEpicTracker(config);
-    epicTracker.start().catch((error) => {
+    epicTracker.start().catch(error => {
         console.error('Failed to start Epic Tracker:', error);
         process.exit(1);
     });

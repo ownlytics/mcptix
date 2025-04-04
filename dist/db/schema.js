@@ -9,9 +9,9 @@ exports.getDefaultDbPath = getDefaultDbPath;
 exports.initializeDatabase = initializeDatabase;
 exports.closeDatabase = closeDatabase;
 exports.clearDatabase = clearDatabase;
-const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
-const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 /**
  * Ensure the data directory exists for the given database path
  * @param dbPath Path to the database file

@@ -7,13 +7,13 @@ exports.validateRequest = validateRequest;
 /**
  * Middleware for handling 404 Not Found errors
  */
-function notFoundHandler(req, res, next) {
+function notFoundHandler(req, res, _next) {
     res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
 }
 /**
  * Middleware for handling errors
  */
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
     console.error('API Error:', err);
     // Handle specific error types
     if (err.name === 'SyntaxError') {

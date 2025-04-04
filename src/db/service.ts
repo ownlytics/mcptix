@@ -1,13 +1,15 @@
-import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import Database from 'better-sqlite3';
+
 import { EpicTrackerConfig } from '../config';
 import { getDefaultDbPath } from '../db/schema';
 
 /**
  * Singleton service for managing database connections
  * Ensures consistent database access across all components
- * 
+ *
  * SIMPLIFIED VERSION: This assumes a more direct approach to database path resolution
  */
 export class DatabaseService {
@@ -33,45 +35,48 @@ export class DatabaseService {
    * @param clearData Whether to clear existing data
    * @returns The database connection
    */
-  public initialize(config: EpicTrackerConfig | string, clearData: boolean = false): Database.Database {
+  public initialize(
+    config: EpicTrackerConfig | string,
+    clearData: boolean = false,
+  ): Database.Database {
     // Log the stack trace to see who's calling this
     console.log('[DatabaseService] Initialize called from:');
     const stackLines = new Error().stack?.split('\n').slice(2, 5);
     if (stackLines) {
       stackLines.forEach(line => console.log(`  ${line.trim()}`));
     }
-    
+
     // Get the database path from config
-    const dbPath = typeof config === 'string' ? config : (config.dbPath || getDefaultDbPath());
+    const dbPath = typeof config === 'string' ? config : config.dbPath || getDefaultDbPath();
     console.log(`[DatabaseService] Initializing with path: ${dbPath}`);
-    
+
     // If already initialized with the same path, return the existing connection
     if (this.db && this.dbPath === dbPath) {
       console.log(`[DatabaseService] Reusing existing database connection: ${this.dbPath}`);
       return this.db;
     }
-    
+
     // Close existing connection if any
     this.close();
-    
+
     // Store the database path - ENSURE it's safe
     if (path.isAbsolute(dbPath) && dbPath.startsWith('/') && path.dirname(dbPath) === '/') {
       // This is a dangerous path at the root - redirect to a safe location
       console.log(`[DatabaseService] WARNING: Unsafe path detected: ${dbPath}`);
-      
+
       // Use home directory or current directory instead
       const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
       const safePath = path.join(safeDir, '.epic-tracker', 'data', 'epic-tracker.db');
-      
+
       console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
       this.dbPath = safePath;
     } else {
       this.dbPath = dbPath;
     }
-    
+
     console.log(`[DatabaseService] Initializing database at: ${this.dbPath}`);
     console.log(`[DatabaseService] Current working directory: ${process.cwd()}`);
-    
+
     // Ensure the directory exists
     const dbDir = path.dirname(this.dbPath);
     if (!fs.existsSync(dbDir)) {
@@ -79,21 +84,27 @@ export class DatabaseService {
         fs.mkdirSync(dbDir, { recursive: true });
         console.log(`[DatabaseService] Created directory: ${dbDir}`);
       } catch (error) {
-        console.error(`[DatabaseService] Failed to create directory: ${error instanceof Error ? error.message : String(error)}`);
-        
+        console.error(
+          `[DatabaseService] Failed to create directory: ${error instanceof Error ? error.message : String(error)}`,
+        );
+
         // Fall back to a directory we know we can write to
-        const fallbackDir = path.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.epic-tracker', 'data');
+        const fallbackDir = path.join(
+          process.env.HOME || process.env.USERPROFILE || process.cwd(),
+          '.epic-tracker',
+          'data',
+        );
         console.log(`[DatabaseService] Falling back to: ${fallbackDir}`);
-        
+
         // Create the fallback directory
         fs.mkdirSync(fallbackDir, { recursive: true });
-        
+
         // Update the database path
         this.dbPath = path.join(fallbackDir, 'epic-tracker.db');
         console.log(`[DatabaseService] Using fallback path: ${this.dbPath}`);
       }
     }
-    
+
     // Initialize the database
     this.db = this.initializeDatabase(this.dbPath, clearData);
     return this.db;
@@ -136,13 +147,13 @@ export class DatabaseService {
         console.log(`[DatabaseService] Clearing existing database at ${dbPath}`);
         fs.unlinkSync(dbPath);
       }
-      
+
       // Create or open the database
       const db = new Database(dbPath);
-      
+
       // Enable foreign keys
       db.pragma('foreign_keys = ON');
-      
+
       // Create tables with proper constraints and indexes
       db.exec(`
         -- Tickets table
@@ -199,11 +210,13 @@ export class DatabaseService {
         CREATE INDEX IF NOT EXISTS idx_comments_ticket_id ON comments(ticket_id);
         CREATE INDEX IF NOT EXISTS idx_complexity_cie_score ON complexity(cie_score);
       `);
-      
+
       console.log(`[DatabaseService] Database initialized at ${dbPath}`);
       return db;
     } catch (error) {
-      console.error(`[DatabaseService] Error initializing database: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `[DatabaseService] Error initializing database: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }

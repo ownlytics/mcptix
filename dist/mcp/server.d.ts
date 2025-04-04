@@ -1,5 +1,5 @@
-import { TicketQueries } from '../db/queries';
 import { EpicTrackerConfig } from '../config';
+import { TicketQueries } from '../db/queries';
 /**
  * Epic Tracker MCP Server
  * Provides Model Context Protocol functionality for Epic Tracker

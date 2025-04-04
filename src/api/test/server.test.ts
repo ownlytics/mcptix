@@ -1,5 +1,6 @@
-import { initTestDatabase, cleanupTestDatabase } from './test-utils';
 import { ApiServer } from '../server';
+
+import { initTestDatabase, cleanupTestDatabase } from './test-utils';
 
 describe('API Server', () => {
   let db: any;
@@ -25,11 +26,11 @@ describe('API Server', () => {
 
   test('should start and stop the server', async () => {
     apiServer = new ApiServer(ticketQueries);
-    
+
     // Start the server
     await apiServer.start(3001);
     expect(apiServer.isRunning()).toBe(true);
-    
+
     // Stop the server
     await apiServer.stop();
     expect(apiServer.isRunning()).toBe(false);

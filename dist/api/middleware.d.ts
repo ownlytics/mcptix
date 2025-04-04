@@ -2,11 +2,11 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 /**
  * Middleware for handling 404 Not Found errors
  */
-export declare function notFoundHandler(req: Request, res: Response, next: NextFunction): void | Response;
+export declare function notFoundHandler(req: Request, res: Response, _next: NextFunction): void | Response;
 /**
  * Middleware for handling errors
  */
-export declare function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void | Response;
+export declare function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void | Response;
 /**
  * Middleware for logging requests
  */

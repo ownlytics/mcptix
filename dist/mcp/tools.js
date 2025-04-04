@@ -386,7 +386,7 @@ function handleCreateTicket(ticketQueries, args) {
     if (args.complexity_metadata) {
         ticket.complexity_metadata = {
             ticket_id: ticket.id,
-            ...args.complexity_metadata
+            ...args.complexity_metadata,
         };
     }
     const ticketId = ticketQueries.createTicket(ticket);
@@ -424,7 +424,7 @@ function handleUpdateTicket(ticketQueries, args) {
         ticket.complexity_metadata = {
             ticket_id: args.id,
             ...existingTicket.complexity_metadata,
-            ...args.complexity_metadata
+            ...args.complexity_metadata,
         };
     }
     // Update ticket
