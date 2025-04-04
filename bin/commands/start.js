@@ -1,6 +1,6 @@
 /**
- * Epic Tracker Start Command
- * Starts the Epic Tracker UI
+ * McpTix Start Command
+ * Starts the McpTix UI
  */
 
 const path = require('path');
@@ -32,18 +32,18 @@ const cliLogger = {
 };
 
 /**
- * Start the Epic Tracker UI
+ * Start the McpTix UI
  * @param {Object} options Command options
  */
 async function start(options) {
-  cliLogger.info('Start', 'Starting Epic Tracker...');
+  cliLogger.info('Start', 'Starting McpTix...');
 
   try {
-    // Check if Epic Tracker is initialized
-    const configPath = path.join(process.cwd(), '.epic-tracker', 'epic-tracker.config.js');
+    // Check if McpTix is initialized
+    const configPath = path.join(process.cwd(), '.mcptix', 'mcptix.config.js');
     if (!fs.existsSync(configPath)) {
-      cliLogger.error('Start', 'Epic Tracker is not initialized in this project.');
-      cliLogger.error('Start', 'Run `npx epic-tracker init` to initialize Epic Tracker.');
+      cliLogger.error('Start', 'McpTix is not initialized in this project.');
+      cliLogger.error('Start', 'Run `npx mcptix init` to initialize McpTix.');
       process.exit(1);
     }
 
@@ -54,7 +54,7 @@ async function start(options) {
     cliLogger.debug('Start', 'Current working directory: ' + process.cwd());
 
     // Check for db-config.json
-    const dbConfigPath = path.join(process.cwd(), '.epic-tracker', 'db-config.json');
+    const dbConfigPath = path.join(process.cwd(), '.mcptix', 'db-config.json');
     if (fs.existsSync(dbConfigPath)) {
       try {
         const dbConfig = JSON.parse(fs.readFileSync(dbConfigPath, 'utf8'));
@@ -75,20 +75,19 @@ async function start(options) {
       config.apiHost = options.host;
     }
 
-    // Import the Epic Tracker package
-    const { createEpicTracker } = require(path.resolve(__dirname, '../../dist/index.js'));
+    // Import the McpTix package
+    const { createMcpTix } = require(path.resolve(__dirname, '../../dist/index.js'));
 
     // Override config to enable API and disable MCP
     config.apiEnabled = true;
     config.mcpEnabled = false; // MCP server should be started by the LLM agent
-
-    // Create and start Epic Tracker with API only
-    const epicTracker = createEpicTracker(config);
-    await epicTracker.start();
+    // Create and start McpTix with API only
+    const mcpTix = createMcpTix(config);
+    await mcpTix.start();
 
     // Construct the URL
     const url = `http://${config.apiHost}:${config.apiPort}`;
-    cliLogger.success('Start', `Epic Tracker running at ${url}`);
+    cliLogger.success('Start', `McpTix running at ${url}`);
 
     // Open browser if not disabled
     if (options.open !== false) {
@@ -101,18 +100,18 @@ async function start(options) {
     process.on('SIGINT', async () => {
       console.log('');
       cliLogger.info('Start', 'Gracefully shutting down...');
-      await epicTracker.shutdown();
+      await mcpTix.shutdown();
       process.exit(0);
     });
 
     process.on('SIGTERM', async () => {
       console.log('');
       cliLogger.info('Start', 'Gracefully shutting down...');
-      await epicTracker.shutdown();
+      await mcpTix.shutdown();
       process.exit(0);
     });
   } catch (error) {
-    cliLogger.error('Start', 'Error starting Epic Tracker', error);
+    cliLogger.error('Start', 'Error starting McpTix', error);
     process.exit(1);
   }
 }

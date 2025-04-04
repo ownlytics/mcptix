@@ -1,16 +1,16 @@
 /**
- * Epic Tracker - A reusable ticket tracking system with MCP and API server capabilities
+ * McpTix - A reusable ticket tracking system with MCP and API server capabilities
  * Main entry point for the package
  */
-import { EpicTrackerConfig } from './config';
+import { McpTixConfig } from './config';
 import { TicketQueries } from './db/queries';
 export * from './types';
 export * from './config';
 /**
- * Main class for Epic Tracker
- * Provides a unified interface for managing the Epic Tracker system
+ * Main class for McpTix
+ * Provides a unified interface for managing the McpTix system
  */
-export declare class EpicTracker {
+export declare class McpTix {
     private static isShuttingDown;
     private config;
     private dbService;
@@ -19,17 +19,17 @@ export declare class EpicTracker {
     private apiServer?;
     private mcpServer?;
     /**
-     * Create a new Epic Tracker instance
+     * Create a new McpTix instance
      * @param userConfig Configuration options
      */
-    constructor(userConfig?: Partial<EpicTrackerConfig>);
+    constructor(userConfig?: Partial<McpTixConfig>);
     /**
-     * Start the Epic Tracker servers
-     * @returns A promise that resolves to the EpicTracker instance
+     * Start the McpTix servers
+     * @returns A promise that resolves to the McpTix instance
      */
-    start(): Promise<EpicTracker>;
+    start(): Promise<McpTix>;
     /**
-     * Gracefully shut down Epic Tracker
+     * Gracefully shut down McpTix
      * @returns A promise that resolves when shutdown is complete
      */
     shutdown(): Promise<void>;
@@ -45,9 +45,9 @@ export declare class EpicTracker {
     getTicketQueries(): TicketQueries;
 }
 /**
- * Factory function for creating an Epic Tracker instance
+ * Factory function for creating a McpTix instance
  * @param config Configuration options
- * @returns A new Epic Tracker instance
+ * @returns A new McpTix instance
  */
-export declare function createEpicTracker(config?: Partial<EpicTrackerConfig>): EpicTracker;
+export declare function createMcpTix(config?: Partial<McpTixConfig>): McpTix;
 //# sourceMappingURL=index.d.ts.map

@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Epic Tracker - A reusable ticket tracking system with MCP and API server capabilities
+ * McpTix - A reusable ticket tracking system with MCP and API server capabilities
  * Main entry point for the package
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -18,8 +18,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EpicTracker = void 0;
-exports.createEpicTracker = createEpicTracker;
+exports.McpTix = void 0;
+exports.createMcpTix = createMcpTix;
 const server_1 = require("./api/server");
 const config_1 = require("./config");
 const queries_1 = require("./db/queries");
@@ -31,12 +31,12 @@ const logger_1 = require("./utils/logger");
 __exportStar(require("./types"), exports);
 __exportStar(require("./config"), exports);
 /**
- * Main class for Epic Tracker
- * Provides a unified interface for managing the Epic Tracker system
+ * Main class for McpTix
+ * Provides a unified interface for managing the McpTix system
  */
-class EpicTracker {
+class McpTix {
     /**
-     * Create a new Epic Tracker instance
+     * Create a new McpTix instance
      * @param userConfig Configuration options
      */
     constructor(userConfig = {}) {
@@ -46,15 +46,15 @@ class EpicTracker {
         // Initialize database using the singleton service
         this.dbService = service_1.DatabaseService.getInstance();
         this.db = this.dbService.initialize(this.config, this.config.clearDataOnInit);
-        logger_1.Logger.info('EpicTracker', `Database initialized at absolute path: ${this.db.name}`);
+        logger_1.Logger.info('McpTix', `Database initialized at absolute path: ${this.db.name}`);
         this.ticketQueries = new queries_1.TicketQueries(this.db);
         // Set up cleanup on process exit
         process.on('SIGINT', this.shutdown.bind(this));
         process.on('SIGTERM', this.shutdown.bind(this));
     }
     /**
-     * Start the Epic Tracker servers
-     * @returns A promise that resolves to the EpicTracker instance
+     * Start the McpTix servers
+     * @returns A promise that resolves to the McpTix instance
      */
     async start() {
         try {
@@ -65,7 +65,7 @@ class EpicTracker {
             }
             // Start MCP server if enabled
             if (this.config.mcpEnabled) {
-                this.mcpServer = new server_2.EpicTrackerMcpServer(this.ticketQueries, this.config);
+                this.mcpServer = new server_2.McpTixServer(this.ticketQueries, this.config);
                 await this.mcpServer.run();
             }
             return this;
@@ -77,16 +77,16 @@ class EpicTracker {
         }
     }
     /**
-     * Gracefully shut down Epic Tracker
+     * Gracefully shut down McpTix
      * @returns A promise that resolves when shutdown is complete
      */
     async shutdown() {
         // Prevent duplicate shutdown messages
-        if (EpicTracker.isShuttingDown) {
+        if (McpTix.isShuttingDown) {
             return Promise.resolve();
         }
-        EpicTracker.isShuttingDown = true;
-        logger_1.Logger.info('EpicTracker', 'Gracefully shutting down...');
+        McpTix.isShuttingDown = true;
+        logger_1.Logger.info('McpTix', 'Gracefully shutting down...');
         try {
             // Stop MCP server if running
             if (this.mcpServer) {
@@ -103,10 +103,10 @@ class EpicTracker {
                 this.dbService.close();
                 this.db = null;
             }
-            logger_1.Logger.success('EpicTracker', 'Shut down successfully');
+            logger_1.Logger.success('McpTix', 'Shut down successfully');
         }
         catch (error) {
-            logger_1.Logger.error('EpicTracker', 'Error during shutdown', error);
+            logger_1.Logger.error('McpTix', 'Error during shutdown', error);
             throw error;
         }
     }
@@ -133,15 +133,15 @@ class EpicTracker {
         return this.ticketQueries;
     }
 }
-exports.EpicTracker = EpicTracker;
-EpicTracker.isShuttingDown = false;
+exports.McpTix = McpTix;
+McpTix.isShuttingDown = false;
 /**
- * Factory function for creating an Epic Tracker instance
+ * Factory function for creating a McpTix instance
  * @param config Configuration options
- * @returns A new Epic Tracker instance
+ * @returns A new McpTix instance
  */
-function createEpicTracker(config) {
-    return new EpicTracker(config);
+function createMcpTix(config) {
+    return new McpTix(config);
 }
 // If this file is run directly, start the servers based on command line arguments
 if (require.main === module) {
@@ -153,12 +153,12 @@ if (require.main === module) {
         apiEnabled: runApi || !runMcp, // Enable API if --api flag is present or --mcp is not present
         mcpEnabled: runMcp, // Enable MCP only if --mcp flag is present
     };
-    logger_1.Logger.info('EpicTracker', `Starting with configuration:
+    logger_1.Logger.info('McpTix', `Starting with configuration:
   - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
   - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`);
-    const epicTracker = createEpicTracker(config);
-    epicTracker.start().catch(error => {
-        logger_1.Logger.error('EpicTracker', 'Failed to start', error);
+    const mcpTix = createMcpTix(config);
+    mcpTix.start().catch(error => {
+        logger_1.Logger.error('McpTix', 'Failed to start', error);
         process.exit(1);
     });
 }

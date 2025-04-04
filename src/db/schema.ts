@@ -13,7 +13,7 @@ export function ensureDataDirectory(dbPath: string): string {
   const dbDir = path.dirname(dbPath);
 
   // Handle problematic paths
-  if (dbDir === '.' || dbDir === './data' || dbDir === '/.epic-tracker/data') {
+  if (dbDir === '.' || dbDir === './data' || dbDir === '/.mcptix/data') {
     // Get the current working directory, ensuring it's not '/'
     let cwd = process.cwd();
     if (cwd === '/') {
@@ -22,7 +22,7 @@ export function ensureDataDirectory(dbPath: string): string {
     }
 
     // Use an absolute path based on the safe cwd
-    const absoluteDir = path.join(cwd, '.epic-tracker', 'data');
+    const absoluteDir = path.join(cwd, '.mcptix', 'data');
 
     console.log(`Using safe data directory: ${absoluteDir}`);
 
@@ -50,8 +50,8 @@ export function getDefaultDbPath(): string {
   // Use process.cwd() to get the current working directory (user's project)
   // instead of __dirname which points to the package's directory
   const projectRoot = process.cwd();
-  const dataDir = path.join(projectRoot, '.epic-tracker', 'data');
-  return path.join(dataDir, 'epic-tracker.db');
+  const dataDir = path.join(projectRoot, '.mcptix', 'data');
+  return path.join(dataDir, 'mcptix.db');
 }
 
 // Default database file path

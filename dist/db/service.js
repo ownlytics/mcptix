@@ -58,7 +58,7 @@ class DatabaseService {
             logger_1.Logger.warn('DatabaseService', `Unsafe path detected: ${dbPath}`);
             // Use home directory or current directory instead
             const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
-            const safePath = path_1.default.join(safeDir, '.epic-tracker', 'data', 'epic-tracker.db');
+            const safePath = path_1.default.join(safeDir, '.mcptix', 'data', 'mcptix.db');
             logger_1.Logger.info('DatabaseService', `Redirecting to safe path: ${safePath}`);
             console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
             this.dbPath = safePath;
@@ -78,12 +78,12 @@ class DatabaseService {
             catch (error) {
                 logger_1.Logger.error('DatabaseService', `Failed to create directory: ${dbDir}`, error);
                 // Fall back to a directory we know we can write to
-                const fallbackDir = path_1.default.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.epic-tracker', 'data');
+                const fallbackDir = path_1.default.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.mcptix', 'data');
                 logger_1.Logger.info('DatabaseService', `Falling back to: ${fallbackDir}`);
                 // Create the fallback directory
                 fs_1.default.mkdirSync(fallbackDir, { recursive: true });
                 // Update the database path
-                this.dbPath = path_1.default.join(fallbackDir, 'epic-tracker.db');
+                this.dbPath = path_1.default.join(fallbackDir, 'mcptix.db');
                 logger_1.Logger.info('DatabaseService', `Using fallback path: ${this.dbPath}`);
             }
         }

@@ -1,14 +1,14 @@
-# Epic Tracker [![Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://github.com/epic-tracker/epic-tracker)
+# McpTix [![Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://github.com/mcptix/mcptix)
 
 A simple, powerful ticket tracking system with AI assistant integration.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg)
 
-![Epic Tracker Banner](https://via.placeholder.com/800x200?text=Epic+Tracker)
+![McpTix Banner](https://via.placeholder.com/800x200?text=McpTix)
 
-## What is Epic Tracker?
+## What is McpTix?
 
-Epic Tracker is a ticket tracking system that helps you manage tasks, bugs, and features for your projects. It's designed to be easy to use and integrates with AI assistants through the Model Context Protocol (MCP).
+McpTix is a ticket tracking system that helps you manage tasks, bugs, and features for your projects. It's designed to be easy to use and integrates with AI assistants through the Model Context Protocol (MCP).
 
 - 📋 **Track tickets** - Create, update, and manage tickets for your projects
 - 🧠 **Measure complexity** - Track how complex your tickets are with the Complexity Intelligence Engine
@@ -22,33 +22,35 @@ Epic Tracker is a ticket tracking system that helps you manage tasks, bugs, and 
 Open your terminal and run:
 
 ```bash
-npm install epic-tracker-mcp
+npm install mcptix
 ```
 
 ### Step 2: Initialize Epic Tracker in your project
 
 ```bash
-npx epic-tracker init
+npx mcptix init
 ```
 
 This will:
-- Create a `.epic-tracker` folder in your project
+
+- Create a `.mcptix` folder in your project
 - Add configuration files
 - Set up the necessary configuration files
 
 ### Step 3: Start Epic Tracker
 
 ```bash
-npx epic-tracker start
+npx mcptix start
 ```
 
+That's it! McpTix will start and open in your browser automatically.
 That's it! Epic Tracker will start and open in your browser automatically.
 
-## Using Epic Tracker
+## Using McpTix
 
 ### The Kanban Board
 
-When you open Epic Tracker, you'll see a Kanban board with columns for different ticket statuses:
+When you open McpTix, you'll see a Kanban board with columns for different ticket statuses:
 
 - **Backlog** - Tickets that need to be worked on
 - **Up Next** - Tickets that are ready to be worked on
@@ -81,31 +83,32 @@ When you open Epic Tracker, you'll see a Kanban board with columns for different
 
 ## Connecting AI Assistants (MCP Configuration)
 
-Epic Tracker includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by Epic Tracker itself.
+McpTix includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by McpTix itself.
 
 ### 1. Install Epic Tracker
 
 If you haven't already, install Epic Tracker:
 
 ```bash
-npm install epic-tracker-mcp
+npm install mcptix
 ```
 
 ### 2. Initialize Epic Tracker in your project
 
 ```bash
-npx epic-tracker init
+npx mcptix init
 ```
 
-This will create a `.epic-tracker` directory in your project with all necessary configuration files, including an MCP server configuration file at `.epic-tracker/mcp-server-config.json`.
+This will create a `.mcptix` directory in your project with all necessary configuration files, including an MCP server configuration file at `.mcptix/mcp-server-config.json`.
 
 ### 3. Configure your AI assistant to use the Epic Tracker MCP server
 
 Copy the MCP server configuration file to your AI assistant's configuration directory:
 
 For Roo:
+
 ```bash
-cp .epic-tracker/mcp-server-config.json .roo/mcp.json
+cp .mcptix/mcp-server-config.json .roo/mcp.json
 ```
 
 For other AI assistants, consult their documentation on how to configure MCP servers.
@@ -113,21 +116,21 @@ For other AI assistants, consult their documentation on how to configure MCP ser
 The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server:
 
 ```json
-// Epic Tracker MCP Server Configuration
-// This file is used by LLM agents (like Roo) to connect to the Epic Tracker MCP server.
+// McpTix MCP Server Configuration
+// This file is used by LLM agents (like Roo) to connect to the McpTix MCP server.
 // Copy this file to your LLM agent's configuration directory.
 // For Roo, this would typically be .roo/mcp.json in your project root.
 //
-// IMPORTANT: The MCP server is started by the LLM agent, not by Epic Tracker.
-// You only need to run 'npx epic-tracker start' to start the UI.
+// IMPORTANT: The MCP server is started by the LLM agent, not by McpTix.
+// You only need to run 'npx mcptix start' to start the UI.
 
 {
   "mcpServers": {
-    "epic-tracker": {
+    "mcptix": {
       "command": "node",
-      "args": ["/absolute/path/to/node_modules/epic-tracker-mcp/dist/mcp/index.js"],
+      "args": ["/absolute/path/to/node_modules/mcptix/dist/mcp/index.js"],
       "env": {
-        "EPIC_TRACKER_DB_PATH": "/absolute/path/to/.epic-tracker/data/epic-tracker.db",
+        "MCPTIX_DB_PATH": "/absolute/path/to/.mcptix/data/mcptix.db",
         "HOME": "/home/your-username"
       },
       "disabled": false,
@@ -140,14 +143,16 @@ The configuration file contains all the necessary information for your AI assist
 ### 4. Start the Epic Tracker UI
 
 ```bash
-npx epic-tracker start
+npx mcptix start
 ```
 
+This will start only the McpTix UI (API server). The MCP server will be started by your AI assistant when needed.
 This will start only the Epic Tracker UI (API server). The MCP server will be started by your AI assistant when needed.
 
 ### 5. Use Epic Tracker with your AI assistant
 
 Once configured, your AI assistant will be able to:
+
 - List, create, update, and delete tickets
 - Add comments to tickets
 - Search for tickets
@@ -157,26 +162,26 @@ The MCP server provides these capabilities through tools and resources that your
 
 ## Customizing Epic Tracker
 
-You can customize Epic Tracker by editing the `.epic-tracker/epic-tracker.config.js` file in your project:
+You can customize McpTix by editing the `.mcptix/mcptix.config.js` file in your project:
 
 ```javascript
 module.exports = {
   // Database configuration
-  dbPath: './.epic-tracker/data/epic-tracker.db',
-  
+  dbPath: './.mcptix/data/mcptix.db',
+
   // API server configuration
   apiPort: 3000,
   apiHost: 'localhost',
-  
+
   // Server options
   mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
   apiEnabled: true,
-  
+
   // Logging configuration
   logLevel: 'info',
-  
+
   // Data management
-  clearDataOnInit: false
+  clearDataOnInit: false,
 };
 ```
 
@@ -188,16 +193,19 @@ module.exports = {
 
 ## Troubleshooting
 
+### McpTix won't start
+
 ### Epic Tracker won't start
 
-If Epic Tracker won't start, check:
+If McpTix won't start, check:
 
 1. Is another application using port 3000? Change the port in the config file.
 2. Do you have permission to write to the data directory? Check file permissions.
 3. Is Node.js installed and up to date? Epic Tracker requires Node.js 14 or higher.
 
 ### Can't connect AI assistant
-If your AI assistant can't connect to Epic Tracker:
+
+If your AI assistant can't connect to McpTix:
 
 1. Check that your MCP configuration file is correctly copied to your AI assistant's configuration directory
 2. Verify that the paths in the MCP configuration file are correct
@@ -209,38 +217,38 @@ If your AI assistant can't connect to Epic Tracker:
 Epic Tracker provides several command line options:
 
 ```bash
-# Initialize Epic Tracker in your project
-npx epic-tracker init
+# Initialize McpTix in your project
+npx mcptix init
 
-# Start Epic Tracker
-npx epic-tracker start
+# Start McpTix
+npx mcptix start
 
 # Start with custom port and host
-npx epic-tracker start --port 3001 --host 0.0.0.0
+npx mcptix start --port 3001 --host 0.0.0.0
 
 # Start without opening the browser
-npx epic-tracker start --no-open
+npx mcptix start --no-open
 
 # Start only the MCP server (for development/testing purposes)
-npx epic-tracker mcp
+npx mcptix mcp
 ```
 
 ## Important Note About MCP Server
 
-The MCP server is designed to be started by your AI assistant, not by Epic Tracker itself. This is why:
+The MCP server is designed to be started by your AI assistant, not by McpTix itself. This is why:
 
 1. The `mcpEnabled` option is set to `false` by default
-2. The `npx epic-tracker start` command only starts the UI (API server)
+2. The `npx mcptix start` command only starts the UI (API server)
 3. The MCP server configuration file is generated during initialization
 
-The `npx epic-tracker mcp` command is provided for development and testing purposes only. In normal operation, you should not need to start the MCP server manually.
+The `npx mcptix mcp` command is provided for development and testing purposes only. In normal operation, you should not need to start the MCP server manually.
 
-When your AI assistant needs to interact with Epic Tracker, it will:
+When your AI assistant needs to interact with McpTix, it will:
 
 1. Read the MCP configuration file from its configuration directory
 2. Start the MCP server as specified in the configuration
 3. Connect to the MCP server
-4. Use the tools and resources provided by the MCP server to interact with Epic Tracker
+4. Use the tools and resources provided by the MCP server to interact with McpTix
 
 This architecture ensures that:
 
@@ -253,28 +261,28 @@ This architecture ensures that:
 If you're comfortable with code, you can also use Epic Tracker programmatically:
 
 ```javascript
-const { createEpicTracker } = require('epic-tracker-mcp');
+const { createMcpTix } = require('mcptix');
 
-// Create an Epic Tracker instance
-const epicTracker = createEpicTracker();
+// Create a McpTix instance
+const mcpTix = createMcpTix();
 
 // Start the API server (UI)
 // Note: MCP server is disabled by default
-await epicTracker.start();
+await mcpTix.start();
 
 // Get the ticket queries for programmatic access
-const ticketQueries = epicTracker.getTicketQueries();
+const ticketQueries = mcpTix.getTicketQueries();
 
 // Create a ticket
 const ticketId = ticketQueries.createTicket({
   title: 'Example Ticket',
   description: 'This is an example ticket.',
   priority: 'medium',
-  status: 'backlog'
+  status: 'backlog',
 });
 
 // Shut down when done
-await epicTracker.shutdown();
+await mcpTix.shutdown();
 ```
 
 ## License

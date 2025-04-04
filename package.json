@@ -1,11 +1,11 @@
 {
-  "name": "epic-tracker-mcp",
+  "name": "mcptix",
   "version": "0.1.0",
   "description": "A simple, powerful ticket tracking system with AI assistant integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "epic-tracker": "./bin/epic-tracker.js"
+    "mcptix": "./bin/mcptix.js"
   },
   "files": [
     "dist",
@@ -31,7 +31,7 @@
     "format:check": "prettier --check \"src/**/*.ts\""
   },
   "keywords": [
-    "epic-tracker",
+    "mcptix",
     "ticket-tracking",
     "kanban",
     "project-management",
@@ -45,12 +45,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/epic-tracker/epic-tracker.git"
+    "url": "https://github.com/mcptix/mcptix.git"
   },
   "bugs": {
-    "url": "https://github.com/epic-tracker/epic-tracker/issues"
+    "url": "https://github.com/mcptix/mcptix/issues"
   },
-  "homepage": "https://github.com/epic-tracker/epic-tracker#readme",
+  "homepage": "https://github.com/mcptix/mcptix#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
     "better-sqlite3": "^11.9.1",

@@ -1,14 +1,14 @@
 /**
- * Configuration module for Epic Tracker
- * Provides types and utilities for configuring the Epic Tracker package
+ * Configuration module for McpTix
+ * Provides types and utilities for configuring the McpTix package
  */
 /**
  * Configuration interface for Epic Tracker
  */
-export interface EpicTrackerConfig {
+export interface McpTixConfig {
     /**
      * Path to the SQLite database file
-     * Default: './data/epic-tracker.db'
+     * Default: './data/mcptix.db'
      */
     dbPath?: string;
     /**
@@ -45,17 +45,17 @@ export interface EpicTrackerConfig {
 /**
  * Default configuration values
  */
-export declare const defaultConfig: EpicTrackerConfig;
+export declare const defaultConfig: McpTixConfig;
 /**
  * Merge user configuration with defaults
  * @param userConfig Partial configuration provided by the user
  * @returns Complete configuration with defaults applied
  */
-export declare function mergeConfig(userConfig?: Partial<EpicTrackerConfig>): EpicTrackerConfig;
+export declare function mergeConfig(userConfig?: Partial<McpTixConfig>): McpTixConfig;
 /**
  * Validate configuration
  * @param config Configuration to validate
  * @throws Error if configuration is invalid
  */
-export declare function validateConfig(config: EpicTrackerConfig): void;
+export declare function validateConfig(config: McpTixConfig): void;
 //# sourceMappingURL=config.d.ts.map

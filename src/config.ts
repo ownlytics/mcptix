@@ -1,15 +1,15 @@
 /**
- * Configuration module for Epic Tracker
- * Provides types and utilities for configuring the Epic Tracker package
+ * Configuration module for McpTix
+ * Provides types and utilities for configuring the McpTix package
  */
 
 /**
  * Configuration interface for Epic Tracker
  */
-export interface EpicTrackerConfig {
+export interface McpTixConfig {
   /**
    * Path to the SQLite database file
-   * Default: './data/epic-tracker.db'
+   * Default: './data/mcptix.db'
    */
   dbPath?: string;
 
@@ -53,8 +53,8 @@ export interface EpicTrackerConfig {
 /**
  * Default configuration values
  */
-export const defaultConfig: EpicTrackerConfig = {
-  dbPath: './data/epic-tracker.db',
+export const defaultConfig: McpTixConfig = {
+  dbPath: './data/mcptix.db',
   apiPort: 3000,
   apiHost: 'localhost',
   mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent
@@ -68,7 +68,7 @@ export const defaultConfig: EpicTrackerConfig = {
  * @param userConfig Partial configuration provided by the user
  * @returns Complete configuration with defaults applied
  */
-export function mergeConfig(userConfig: Partial<EpicTrackerConfig> = {}): EpicTrackerConfig {
+export function mergeConfig(userConfig: Partial<McpTixConfig> = {}): McpTixConfig {
   return { ...defaultConfig, ...userConfig };
 }
 
@@ -77,7 +77,7 @@ export function mergeConfig(userConfig: Partial<EpicTrackerConfig> = {}): EpicTr
  * @param config Configuration to validate
  * @throws Error if configuration is invalid
  */
-export function validateConfig(config: EpicTrackerConfig): void {
+export function validateConfig(config: McpTixConfig): void {
   // Validate port number
   if (config.apiPort !== undefined && (config.apiPort < 0 || config.apiPort > 65535)) {
     throw new Error(`Invalid API port: ${config.apiPort}. Must be between 0 and 65535.`);

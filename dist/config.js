@@ -1,7 +1,7 @@
 "use strict";
 /**
- * Configuration module for Epic Tracker
- * Provides types and utilities for configuring the Epic Tracker package
+ * Configuration module for McpTix
+ * Provides types and utilities for configuring the McpTix package
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultConfig = void 0;
@@ -11,7 +11,7 @@ exports.validateConfig = validateConfig;
  * Default configuration values
  */
 exports.defaultConfig = {
-    dbPath: './data/epic-tracker.db',
+    dbPath: './data/mcptix.db',
     apiPort: 3000,
     apiHost: 'localhost',
     mcpEnabled: false, // Disabled by default - MCP server should be started by the LLM agent

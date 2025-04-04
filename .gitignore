@@ -46,4 +46,5 @@ temp/
 test-project/
 
 # Local development files
-.epic-tracker/
+.mcptix/
+.epic-tracker/  # Legacy directory, kept for backward compatibility

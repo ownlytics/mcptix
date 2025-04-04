@@ -7,7 +7,7 @@ import { TicketQueries } from '../../db/queries';
 import { initializeDatabase, closeDatabase } from '../../db/schema';
 
 // Use a separate test database
-const TEST_DB_PATH = path.join(__dirname, '../../../data/test-epic-tracker.db');
+const TEST_DB_PATH = path.join(__dirname, '../../../data/test-mcptix.db');
 
 // Initialize test database
 export function initTestDatabase(): { db: Database.Database; ticketQueries: TicketQueries } {

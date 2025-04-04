@@ -1,5 +1,5 @@
 /**
- * Epic Tracker MCP Command
+ * McpTix MCP Command
  * Starts only the MCP server for AI assistant integration
  */
 
@@ -11,25 +11,25 @@ const { loadConfig } = require('../utils/config');
  * Start only the MCP server
  */
 async function mcp() {
-  console.log('Starting Epic Tracker MCP server...');
+  console.log('Starting McpTix MCP server...');
 
   try {
-    // Check if Epic Tracker is initialized
-    const configPath = path.join(process.cwd(), '.epic-tracker', 'epic-tracker.config.js');
+    // Check if McpTix is initialized
+    const configPath = path.join(process.cwd(), '.mcptix', 'mcptix.config.js');
     if (!fs.existsSync(configPath)) {
-      console.error('Epic Tracker is not initialized in this project.');
-      console.error('Run `npx epic-tracker init` to initialize Epic Tracker.');
+      console.error('McpTix is not initialized in this project.');
+      console.error('Run `npx mcptix init` to initialize McpTix.');
       process.exit(1);
     }
 
     // Load configuration
     const config = loadConfig();
-    
+
     console.log('[MCP Command] Loaded configuration:', JSON.stringify(config, null, 2));
     console.log('[MCP Command] Current working directory:', process.cwd());
-    
+
     // Check for db-config.json
-    const dbConfigPath = path.join(process.cwd(), '.epic-tracker', 'db-config.json');
+    const dbConfigPath = path.join(process.cwd(), '.mcptix', 'db-config.json');
     if (fs.existsSync(dbConfigPath)) {
       try {
         const dbConfig = JSON.parse(fs.readFileSync(dbConfigPath, 'utf8'));
@@ -40,35 +40,35 @@ async function mcp() {
     } else {
       console.log('[MCP Command] No db-config.json found');
     }
-    
+
     // Override config to enable MCP and disable API
     config.mcpEnabled = true;
     config.apiEnabled = false;
 
-    // Import the Epic Tracker package
-    const { createEpicTracker } = require(path.resolve(__dirname, '../../dist/index.js'));
-    
-    // Create and start Epic Tracker
-    const epicTracker = createEpicTracker(config);
-    await epicTracker.start();
-    
-    console.log('Epic Tracker MCP server running on stdio');
+    // Import the McpTix package
+    const { createMcpTix } = require(path.resolve(__dirname, '../../dist/index.js'));
+
+    // Create and start McpTix
+    const mcpTix = createMcpTix(config);
+    await mcpTix.start();
+
+    console.log('McpTix MCP server running on stdio');
     console.log('Press Ctrl+C to stop');
-    
+
     // Handle shutdown
     process.on('SIGINT', async () => {
-      console.log('\nShutting down Epic Tracker MCP server...');
-      await epicTracker.shutdown();
+      console.log('\nShutting down McpTix MCP server...');
+      await mcpTix.shutdown();
       process.exit(0);
     });
-    
+
     process.on('SIGTERM', async () => {
-      console.log('\nShutting down Epic Tracker MCP server...');
-      await epicTracker.shutdown();
+      console.log('\nShutting down McpTix MCP server...');
+      await mcpTix.shutdown();
       process.exit(0);
     });
   } catch (error) {
-    console.error('Error starting Epic Tracker MCP server:', error.message);
+    console.error('Error starting McpTix MCP server:', error.message);
     process.exit(1);
   }
 }

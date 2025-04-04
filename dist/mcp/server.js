@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EpicTrackerMcpServer = void 0;
+exports.McpTixServer = void 0;
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
 const logger_1 = require("../utils/logger");
@@ -8,12 +8,12 @@ const debug_logger_1 = require("./debug-logger");
 const resources_1 = require("./resources");
 const tools_1 = require("./tools");
 /**
- * Epic Tracker MCP Server
- * Provides Model Context Protocol functionality for Epic Tracker
+ * McpTix MCP Server
+ * Provides Model Context Protocol functionality for McpTix
  */
-class EpicTrackerMcpServer {
+class McpTixServer {
     /**
-     * Create a new Epic Tracker MCP Server
+     * Create a new McpTix MCP Server
      * @param ticketQueries The TicketQueries instance to use
      * @param config Configuration options
      */
@@ -37,7 +37,7 @@ class EpicTrackerMcpServer {
         this.logger.log(`Debug log path: ${this.logger.getLogPath()}`);
         // Create MCP server
         this.server = new index_js_1.Server({
-            name: 'epic-tracker',
+            name: 'mcptix',
             version: '0.1.0',
         }, {
             capabilities: {
@@ -71,7 +71,7 @@ class EpicTrackerMcpServer {
             await this.server.connect(transport);
             this.isRunning = true;
             logger_1.Logger.success('McpServer', 'Server running on stdio');
-            this.logger.log('Epic Tracker MCP server running on stdio');
+            this.logger.log('McpTix MCP server running on stdio');
             return this;
         }
         catch (error) {
@@ -111,5 +111,5 @@ class EpicTrackerMcpServer {
         }
     }
 }
-exports.EpicTrackerMcpServer = EpicTrackerMcpServer;
+exports.McpTixServer = McpTixServer;
 //# sourceMappingURL=server.js.map

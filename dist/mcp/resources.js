@@ -111,7 +111,7 @@ async function handleAllTickets(ticketQueries, uri) {
     const tickets = ticketQueries.getTickets({}, sort, order, limit, offset);
     // Log for debugging
     console.log(`[MCP Resources] handleAllTickets: Found ${tickets.length} tickets`);
-    console.log('[MCP Resources] Database path:', process.cwd() + '/.epic-tracker/data/epic-tracker.db');
+    console.log('[MCP Resources] Database path:', process.cwd() + '/.mcptix/data/mcptix.db');
     logger.log(`Found ${tickets.length} tickets`);
     logger.log(`Database path: ${ticketQueries['db'].name}`);
     // Return tickets with metadata

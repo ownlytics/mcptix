@@ -1,14 +1,14 @@
 /**
- * Epic Tracker - A reusable ticket tracking system with MCP and API server capabilities
+ * McpTix - A reusable ticket tracking system with MCP and API server capabilities
  * Main entry point for the package
  */
 
 import { ApiServer } from './api/server';
-import { EpicTrackerConfig, mergeConfig, validateConfig } from './config';
+import { McpTixConfig, mergeConfig, validateConfig } from './config';
 import { TicketQueries } from './db/queries';
 import { clearDatabase } from './db/schema';
 import { DatabaseService } from './db/service';
-import { EpicTrackerMcpServer } from './mcp/server';
+import { McpTixServer } from './mcp/server';
 import { Logger } from './utils/logger';
 
 // Export all types and configuration for users
@@ -16,23 +16,23 @@ export * from './types';
 export * from './config';
 
 /**
- * Main class for Epic Tracker
- * Provides a unified interface for managing the Epic Tracker system
+ * Main class for McpTix
+ * Provides a unified interface for managing the McpTix system
  */
-export class EpicTracker {
+export class McpTix {
   private static isShuttingDown = false;
-  private config: EpicTrackerConfig;
+  private config: McpTixConfig;
   private dbService: DatabaseService;
   private db: any;
   private ticketQueries: TicketQueries;
   private apiServer?: ApiServer;
-  private mcpServer?: EpicTrackerMcpServer;
+  private mcpServer?: McpTixServer;
 
   /**
-   * Create a new Epic Tracker instance
+   * Create a new McpTix instance
    * @param userConfig Configuration options
    */
-  constructor(userConfig: Partial<EpicTrackerConfig> = {}) {
+  constructor(userConfig: Partial<McpTixConfig> = {}) {
     // Merge and validate configuration
     this.config = mergeConfig(userConfig);
     validateConfig(this.config);
@@ -40,7 +40,7 @@ export class EpicTracker {
     // Initialize database using the singleton service
     this.dbService = DatabaseService.getInstance();
     this.db = this.dbService.initialize(this.config, this.config.clearDataOnInit);
-    Logger.info('EpicTracker', `Database initialized at absolute path: ${this.db.name}`);
+    Logger.info('McpTix', `Database initialized at absolute path: ${this.db.name}`);
     this.ticketQueries = new TicketQueries(this.db);
 
     // Set up cleanup on process exit
@@ -49,10 +49,10 @@ export class EpicTracker {
   }
 
   /**
-   * Start the Epic Tracker servers
-   * @returns A promise that resolves to the EpicTracker instance
+   * Start the McpTix servers
+   * @returns A promise that resolves to the McpTix instance
    */
-  async start(): Promise<EpicTracker> {
+  async start(): Promise<McpTix> {
     try {
       // Start API server if enabled
       if (this.config.apiEnabled) {
@@ -62,7 +62,7 @@ export class EpicTracker {
 
       // Start MCP server if enabled
       if (this.config.mcpEnabled) {
-        this.mcpServer = new EpicTrackerMcpServer(this.ticketQueries, this.config);
+        this.mcpServer = new McpTixServer(this.ticketQueries, this.config);
         await this.mcpServer.run();
       }
 
@@ -75,17 +75,17 @@ export class EpicTracker {
   }
 
   /**
-   * Gracefully shut down Epic Tracker
+   * Gracefully shut down McpTix
    * @returns A promise that resolves when shutdown is complete
    */
   async shutdown(): Promise<void> {
     // Prevent duplicate shutdown messages
-    if (EpicTracker.isShuttingDown) {
+    if (McpTix.isShuttingDown) {
       return Promise.resolve();
     }
 
-    EpicTracker.isShuttingDown = true;
-    Logger.info('EpicTracker', 'Gracefully shutting down...');
+    McpTix.isShuttingDown = true;
+    Logger.info('McpTix', 'Gracefully shutting down...');
 
     try {
       // Stop MCP server if running
@@ -105,9 +105,9 @@ export class EpicTracker {
         this.db = null;
       }
 
-      Logger.success('EpicTracker', 'Shut down successfully');
+      Logger.success('McpTix', 'Shut down successfully');
     } catch (error) {
-      Logger.error('EpicTracker', 'Error during shutdown', error);
+      Logger.error('McpTix', 'Error during shutdown', error);
       throw error;
     }
   }
@@ -137,12 +137,12 @@ export class EpicTracker {
 }
 
 /**
- * Factory function for creating an Epic Tracker instance
+ * Factory function for creating a McpTix instance
  * @param config Configuration options
- * @returns A new Epic Tracker instance
+ * @returns A new McpTix instance
  */
-export function createEpicTracker(config?: Partial<EpicTrackerConfig>): EpicTracker {
-  return new EpicTracker(config);
+export function createMcpTix(config?: Partial<McpTixConfig>): McpTix {
+  return new McpTix(config);
 }
 
 // If this file is run directly, start the servers based on command line arguments
@@ -152,22 +152,22 @@ if (require.main === module) {
   const runMcp = args.includes('--mcp');
 
   // Default to API only if no specific flags are provided
-  const config: Partial<EpicTrackerConfig> = {
+  const config: Partial<McpTixConfig> = {
     apiEnabled: runApi || !runMcp, // Enable API if --api flag is present or --mcp is not present
     mcpEnabled: runMcp, // Enable MCP only if --mcp flag is present
   };
 
   Logger.info(
-    'EpicTracker',
+    'McpTix',
     `Starting with configuration:
   - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
   - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`,
   );
 
-  const epicTracker = createEpicTracker(config);
+  const mcpTix = createMcpTix(config);
 
-  epicTracker.start().catch(error => {
-    Logger.error('EpicTracker', 'Failed to start', error);
+  mcpTix.start().catch(error => {
+    Logger.error('McpTix', 'Failed to start', error);
     process.exit(1);
   });
 }

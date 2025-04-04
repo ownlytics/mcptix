@@ -19,11 +19,11 @@ export class DebugLogger {
     // Try to find a writable location for logs
     const locations = [
       // Try project directory first
-      path.join(process.cwd(), '.epic-tracker', 'debug'),
+      path.join(process.cwd(), '.mcptix', 'debug'),
       // In dev mode, try the test directory
       ...(isDevMode ? [path.join(process.cwd(), 'test-data', 'debug')] : []),
       // Fall back to home directory
-      path.join(process.env.HOME || process.env.USERPROFILE || '/tmp', '.epic-tracker-debug'),
+      path.join(process.env.HOME || process.env.USERPROFILE || '/tmp', '.mcptix-debug'),
       // Last resort
       '/tmp',
     ];

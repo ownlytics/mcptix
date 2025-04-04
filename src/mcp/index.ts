@@ -4,10 +4,10 @@ import path from 'path';
 import { TicketQueries } from '../db/queries';
 import { DatabaseService } from '../db/service';
 
-import { EpicTrackerMcpServer } from './server';
+import { McpTixServer } from './server';
 
 /**
- * Standalone MCP server for Epic Tracker
+ * Standalone MCP server for McpTix
  * This file is designed to be executed directly by Node.js or by Roo
  * It initializes the database, creates a TicketQueries instance,
  * and starts the MCP server.
@@ -16,7 +16,7 @@ import { EpicTrackerMcpServer } from './server';
  * through this entry point directly.
  */
 
-console.log('=== EPIC TRACKER MCP SERVER STARTING ===');
+console.log('=== MCPTIX MCP SERVER STARTING ===');
 console.log(`Process ID: ${process.pid}`);
 console.log(`Current working directory: ${process.cwd()}`);
 console.log(`Module directory: ${__dirname}`);
@@ -24,23 +24,23 @@ console.log(`Module directory: ${__dirname}`);
 // Configuration with sane defaults
 const config = {
   dbPath: '', // Will be set below
-  apiPort: parseInt(process.env.EPIC_TRACKER_API_PORT || '3000', 10),
-  apiHost: process.env.EPIC_TRACKER_API_HOST || 'localhost',
+  apiPort: parseInt(process.env.MCPTIX_API_PORT || '3000', 10),
+  apiHost: process.env.MCPTIX_API_HOST || 'localhost',
   mcpEnabled: true,
   apiEnabled: false,
-  logLevel: (process.env.EPIC_TRACKER_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'info',
+  logLevel: (process.env.MCPTIX_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'info',
   clearDataOnInit: false,
 };
 
 // DATABASE PATH RESOLUTION STRATEGY
 // 1. Use environment variable if provided
 // 2. Look for db-config.json in current directory and parents
-// 3. Look for .epic-tracker/data/epic-tracker.db in current directory and parents
+// 3. Look for .mcptix/data/mcptix.db in current directory and parents
 // 4. Fall back to default path in current directory
 
 // 1. Check environment variable
-if (process.env.EPIC_TRACKER_DB_PATH) {
-  config.dbPath = process.env.EPIC_TRACKER_DB_PATH;
+if (process.env.MCPTIX_DB_PATH) {
+  config.dbPath = process.env.MCPTIX_DB_PATH;
   console.log(`[MCP] Using database path from environment variable: ${config.dbPath}`);
 }
 
@@ -70,7 +70,7 @@ function findFileInParents(filename: string): string | null {
 
 // 2. Look for db-config.json
 if (!config.dbPath) {
-  const dbConfigPath = findFileInParents('.epic-tracker/db-config.json');
+  const dbConfigPath = findFileInParents('.mcptix/db-config.json');
   if (dbConfigPath) {
     try {
       const dbConfig = JSON.parse(fs.readFileSync(dbConfigPath, 'utf8'));
@@ -86,10 +86,10 @@ if (!config.dbPath) {
   }
 }
 
-// 3. Look for .epic-tracker/data/epic-tracker.db
+// 3. Look for .mcptix/data/mcptix.db
 if (!config.dbPath) {
   // First check current directory
-  const defaultDbPath = path.join(process.cwd(), '.epic-tracker', 'data', 'epic-tracker.db');
+  const defaultDbPath = path.join(process.cwd(), '.mcptix', 'data', 'mcptix.db');
   if (fs.existsSync(path.dirname(defaultDbPath))) {
     config.dbPath = defaultDbPath;
     console.log(`[MCP] Using database path from current directory: ${config.dbPath}`);
@@ -106,8 +106,8 @@ if (!config.dbPath) {
       }
 
       dir = path.dirname(dir);
-      const dbDir = path.join(dir, '.epic-tracker', 'data');
-      const dbPath = path.join(dbDir, 'epic-tracker.db');
+      const dbDir = path.join(dir, '.mcptix', 'data');
+      const dbPath = path.join(dbDir, 'mcptix.db');
 
       if (fs.existsSync(dbDir)) {
         config.dbPath = dbPath;
@@ -122,7 +122,7 @@ if (!config.dbPath) {
 
 // 4. Fall back to default path
 if (!config.dbPath) {
-  config.dbPath = path.join(process.cwd(), '.epic-tracker', 'data', 'epic-tracker.db');
+  config.dbPath = path.join(process.cwd(), '.mcptix', 'data', 'mcptix.db');
   console.log(`[MCP] Using default database path: ${config.dbPath}`);
 
   // Ensure the directory exists
@@ -171,12 +171,12 @@ try {
 const ticketQueries = new TicketQueries(db);
 
 // Create and start MCP server
-console.log('[MCP] Starting Epic Tracker MCP server...');
-const server = new EpicTrackerMcpServer(ticketQueries, config);
+console.log('[MCP] Starting McpTix MCP server...');
+const server = new McpTixServer(ticketQueries, config);
 
 // Handle shutdown
 process.on('SIGINT', async () => {
-  console.log('\n[MCP] Shutting down Epic Tracker MCP server...');
+  console.log('\n[MCP] Shutting down McpTix MCP server...');
   await server.close();
   dbService.close();
   console.log('[MCP] MCP server shutdown complete');
@@ -184,7 +184,7 @@ process.on('SIGINT', async () => {
 });
 
 process.on('SIGTERM', async () => {
-  console.log('\n[MCP] Shutting down Epic Tracker MCP server...');
+  console.log('\n[MCP] Shutting down McpTix MCP server...');
   await server.close();
   dbService.close();
   console.log('[MCP] MCP server shutdown complete');

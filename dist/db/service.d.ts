@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { EpicTrackerConfig } from '../config';
+import { McpTixConfig } from '../config';
 /**
  * Singleton service for managing database connections
  * Ensures consistent database access across all components
@@ -21,7 +21,7 @@ export declare class DatabaseService {
      * @param clearData Whether to clear existing data
      * @returns The database connection
      */
-    initialize(config: EpicTrackerConfig | string, clearData?: boolean): Database.Database;
+    initialize(config: McpTixConfig | string, clearData?: boolean): Database.Database;
     /**
      * Get the database connection
      * @returns The database connection

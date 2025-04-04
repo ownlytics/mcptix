@@ -3,7 +3,7 @@ import path from 'path';
 
 import Database from 'better-sqlite3';
 
-import { EpicTrackerConfig } from '../config';
+import { McpTixConfig } from '../config';
 import { getDefaultDbPath } from '../db/schema';
 import { Logger } from '../utils/logger';
 
@@ -36,10 +36,7 @@ export class DatabaseService {
    * @param clearData Whether to clear existing data
    * @returns The database connection
    */
-  public initialize(
-    config: EpicTrackerConfig | string,
-    clearData: boolean = false,
-  ): Database.Database {
+  public initialize(config: McpTixConfig | string, clearData: boolean = false): Database.Database {
     // Log the stack trace to see who's calling this
     Logger.debug('DatabaseService', 'Initialize called from:');
     const stackLines = new Error().stack?.split('\n').slice(2, 5);
@@ -67,7 +64,7 @@ export class DatabaseService {
 
       // Use home directory or current directory instead
       const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
-      const safePath = path.join(safeDir, '.epic-tracker', 'data', 'epic-tracker.db');
+      const safePath = path.join(safeDir, '.mcptix', 'data', 'mcptix.db');
       Logger.info('DatabaseService', `Redirecting to safe path: ${safePath}`);
       console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
       this.dbPath = safePath;
@@ -90,7 +87,7 @@ export class DatabaseService {
         // Fall back to a directory we know we can write to
         const fallbackDir = path.join(
           process.env.HOME || process.env.USERPROFILE || process.cwd(),
-          '.epic-tracker',
+          '.mcptix',
           'data',
         );
         Logger.info('DatabaseService', `Falling back to: ${fallbackDir}`);
@@ -99,7 +96,7 @@ export class DatabaseService {
         fs.mkdirSync(fallbackDir, { recursive: true });
 
         // Update the database path
-        this.dbPath = path.join(fallbackDir, 'epic-tracker.db');
+        this.dbPath = path.join(fallbackDir, 'mcptix.db');
         Logger.info('DatabaseService', `Using fallback path: ${this.dbPath}`);
       }
     }

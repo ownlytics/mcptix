@@ -1,7 +1,7 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
-import { EpicTrackerConfig } from '../config';
+import { McpTixConfig } from '../config';
 import { TicketQueries } from '../db/queries';
 import { Logger } from '../utils/logger';
 
@@ -10,22 +10,22 @@ import { setupResourceHandlers } from './resources';
 import { setupToolHandlers } from './tools';
 
 /**
- * Epic Tracker MCP Server
- * Provides Model Context Protocol functionality for Epic Tracker
+ * McpTix MCP Server
+ * Provides Model Context Protocol functionality for McpTix
  */
-export class EpicTrackerMcpServer {
+export class McpTixServer {
   private server: Server;
   private ticketQueries: TicketQueries;
   private isRunning: boolean = false;
-  private config: EpicTrackerConfig;
+  private config: McpTixConfig;
   private logger: DebugLogger;
 
   /**
-   * Create a new Epic Tracker MCP Server
+   * Create a new McpTix MCP Server
    * @param ticketQueries The TicketQueries instance to use
    * @param config Configuration options
    */
-  constructor(ticketQueries: TicketQueries, config: EpicTrackerConfig) {
+  constructor(ticketQueries: TicketQueries, config: McpTixConfig) {
     this.ticketQueries = ticketQueries;
     this.config = config;
     this.logger = DebugLogger.getInstance();
@@ -49,7 +49,7 @@ export class EpicTrackerMcpServer {
     // Create MCP server
     this.server = new Server(
       {
-        name: 'epic-tracker',
+        name: 'mcptix',
         version: '0.1.0',
       },
       {
@@ -80,7 +80,7 @@ export class EpicTrackerMcpServer {
    * Start the MCP server
    * @returns A promise that resolves when the server is started
    */
-  async run(): Promise<EpicTrackerMcpServer> {
+  async run(): Promise<McpTixServer> {
     if (this.isRunning) {
       Logger.info('McpServer', 'Server is already running');
       return this;
@@ -91,7 +91,7 @@ export class EpicTrackerMcpServer {
       await this.server.connect(transport);
       this.isRunning = true;
       Logger.success('McpServer', 'Server running on stdio');
-      this.logger.log('Epic Tracker MCP server running on stdio');
+      this.logger.log('McpTix MCP server running on stdio');
       return this;
     } catch (error) {
       const errorMsg = `Error starting MCP server: ${error instanceof Error ? error.message : String(error)}`;

@@ -1,6 +1,6 @@
 /**
- * Epic Tracker Init Command
- * Initializes Epic Tracker in the user's project
+ * McpTix Init Command
+ * Initializes McpTix in the user's project
  */
 
 const fs = require('fs');
@@ -9,32 +9,32 @@ const { updatePackageJson } = require('../utils/package');
 const { createConfigFile } = require('../utils/config');
 
 /**
- * Initialize Epic Tracker in the user's project
+ * Initialize McpTix in the user's project
  */
 function init() {
-  console.log('Initializing Epic Tracker...');
+  console.log('Initializing McpTix...');
 
   try {
-    // Create .epic-tracker directory
-    const epicTrackerDir = path.join(process.cwd(), '.epic-tracker');
-    if (!fs.existsSync(epicTrackerDir)) {
-      fs.mkdirSync(epicTrackerDir, { recursive: true });
-      console.log('Created .epic-tracker directory');
+    // Create .mcptix directory
+    const mcptixDir = path.join(process.cwd(), '.mcptix');
+    if (!fs.existsSync(mcptixDir)) {
+      fs.mkdirSync(mcptixDir, { recursive: true });
+      console.log('Created .mcptix directory');
     }
 
     // Create data directory
-    const dataDir = path.join(process.cwd(), '.epic-tracker', 'data');
+    const dataDir = path.join(process.cwd(), '.mcptix', 'data');
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
       console.log('Created data directory');
     }
-    
+
     // Create db-config.json with absolute path
-    const dbPath = path.resolve(path.join(dataDir, 'epic-tracker.db'));
+    const dbPath = path.resolve(path.join(dataDir, 'mcptix.db'));
     const dbConfig = { dbPath };
     fs.writeFileSync(
-      path.join(process.cwd(), '.epic-tracker', 'db-config.json'),
-      JSON.stringify(dbConfig, null, 2)
+      path.join(process.cwd(), '.mcptix', 'db-config.json'),
+      JSON.stringify(dbConfig, null, 2),
     );
     console.log(`Created database configuration with path: ${dbPath}`);
 
@@ -47,10 +47,10 @@ function init() {
     // Update package.json
     updatePackageJson();
 
-    console.log('\nEpic Tracker initialized successfully!');
-    console.log('Run `npm run epic-tracker` to start the UI.');
+    console.log('\nMcpTix initialized successfully!');
+    console.log('Run `npm run mcptix` to start the UI.');
   } catch (error) {
-    console.error('Error initializing Epic Tracker:', error.message);
+    console.error('Error initializing McpTix:', error.message);
     process.exit(1);
   }
 }
@@ -59,11 +59,11 @@ function init() {
  * Create a ready-to-use MCP servers configuration file
  */
 function createMcpServersJsonFile(dbPath) {
-  const epicTrackerDir = path.join(process.cwd(), '.epic-tracker');
-  
-  // The file will be placed in the .epic-tracker directory
-  const mcpJsonPath = path.join(epicTrackerDir, 'mcp-server-config.json');
-  
+  const mcptixDir = path.join(process.cwd(), '.mcptix');
+
+  // The file will be placed in the .mcptix directory
+  const mcpJsonPath = path.join(mcptixDir, 'mcp-server-config.json');
+
   // Skip if file already exists
   if (fs.existsSync(mcpJsonPath)) {
     console.log('MCP server configuration file already exists');
@@ -72,40 +72,46 @@ function createMcpServersJsonFile(dbPath) {
 
   // Get the absolute path to the MCP server script
   const projectPath = process.cwd();
-  const absoluteMcpServerPath = path.join(projectPath, 'node_modules', 'epic-tracker-mcp', 'dist', 'mcp', 'index.js');
-  
+  const absoluteMcpServerPath = path.join(
+    projectPath,
+    'node_modules',
+    'mcptix',
+    'dist',
+    'mcp',
+    'index.js',
+  );
+
   // Create the MCP servers JSON content with the absolute path and database path
   const mcpServersJson = {
-    "mcpServers": {
-      "epic-tracker": {
-        "command": "node",
-        "args": [absoluteMcpServerPath],
-        "env": {
-          "EPIC_TRACKER_DB_PATH": dbPath,
-          "HOME": process.env.HOME || process.env.USERPROFILE // Cross-platform home directory
+    mcpServers: {
+      mcptix: {
+        command: 'node',
+        args: [absoluteMcpServerPath],
+        env: {
+          MCPTIX_DB_PATH: dbPath,
+          HOME: process.env.HOME || process.env.USERPROFILE, // Cross-platform home directory
         },
-        "disabled": false,
-        "alwaysAllow": []
-      }
-    }
+        disabled: false,
+        alwaysAllow: [],
+      },
+    },
   };
 
   // Add a comment at the top of the file
-  const mcpServersJsonWithComment =
-`// Epic Tracker MCP Server Configuration
-// This file is used by LLM agents (like Roo) to connect to the Epic Tracker MCP server.
+  const mcpServersJsonWithComment = `// McpTix MCP Server Configuration
+// This file is used by LLM agents (like Roo) to connect to the McpTix MCP server.
 // Copy this file to your LLM agent's configuration directory.
 // For Roo, this would typically be .roo/mcp.json in your project root.
 //
-// IMPORTANT: The MCP server is started by the LLM agent, not by Epic Tracker.
-// You only need to run 'npx epic-tracker start' to start the UI.
+// IMPORTANT: The MCP server is started by the LLM agent, not by McpTix.
+// You only need to run 'npx mcptix start' to start the UI.
 
 ${JSON.stringify(mcpServersJson, null, 2)}`;
 
   // Write the file
   fs.writeFileSync(mcpJsonPath, mcpServersJsonWithComment);
-  console.log('Created MCP server configuration file at .epic-tracker/mcp-server-config.json');
-  console.log('IMPORTANT: Copy this file to your LLM agent\'s configuration directory.');
+  console.log('Created MCP server configuration file at .mcptix/mcp-server-config.json');
+  console.log("IMPORTANT: Copy this file to your LLM agent's configuration directory.");
   console.log('For Roo, this would typically be .roo/mcp.json in your project root.');
 }
 
