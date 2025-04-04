@@ -48,3 +48,4 @@ test-project/
 # Local development files
 .mcptix/
 .epic-tracker/  # Legacy directory, kept for backward compatibility
+test-coverage-plan.md
