@@ -219,8 +219,11 @@ export class TicketQueries {
           blockers_encountered: ticket.complexity_metadata.blockers_encountered || 0,
         };
 
-        // Calculate the CIE score on the server side
-        const cieScore = calculateComplexityScore(complexityMetrics);
+        // Use the provided CIE score if it exists, otherwise calculate it
+        const cieScore =
+          ticket.complexity_metadata.cie_score !== undefined
+            ? ticket.complexity_metadata.cie_score
+            : calculateComplexityScore(complexityMetrics);
 
         const complexityStmt = this.db.prepare(`
           INSERT INTO complexity (
