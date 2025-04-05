@@ -57,6 +57,10 @@ function applyChanges() {
         updateTicket(ticket); // Move is handled the same as update
         // Send to server
         return updateTicketOnServer(ticket);
+      case 'reorder':
+        updateTicket(ticket); // Update the ticket with new order_value
+        // Send to server
+        return reorderTicketOnServer(ticket.id, ticket.order_value);
     }
   });
 
@@ -475,6 +479,59 @@ function getComments(ticketId) {
     });
 }
 
+/**
+ * Reorder a ticket within its current column
+ * @param {string} ticketId - The ID of the ticket to reorder
+ * @param {number} newOrderValue - The new order value for the ticket
+ * @returns {Promise} A promise that resolves when the ticket is reordered
+ */
+function reorderTicketOnServer(ticketId, newOrderValue) {
+  return fetch(`/api/tickets/${ticketId}/reorder`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      order_value: newOrderValue,
+    }),
+  }).then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to reorder ticket');
+    }
+    return response.json();
+  });
+}
+
+/**
+ * Queue a reorder operation for a ticket
+ * @param {string} ticketId - The ID of the ticket to reorder
+ * @param {number} newOrderValue - The new order value for the ticket
+ * @returns {Promise} A promise that resolves when the ticket is reordered
+ */
+function reorderTicket(ticketId, newOrderValue) {
+  // Find the ticket in the cache
+  let ticketToReorder = null;
+
+  for (const column of currentTickets.columns) {
+    const ticket = column.tickets.find(t => t.id === ticketId);
+    if (ticket) {
+      ticketToReorder = { ...ticket };
+      break;
+    }
+  }
+
+  if (!ticketToReorder) return Promise.resolve();
+
+  // Update the ticket order value
+  ticketToReorder.order_value = newOrderValue;
+
+  // Queue the change
+  queueChange('reorder', ticketToReorder);
+
+  // Apply the changes and re-render
+  return applyChanges();
+}
+
 // Export the module functions
 export const Storage = {
   queueChange,
@@ -484,4 +541,5 @@ export const Storage = {
   getTicketById,
   addComment,
   getComments,
+  reorderTicket,
 };

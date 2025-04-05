@@ -8,6 +8,13 @@ import { Storage } from './storage.js';
 // Cache for ticket data
 let ticketsCache = null;
 
+// Reference to the currently dragged ticket and its original container
+let draggedTicket = null;
+let draggedTicketOriginalContainer = null;
+
+// Reference to the drop indicator element
+let dropIndicator = null;
+
 /**
  * Render all tickets in the board
  * @returns {Promise} A promise that resolves when the tickets are rendered
@@ -38,7 +45,14 @@ function renderTickets() {
           return;
         }
 
-        column.tickets.forEach(ticket => {
+        // Sort tickets by order_value (higher values at the top)
+        const sortedTickets = [...column.tickets].sort((a, b) => {
+          const orderA = a.order_value !== undefined ? a.order_value : 0;
+          const orderB = b.order_value !== undefined ? b.order_value : 0;
+          return orderB - orderA;
+        });
+
+        sortedTickets.forEach(ticket => {
           const ticketElement = createTicketElement(ticket);
           container.appendChild(ticketElement);
         });
@@ -127,6 +141,10 @@ function setupDragAndDrop() {
       // Store the ticket ID for drop handling
       e.dataTransfer.setData('text/plain', ticket.getAttribute('data-id'));
 
+      // Store reference to dragged ticket and its container
+      draggedTicket = ticket;
+      draggedTicketOriginalContainer = ticket.closest('.ticket-container');
+
       // Hide the original ticket while dragging
       setTimeout(() => {
         ticket.style.visibility = 'hidden';
@@ -166,6 +184,9 @@ function setupDragAndDrop() {
     // Add dragend event to show the ticket again when dragging ends
     ticket.addEventListener('dragend', () => {
       ticket.style.visibility = 'visible';
+      hideDropIndicator();
+      draggedTicket = null;
+      draggedTicketOriginalContainer = null;
     });
   });
 
@@ -182,20 +203,40 @@ function setupDragAndDrop() {
       container.classList.remove('drag-over');
     });
 
-    // Allow dropping
+    // Handle dragover for showing drop position indicator
     container.addEventListener('dragover', e => {
       e.preventDefault();
+
+      if (!draggedTicket) return;
+
+      // Find where the ticket would be inserted
+      const insertionData = findInsertionPoint(container, e);
+
+      // Position the drop indicator
+      positionDropIndicator(insertionData, container);
     });
 
     // Handle drop
     container.addEventListener('drop', e => {
       e.preventDefault();
       container.classList.remove('drag-over');
+      hideDropIndicator();
+
+      if (!draggedTicket) return;
 
       const ticketId = e.dataTransfer.getData('text/plain');
       const newStatus = container.parentElement.id;
+      const currentStatus = draggedTicketOriginalContainer.parentElement.id;
 
-      moveTicket(ticketId, newStatus);
+      if (newStatus !== currentStatus) {
+        // Moving to a different column (status change)
+        moveTicket(ticketId, newStatus);
+      } else {
+        // Reordering within the same column
+        const insertionData = findInsertionPoint(container, e);
+        const newOrderValue = calculateNewOrderValue(ticketId, insertionData, container);
+        reorderTicket(ticketId, newOrderValue);
+      }
     });
   });
 }
@@ -258,12 +299,186 @@ function getTicketById(ticketId) {
   return null;
 }
 
+/**
+ * Create the drop indicator element
+ * @returns {HTMLElement} The drop indicator element
+ */
+function createDropIndicator() {
+  const indicator = document.createElement('div');
+  indicator.classList.add('drop-indicator');
+  indicator.style.height = '4px';
+  indicator.style.backgroundColor = 'var(--primary-color)';
+  indicator.style.borderRadius = '2px';
+  indicator.style.margin = '0';
+  indicator.style.transition = 'all 0.2s ease';
+  indicator.style.boxShadow = '0 0 5px rgba(52, 152, 219, 0.5)';
+  indicator.style.display = 'none';
+  document.body.appendChild(indicator);
+  return indicator;
+}
+
+/**
+ * Find the insertion point within a container
+ * @param {HTMLElement} container - The container element
+ * @param {MouseEvent} e - The mouse event
+ * @returns {Object} The insertion data { element: HTMLElement, position: 'before'|'after' }
+ */
+function findInsertionPoint(container, e) {
+  const mouseY = e.clientY;
+  const tickets = Array.from(container.querySelectorAll('.ticket'));
+
+  // If container is empty, return null
+  if (tickets.length === 0) {
+    return { element: null, position: 'after' };
+  }
+
+  // Find the closest ticket to the mouse position
+  for (let i = 0; i < tickets.length; i++) {
+    const ticket = tickets[i];
+
+    // Skip the dragged ticket
+    if (draggedTicket && ticket.getAttribute('data-id') === draggedTicket.getAttribute('data-id')) {
+      continue;
+    }
+
+    const rect = ticket.getBoundingClientRect();
+    const ticketMiddle = rect.top + rect.height / 2;
+
+    // If mouse is above the middle of this ticket, insert before it
+    if (mouseY < ticketMiddle) {
+      return { element: ticket, position: 'before' };
+    }
+
+    // If this is the last ticket and mouse is below it, insert after it
+    if (i === tickets.length - 1) {
+      return { element: ticket, position: 'after' };
+    }
+  }
+
+  // Default to the end of the container
+  return { element: tickets[tickets.length - 1], position: 'after' };
+}
+
+/**
+ * Position the drop indicator
+ * @param {Object} insertionData - Data from findInsertionPoint
+ * @param {HTMLElement} container - The container element
+ */
+function positionDropIndicator(insertionData, container) {
+  if (!dropIndicator) {
+    dropIndicator = createDropIndicator();
+  }
+
+  // Show the indicator
+  dropIndicator.style.display = 'block';
+
+  if (insertionData.element === null) {
+    // Position at the top of an empty container
+    const rect = container.getBoundingClientRect();
+    dropIndicator.style.width = `${rect.width - 32}px`; // Accounting for padding
+    dropIndicator.style.left = `${rect.left + 16}px`; // Accounting for padding
+    dropIndicator.style.top = `${rect.top + 16}px`; // Accounting for padding
+    return;
+  }
+
+  const rect = insertionData.element.getBoundingClientRect();
+  dropIndicator.style.width = `${rect.width}px`;
+  dropIndicator.style.left = `${rect.left}px`;
+
+  if (insertionData.position === 'before') {
+    dropIndicator.style.top = `${rect.top - 2}px`;
+  } else {
+    dropIndicator.style.top = `${rect.bottom + 2}px`;
+  }
+}
+
+/**
+ * Hide the drop indicator
+ */
+function hideDropIndicator() {
+  if (dropIndicator) {
+    dropIndicator.style.display = 'none';
+  }
+}
+
+/**
+ * Calculate the new order value for a ticket
+ * @param {string} ticketId - The ID of the ticket being moved
+ * @param {Object} insertionData - Data from findInsertionPoint
+ * @param {HTMLElement} container - The container element
+ * @returns {number} The new order value
+ */
+function calculateNewOrderValue(ticketId, insertionData, container) {
+  const columnId = container.parentElement.id;
+  const column = ticketsCache.columns.find(col => col.id === columnId);
+
+  if (!column || column.tickets.length === 0) {
+    return 1000; // Default for empty column
+  }
+
+  // Sort tickets by order_value (descending)
+  const sortedTickets = [...column.tickets].sort((a, b) => (b.order_value || 0) - (a.order_value || 0));
+
+  // If there's no insertion point (empty container)
+  if (insertionData.element === null) {
+    // Use a value higher than the highest current value
+    const highestValue = sortedTickets[0]?.order_value || 0;
+    return highestValue + 1000;
+  }
+
+  // Get the reference ticket
+  const refTicketId = insertionData.element.getAttribute('data-id');
+  const refTicketIndex = sortedTickets.findIndex(t => t.id === refTicketId);
+
+  if (refTicketIndex === -1) {
+    // Fallback if reference ticket not found
+    return sortedTickets[0]?.order_value + 1000 || 1000;
+  }
+
+  if (insertionData.position === 'before') {
+    // Insert before the reference ticket
+    const refTicket = sortedTickets[refTicketIndex];
+    const nextTicket = sortedTickets[refTicketIndex - 1]; // The ticket above (higher order value)
+
+    if (!nextTicket) {
+      // If inserting at the top
+      return (refTicket.order_value || 0) + 1000;
+    }
+
+    // Insert between refTicket and nextTicket
+    return ((refTicket.order_value || 0) + (nextTicket.order_value || 0)) / 2;
+  } else {
+    // Insert after the reference ticket
+    const refTicket = sortedTickets[refTicketIndex];
+    const prevTicket = sortedTickets[refTicketIndex + 1]; // The ticket below (lower order value)
+
+    if (!prevTicket) {
+      // If inserting at the bottom
+      return Math.max((refTicket.order_value || 0) - 1000, 0);
+    }
+
+    // Insert between refTicket and prevTicket
+    return ((refTicket.order_value || 0) + (prevTicket.order_value || 0)) / 2;
+  }
+}
+
+/**
+ * Reorder a ticket within its column
+ * @param {string} ticketId - The ID of the ticket to reorder
+ * @param {number} newOrderValue - The new order value for the ticket
+ * @returns {Promise} A promise that resolves when the ticket is reordered
+ */
+function reorderTicket(ticketId, newOrderValue) {
+  return Storage.reorderTicket(ticketId, newOrderValue).then(() => renderTickets());
+}
+
 // Export the module functions
 export const TicketRenderer = {
   renderTickets,
   createTicketElement,
   setupDragAndDrop,
   moveTicket,
+  reorderTicket,
   openTicketEditor,
   getTicketById,
 };
