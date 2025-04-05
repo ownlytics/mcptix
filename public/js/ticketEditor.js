@@ -273,7 +273,10 @@ function openEditor(ticket) {
         // Set up toggle behavior
         const toggleBtn = document.getElementById('toggle-agent-context');
         if (toggleBtn) {
-          toggleBtn.addEventListener('click', () => {
+          toggleBtn.addEventListener('click', event => {
+            // Stop event propagation to prevent it from bubbling up
+            event.stopPropagation();
+
             sectionContent.classList.toggle('collapsed');
             const icon = toggleBtn.querySelector('.toggle-icon');
             icon.textContent = sectionContent.classList.contains('collapsed') ? '▼' : '▲';
