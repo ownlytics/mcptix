@@ -112,17 +112,15 @@ cp .mcptix/mcp-server-config.json .roo/mcp.json
 
 For other AI assistants, consult their documentation on how to configure MCP servers.
 
-The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server:
+The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server.
+
+#### mcptix MCP Server Configuration
+
+This file is used by LLM agents (like Roo) to connect to the mcptix MCP server. Copy this file to your LLM agent's configuration directory. For Roo, this would typically be .roo/mcp.json in your project root.
+
+IMPORTANT: _The MCP server should be started started by the LLM agent/extension, not by mcptix._ You only need to run 'npx mcptix start' to start the UI.
 
 ```json
-// mcptix MCP Server Configuration
-// This file is used by LLM agents (like Roo) to connect to the mcptix MCP server.
-// Copy this file to your LLM agent's configuration directory.
-// For Roo, this would typically be .roo/mcp.json in your project root.
-//
-// IMPORTANT: The MCP server is started by the LLM agent, not by mcptix.
-// You only need to run 'npx mcptix start' to start the UI.
-
 {
   "mcpServers": {
     "mcptix": {
