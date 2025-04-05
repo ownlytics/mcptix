@@ -280,6 +280,17 @@ const ticketId = ticketQueries.createTicket({
 await mcpTix.shutdown();
 ```
 
-## License
+## 🛡️ License & Usage
 
-MIT
+This project is licensed under the **Business Source License 1.1 (BSL 1.1)**.
+
+You are welcome to use, modify, and explore this software for **non-commercial** purposes, including internal evaluation, experimentation, or research.
+
+**Commercial use — including in production, paid services, or enterprise environments — requires a commercial license from Tesseract Labs, LLC.**
+
+We’re happy to support teams looking to integrate or scale with this tool. Please reach out to us for licensing or consulting:
+
+📧 [tim@ownlytics.ai](mailto:tim@ownlytics.ai)  
+📄 [View full license terms](./LICENSE.md)
+
+_Respecting this license helps support ongoing development and innovation._
