@@ -3,7 +3,12 @@ import path from 'path';
 
 import Database from 'better-sqlite3';
 
-import { initializeDatabase, closeDatabase, CURRENT_SCHEMA_VERSION } from './schema';
+import {
+  initializeDatabase,
+  closeDatabase,
+  CURRENT_SCHEMA_VERSION,
+  getAvailableMigrations,
+} from './schema';
 
 describe('Database Schema', () => {
   const testDbPath = path.join(process.cwd(), 'test.db');
@@ -122,6 +127,22 @@ describe('Database Schema', () => {
     closeDatabase(db);
   });
 
+  test('should load available migrations', () => {
+    // This test verifies that migrations are properly loaded
+    const migrations = getAvailableMigrations();
+
+    // We should have at least two migrations (base schema and add agent_context)
+    expect(migrations.length).toBeGreaterThanOrEqual(2);
+
+    // Verify that the migrations have the expected versions and are sorted
+    expect(migrations[0].version).toBe(1);
+    expect(migrations[1].version).toBe(2);
+
+    // Verify that migration names are meaningful
+    expect(migrations[0].name).toMatch(/base|schema/i);
+    expect(migrations[1].name).toMatch(/agent|context/i);
+  });
+
   test('should migrate from older schema version', () => {
     // Create a database with an older schema (version 1)
     const db = new Database(testDbPath);
@@ -169,5 +190,89 @@ describe('Database Schema', () => {
     expect(hasAgentContext).toBe(true);
 
     closeDatabase(migratedDb);
+  });
+
+  test('should handle column dropping based on SQLite version', () => {
+    const db = initializeDatabase(testDbPath);
+
+    // First, create a test table with columns we'll try to drop
+    db.exec(`
+      CREATE TABLE test_column_drop (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        to_drop1 TEXT,
+        to_drop2 TEXT
+      );
+    `);
+
+    // Get the SQLite version
+    const versionResult = db.prepare('SELECT sqlite_version() as version').get() as {
+      version: string;
+    };
+    const sqliteVersion = versionResult.version;
+    const [major, minor, patch] = sqliteVersion.split('.').map(Number);
+
+    // SQLite 3.35.0 and newer support direct column dropping
+    const supportsDropColumn = major > 3 || (major === 3 && minor >= 35);
+
+    if (supportsDropColumn) {
+      // Test direct column dropping for modern SQLite
+      expect(() => {
+        db.exec(`ALTER TABLE test_column_drop DROP COLUMN to_drop1;`);
+      }).not.toThrow();
+
+      // Verify column was dropped
+      const tableInfo = db.prepare('PRAGMA table_info(test_column_drop)').all() as Array<{
+        name: string;
+      }>;
+      const columnNames = tableInfo.map(col => col.name);
+
+      expect(columnNames).toContain('id');
+      expect(columnNames).toContain('name');
+      expect(columnNames).not.toContain('to_drop1');
+    } else {
+      // Test workaround for older SQLite versions
+      // This is the approach used in our migration system
+      expect(() => {
+        // Create temp table without the column
+        db.exec(`
+          CREATE TABLE temp_table (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            to_drop2 TEXT
+          );
+          
+          -- Copy data excluding dropped column
+          INSERT INTO temp_table (id, name, description, to_drop2)
+          SELECT id, name, description, to_drop2
+          FROM test_column_drop;
+          
+          -- Drop original table
+          DROP TABLE test_column_drop;
+          
+          -- Rename temp table
+          ALTER TABLE temp_table RENAME TO test_column_drop;
+        `);
+      }).not.toThrow();
+
+      // Verify column was dropped
+      const tableInfo = db.prepare('PRAGMA table_info(test_column_drop)').all() as Array<{
+        name: string;
+      }>;
+      const columnNames = tableInfo.map(col => col.name);
+
+      expect(columnNames).toContain('id');
+      expect(columnNames).toContain('name');
+      expect(columnNames).not.toContain('to_drop1');
+    }
+
+    // Log which approach was used
+    console.log(
+      `SQLite ${sqliteVersion} - Used ${supportsDropColumn ? 'direct DROP COLUMN' : 'table recreation'} approach`,
+    );
+
+    closeDatabase(db);
   });
 });
