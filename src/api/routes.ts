@@ -276,4 +276,81 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
       next(error);
     }
   });
+
+  // Get the next ticket from a status category
+  app.get('/api/tickets/next/:status', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const status = req.params.status as
+        | 'backlog'
+        | 'up-next'
+        | 'in-progress'
+        | 'in-review'
+        | 'completed';
+      const ticket = ticketQueries.getNextTicket(status);
+
+      if (!ticket) {
+        res.status(404).json({ error: `No tickets found in ${status}` });
+        return;
+      }
+
+      res.json(ticket);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Reorder a ticket within its status column
+  app.put('/api/tickets/:id/reorder', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { order_value } = req.body;
+
+      if (typeof order_value !== 'number') {
+        res.status(400).json({ error: 'order_value must be a number' });
+        return;
+      }
+
+      const success = ticketQueries.reorderTicket(req.params.id, order_value);
+
+      if (!success) {
+        res.status(404).json({ error: `Ticket with ID ${req.params.id} not found` });
+        return;
+      }
+
+      res.json({ id: req.params.id, success });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Move a ticket to a different status
+  app.put('/api/tickets/:id/move', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { status, order_value } = req.body;
+
+      if (
+        !status ||
+        !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(status)
+      ) {
+        res.status(400).json({
+          error: 'status must be one of: backlog, up-next, in-progress, in-review, completed',
+        });
+        return;
+      }
+
+      const success = ticketQueries.moveTicket(
+        req.params.id,
+        status as 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
+        order_value,
+      );
+
+      if (!success) {
+        res.status(404).json({ error: `Ticket with ID ${req.params.id} not found` });
+        return;
+      }
+
+      res.json({ id: req.params.id, success });
+    } catch (error) {
+      next(error);
+    }
+  });
 }

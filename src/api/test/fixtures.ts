@@ -209,17 +209,34 @@ export const sampleComplexityMetrics: ComplexityMetadata[] = [
 
 // Helper to seed the database with test data
 export function seedTestData(ticketQueries: any): void {
-  // Insert sample tickets with complexity metrics
+  // Generate a unique test run ID to avoid ID conflicts
+  const testRunId = Date.now();
+
+  // Insert sample tickets with complexity metrics and unique IDs
   sampleTickets.forEach((ticket, index) => {
-    // Create ticket
-    ticketQueries.createTicket({
+    // Create ticket with a unique ID for this test run
+    const uniqueTicket = {
       ...ticket,
-      complexity_metadata: sampleComplexityMetrics[index],
-    });
+      id: `${ticket.id}-${testRunId}`, // Make ID unique for this test run
+      complexity_metadata: sampleComplexityMetrics[index]
+        ? {
+            ...sampleComplexityMetrics[index],
+            ticket_id: `${ticket.id}-${testRunId}`, // Update the ticket_id reference
+          }
+        : undefined,
+    };
+
+    ticketQueries.createTicket(uniqueTicket);
   });
 
-  // Insert sample comments
+  // Insert sample comments with updated ticket_ids
   sampleComments.forEach(comment => {
-    ticketQueries.addComment(comment.ticket_id, comment);
+    const uniqueComment = {
+      ...comment,
+      id: `${comment.id}-${testRunId}`, // Make comment ID unique
+      ticket_id: `${comment.ticket_id}-${testRunId}`, // Reference the unique ticket ID
+    };
+
+    ticketQueries.addComment(uniqueComment.ticket_id, uniqueComment);
   });
 }

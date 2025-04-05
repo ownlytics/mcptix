@@ -28,11 +28,12 @@ export function getMigrations(): Migration[] {
   }
 
   try {
-    // Get all .js and .ts files in the migrations directory, excluding index files
+    // Get all .js and .ts files in the migrations directory, excluding index and test files
     const migrationFiles = fs.readdirSync(migrationsDir).filter(file => {
       const isJsOrTs = file.endsWith('.js') || file.endsWith('.ts');
       const isNotIndex = !file.startsWith('index.');
-      return isJsOrTs && isNotIndex;
+      const isNotTest = !file.includes('.test.') && !file.includes('.spec.');
+      return isJsOrTs && isNotIndex && isNotTest;
     });
 
     // Load and sort migrations
@@ -69,32 +70,25 @@ export function getMigrations(): Migration[] {
 /**
  * Apply pending migrations to bring the database to the target version
  */
-export function applyMigrations(
-  db: Database.Database,
-  currentVersion: number,
-  targetVersion: number,
-): void {
+export function applyMigrations(db: Database.Database, currentVersion: number, targetVersion: number): void {
   const migrations = getMigrations();
+  let transactionStarted = false;
 
   // Filter migrations that need to be applied
-  const pendingMigrations = migrations.filter(
-    m => m.version > currentVersion && m.version <= targetVersion,
-  );
+  const pendingMigrations = migrations.filter(m => m.version > currentVersion && m.version <= targetVersion);
 
   if (pendingMigrations.length === 0) {
-    Logger.info(
-      'Migrations',
-      `No migrations to apply (current: ${currentVersion}, target: ${targetVersion})`,
-    );
+    Logger.info('Migrations', `No migrations to apply (current: ${currentVersion}, target: ${targetVersion})`);
     return;
   }
 
   Logger.info('Migrations', `Applying ${pendingMigrations.length} migrations`);
 
-  // Begin a transaction for all migrations
-  db.exec('BEGIN TRANSACTION;');
-
   try {
+    // Begin a transaction for all migrations
+    db.exec('BEGIN TRANSACTION;');
+    transactionStarted = true;
+
     // Apply each migration in order
     for (const migration of pendingMigrations) {
       Logger.info('Migrations', `Applying migration v${migration.version}: ${migration.name}`);
@@ -108,13 +102,17 @@ export function applyMigrations(
 
     // Commit the transaction
     db.exec('COMMIT;');
-    Logger.success(
-      'Migrations',
-      `Database migrated from version ${currentVersion} to ${targetVersion}`,
-    );
+    transactionStarted = false;
+    Logger.success('Migrations', `Database migrated from version ${currentVersion} to ${targetVersion}`);
   } catch (error) {
-    // Rollback on error
-    db.exec('ROLLBACK;');
+    // Rollback on error only if transaction was started
+    if (transactionStarted) {
+      try {
+        db.exec('ROLLBACK;');
+      } catch (rollbackError) {
+        Logger.error('Migrations', 'Rollback failed:', rollbackError);
+      }
+    }
     Logger.error('Migrations', 'Migration failed, rolling back:', error);
     throw error;
   }
@@ -123,11 +121,7 @@ export function applyMigrations(
 /**
  * Rollback migrations to go back to a previous version
  */
-export function rollbackMigrations(
-  db: Database.Database,
-  currentVersion: number,
-  targetVersion: number,
-): void {
+export function rollbackMigrations(db: Database.Database, currentVersion: number, targetVersion: number): void {
   if (targetVersion >= currentVersion) {
     Logger.warn(
       'Migrations',
@@ -152,19 +146,19 @@ export function rollbackMigrations(
   const missingDownMigrations = migrationsToRollback.filter(m => !m.down);
   if (missingDownMigrations.length > 0) {
     const versions = missingDownMigrations.map(m => m.version).join(', ');
-    Logger.error(
-      'Migrations',
-      `Cannot rollback: migrations ${versions} do not have down functions`,
-    );
+    Logger.error('Migrations', `Cannot rollback: migrations ${versions} do not have down functions`);
     throw new Error(`Cannot rollback: some migrations do not have down functions`);
   }
 
   Logger.info('Migrations', `Rolling back ${migrationsToRollback.length} migrations`);
 
-  // Begin a transaction for all rollbacks
-  db.exec('BEGIN TRANSACTION;');
+  let transactionStarted = false;
 
   try {
+    // Begin a transaction for all rollbacks
+    db.exec('BEGIN TRANSACTION;');
+    transactionStarted = true;
+
     // Roll back each migration in reverse order
     for (const migration of migrationsToRollback) {
       Logger.info('Migrations', `Rolling back migration v${migration.version}: ${migration.name}`);
@@ -185,13 +179,17 @@ export function rollbackMigrations(
 
     // Commit the transaction
     db.exec('COMMIT;');
-    Logger.success(
-      'Migrations',
-      `Database rolled back from version ${currentVersion} to ${targetVersion}`,
-    );
+    transactionStarted = false;
+    Logger.success('Migrations', `Database rolled back from version ${currentVersion} to ${targetVersion}`);
   } catch (error) {
-    // Rollback on error
-    db.exec('ROLLBACK;');
+    // Rollback on error only if transaction was started
+    if (transactionStarted) {
+      try {
+        db.exec('ROLLBACK;');
+      } catch (rollbackError) {
+        Logger.error('Migrations', 'Rollback failed:', rollbackError);
+      }
+    }
     Logger.error('Migrations', 'Rollback failed:', error);
     throw error;
   }

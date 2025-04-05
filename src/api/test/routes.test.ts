@@ -25,7 +25,11 @@ describe('API Routes', () => {
 
   describe('PUT /api/tickets/:id', () => {
     test('should update an existing ticket', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const updateData = {
         title: 'Updated Ticket Title',
         description: 'Updated description',
@@ -33,11 +37,7 @@ describe('API Routes', () => {
         status: 'completed',
       };
 
-      const response = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const response = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       expect(response.body.id).toBe(ticketId);
       expect(response.body.title).toBe(updateData.title);
@@ -51,17 +51,17 @@ describe('API Routes', () => {
     });
 
     test('should update only provided fields', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const originalTicket = ticketQueries.getTicketById(ticketId);
       const updateData = {
         title: 'Partially Updated Ticket',
       };
 
-      const response = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const response = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       expect(response.body.id).toBe(ticketId);
       expect(response.body.title).toBe(updateData.title);
@@ -71,7 +71,11 @@ describe('API Routes', () => {
     });
 
     test('should update complexity metadata', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const updateData = {
         title: 'Updated with Complexity',
         complexity_metadata: {
@@ -80,11 +84,7 @@ describe('API Routes', () => {
         },
       };
 
-      const response = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const response = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       expect(response.body.id).toBe(ticketId);
       expect(response.body.complexity_metadata).toBeDefined();
@@ -100,28 +100,24 @@ describe('API Routes', () => {
         title: 'Updated Non-existent Ticket',
       };
 
-      const response = await testServer
-        .request()
-        .put('/api/tickets/non-existent-id')
-        .send(updateData)
-        .expect(404);
+      const response = await testServer.request().put('/api/tickets/non-existent-id').send(updateData).expect(404);
 
       expect(response.body.error).toBeDefined();
     });
 
     test('should accept empty fields for update', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const originalTicket = ticketQueries.getTicketById(ticketId);
       // According to validation.ts, all fields are optional for updates
       const updateData = {
         title: '', // Empty title should be allowed
       };
 
-      const response = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const response = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       expect(response.body.id).toBe(ticketId);
       expect(response.body.title).toBe(''); // Title should be updated to empty string
@@ -131,7 +127,10 @@ describe('API Routes', () => {
 
   describe('DELETE /api/tickets/:id', () => {
     test('should delete an existing ticket', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
 
       const response = await testServer.request().delete(`/api/tickets/${ticketId}`).expect(200);
 
@@ -145,10 +144,7 @@ describe('API Routes', () => {
     });
 
     test('should return 404 for non-existent ticket', async () => {
-      const response = await testServer
-        .request()
-        .delete('/api/tickets/non-existent-id')
-        .expect(404);
+      const response = await testServer.request().delete('/api/tickets/non-existent-id').expect(404);
 
       expect(response.body.error).toBeDefined();
     });
@@ -156,12 +152,20 @@ describe('API Routes', () => {
 
   describe('GET /api/tickets/:id/comments', () => {
     test('should return comments for a ticket', async () => {
-      const ticketId = 'ticket-1'; // This ticket has comments in the fixtures
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
 
-      const response = await testServer
-        .request()
-        .get(`/api/tickets/${ticketId}/comments`)
-        .expect(200);
+      // Add a comment to the ticket to ensure it has comments
+      const newComment = {
+        content: 'Test comment for GET comments test',
+        type: 'comment',
+        author: 'developer',
+      };
+      await testServer.request().post(`/api/tickets/${ticketId}/comments`).send(newComment).expect(201);
+
+      const response = await testServer.request().get(`/api/tickets/${ticketId}/comments`).expect(200);
 
       expect(response.body.comments).toBeDefined();
       expect(Array.isArray(response.body.comments)).toBe(true);
@@ -176,18 +180,11 @@ describe('API Routes', () => {
         description: 'This ticket has no comments',
       };
 
-      const createResponse = await testServer
-        .request()
-        .post('/api/tickets')
-        .send(newTicket)
-        .expect(201);
+      const createResponse = await testServer.request().post('/api/tickets').send(newTicket).expect(201);
 
       const ticketId = createResponse.body.id;
 
-      const response = await testServer
-        .request()
-        .get(`/api/tickets/${ticketId}/comments`)
-        .expect(200);
+      const response = await testServer.request().get(`/api/tickets/${ticketId}/comments`).expect(200);
 
       expect(response.body.comments).toBeDefined();
       expect(Array.isArray(response.body.comments)).toBe(true);
@@ -195,10 +192,7 @@ describe('API Routes', () => {
     });
 
     test('should return 404 for non-existent ticket', async () => {
-      const response = await testServer
-        .request()
-        .get('/api/tickets/non-existent-id/comments')
-        .expect(404);
+      const response = await testServer.request().get('/api/tickets/non-existent-id/comments').expect(404);
 
       expect(response.body.error).toBeDefined();
     });
@@ -206,7 +200,11 @@ describe('API Routes', () => {
 
   describe('POST /api/tickets/:id/comments', () => {
     test('should add a comment to a ticket', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const newComment = {
         content: 'This is a new test comment',
         type: 'comment',
@@ -230,7 +228,11 @@ describe('API Routes', () => {
     });
 
     test('should add a comment with default values', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const newComment = {
         content: 'Comment with defaults',
       };
@@ -251,7 +253,11 @@ describe('API Routes', () => {
     });
 
     test('should return 400 for invalid comment data', async () => {
-      const ticketId = sampleTickets[0].id;
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
+      const ticketId = firstTicket.id;
+
       const invalidComment = {
         // Missing required content field
         type: 'comment',
@@ -296,9 +302,7 @@ describe('API Routes', () => {
       expect(response.body.metadata.query).toBe(query);
 
       // Verify search results contain the query term
-      const hasMatch = response.body.tickets.some(
-        (t: any) => t.title.includes(query) || t.description.includes(query),
-      );
+      const hasMatch = response.body.tickets.some((t: any) => t.title.includes(query) || t.description.includes(query));
       expect(hasMatch).toBe(true);
     });
 
@@ -306,10 +310,7 @@ describe('API Routes', () => {
       const query = 'API';
       const status = 'in-progress';
 
-      const response = await testServer
-        .request()
-        .get(`/api/search?q=${query}&status=${status}`)
-        .expect(200);
+      const response = await testServer.request().get(`/api/search?q=${query}&status=${status}`).expect(200);
 
       expect(response.body.tickets).toBeDefined();
       expect(Array.isArray(response.body.tickets)).toBe(true);
@@ -324,10 +325,7 @@ describe('API Routes', () => {
       const query = 'API';
       const priority = 'high';
 
-      const response = await testServer
-        .request()
-        .get(`/api/search?q=${query}&priority=${priority}`)
-        .expect(200);
+      const response = await testServer.request().get(`/api/search?q=${query}&priority=${priority}`).expect(200);
 
       expect(response.body.tickets).toBeDefined();
       expect(Array.isArray(response.body.tickets)).toBe(true);

@@ -218,7 +218,18 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
             },
             content: {
               type: 'string',
-              description: 'Comment content',
+              description:
+                'Comment content (deprecated for agent comments - use summary and fullText instead)',
+            },
+            summary: {
+              type: 'string',
+              description:
+                'A concise summary of the comment (1-2 sentences) that will be shown by default in the UI',
+            },
+            fullText: {
+              type: 'string',
+              description:
+                'The complete, detailed explanation or analysis that can be expanded by the user',
             },
             type: {
               type: 'string',
@@ -302,6 +313,62 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
           },
         },
       },
+      {
+        name: 'get_next_ticket',
+        description: 'Get the next ticket from a status category',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              description: 'Status category to get the next ticket from',
+              enum: ['backlog', 'up-next', 'in-progress', 'in-review', 'completed'],
+            },
+          },
+          required: ['status'],
+        },
+      },
+      {
+        name: 'reorder_ticket',
+        description: 'Update the order of a ticket within its current status column',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Ticket ID',
+            },
+            order_value: {
+              type: 'number',
+              description: 'New order value for the ticket',
+            },
+          },
+          required: ['id', 'order_value'],
+        },
+      },
+      {
+        name: 'move_ticket',
+        description: 'Move a ticket to a different status and optionally reorder it',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Ticket ID',
+            },
+            status: {
+              type: 'string',
+              description: 'New status for the ticket',
+              enum: ['backlog', 'up-next', 'in-progress', 'in-review', 'completed'],
+            },
+            order_value: {
+              type: 'number',
+              description: 'Optional new order value for the ticket',
+            },
+          },
+          required: ['id', 'status'],
+        },
+      },
     ],
   }));
   // Handle tool calls
@@ -329,6 +396,12 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
           return handleSearchTickets(ticketQueries, args);
         case 'get_stats':
           return handleGetStats(ticketQueries, args);
+        case 'get_next_ticket':
+          return handleGetNextTicket(ticketQueries, args);
+        case 'reorder_ticket':
+          return handleReorderTicket(ticketQueries, args);
+        case 'move_ticket':
+          return handleMoveTicket(ticketQueries, args);
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }
@@ -518,8 +591,8 @@ function handleAddComment(ticketQueries: TicketQueries, args: any) {
     throw new Error('Ticket ID is required');
   }
 
-  if (!args.content) {
-    throw new Error('Comment content is required');
+  if (!args.content && !args.summary && !args.fullText) {
+    throw new Error('Comment content is required (either content, or summary and fullText)');
   }
 
   // Check if ticket exists
@@ -528,16 +601,43 @@ function handleAddComment(ticketQueries: TicketQueries, args: any) {
     throw new Error(`Ticket with ID ${args.ticket_id} not found`);
   }
 
+  const author = args.author || 'agent';
+
   // Create comment object
   const comment: Comment = {
     id: `comment-${Date.now()}`,
     ticket_id: args.ticket_id,
-    content: args.content,
+    content: args.content || '',
     type: args.type || 'comment',
-    author: args.author || 'agent',
+    author,
     status: args.status || 'open',
     timestamp: new Date().toISOString(),
   };
+
+  // Handle summary and fullText based on author
+  if (author === 'agent') {
+    // For agent comments, we need summary and fullText for proper UI rendering
+    if (args.summary) {
+      comment.summary = args.summary;
+    } else if (args.content) {
+      // Create a summary from content if not provided
+      // Use the first sentence or first 100 characters
+      const firstSentenceMatch = args.content.match(/^(.*?[.!?])\s/);
+      if (firstSentenceMatch && firstSentenceMatch[1]) {
+        comment.summary = firstSentenceMatch[1];
+      } else {
+        // If no sentence ending found, use first 100 chars or the whole content
+        comment.summary =
+          args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
+      }
+    }
+
+    // Set fullText from args or fall back to content
+    comment.fullText = args.fullText || args.content || '';
+
+    // Set default display state to collapsed
+    comment.display = 'collapsed';
+  }
 
   // Add comment
   const commentId = ticketQueries.addComment(args.ticket_id, comment);
@@ -582,6 +682,101 @@ function handleSearchTickets(ticketQueries: TicketQueries, args: any) {
   };
 }
 
+// Handler for get_next_ticket tool
+function handleGetNextTicket(ticketQueries: TicketQueries, args: any) {
+  if (
+    !args.status ||
+    !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)
+  ) {
+    throw new Error(
+      'Valid status is required (backlog, up-next, in-progress, in-review, completed)',
+    );
+  }
+
+  const ticket = ticketQueries.getNextTicket(
+    args.status as 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
+  );
+
+  if (!ticket) {
+    throw new Error(`No tickets found in ${args.status}`);
+  }
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(ticket, null, 2),
+      },
+    ],
+  };
+}
+
+// Handler for reorder_ticket tool
+function handleReorderTicket(ticketQueries: TicketQueries, args: any) {
+  if (!args.id) {
+    throw new Error('Ticket ID is required');
+  }
+
+  if (typeof args.order_value !== 'number') {
+    throw new Error('order_value must be a number');
+  }
+
+  // Check if ticket exists
+  const existingTicket = ticketQueries.getTicketById(args.id);
+  if (!existingTicket) {
+    throw new Error(`Ticket with ID ${args.id} not found`);
+  }
+
+  // Reorder the ticket
+  const success = ticketQueries.reorderTicket(args.id, args.order_value);
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify({ id: args.id, success }, null, 2),
+      },
+    ],
+  };
+}
+
+// Handler for move_ticket tool
+function handleMoveTicket(ticketQueries: TicketQueries, args: any) {
+  if (!args.id) {
+    throw new Error('Ticket ID is required');
+  }
+
+  if (
+    !args.status ||
+    !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)
+  ) {
+    throw new Error(
+      'Valid status is required (backlog, up-next, in-progress, in-review, completed)',
+    );
+  }
+
+  // Check if ticket exists
+  const existingTicket = ticketQueries.getTicketById(args.id);
+  if (!existingTicket) {
+    throw new Error(`Ticket with ID ${args.id} not found`);
+  }
+
+  // Move the ticket to the new status
+  const success = ticketQueries.moveTicket(
+    args.id,
+    args.status as 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
+    args.order_value,
+  );
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify({ id: args.id, success }, null, 2),
+      },
+    ],
+  };
+}
 // Handler for get_stats tool
 function handleGetStats(ticketQueries: TicketQueries, args: any) {
   const groupBy = args.group_by || 'status';

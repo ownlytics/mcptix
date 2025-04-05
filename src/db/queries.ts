@@ -526,7 +526,162 @@ export class TicketQueries {
         column.tickets.push(ticket);
       }
     }
-
     return { columns };
+  }
+
+  /**
+   * Get the "next" ticket from a status category
+   * Returns the ticket with the highest order_value in the specified status
+   * In case of ties, the most recently updated ticket is returned
+   * @param status The status category to get the next ticket from
+   * @returns The next ticket, or null if no tickets exist in the status
+   */
+  getNextTicket(
+    status: 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
+  ): Ticket | null {
+    // Get the ticket with the highest order_value in the specified status
+    // If there are multiple tickets with the same order_value, get the most recently updated one
+    const stmt = this.db.prepare(`
+  SELECT t.*
+  FROM tickets t
+  WHERE t.status = ?
+  ORDER BY t.order_value DESC, t.updated DESC
+  LIMIT 1
+`);
+
+    const ticket = stmt.get(status) as Ticket | undefined;
+
+    if (!ticket) return null;
+
+    // Get complexity metadata
+    const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
+    const complexityData = complexityStmt.get(ticket.id) as ComplexityMetadata | undefined;
+
+    // Ensure all complexity fields are properly initialized
+    if (complexityData) {
+      ticket.complexity_metadata = {
+        ticket_id: ticket.id,
+        files_touched: complexityData.files_touched || 0,
+        modules_crossed: complexityData.modules_crossed || 0,
+        stack_layers_involved: complexityData.stack_layers_involved || 0,
+        dependencies: complexityData.dependencies || 0,
+        shared_state_touches: complexityData.shared_state_touches || 0,
+        cascade_impact_zones: complexityData.cascade_impact_zones || 0,
+        subjectivity_rating: complexityData.subjectivity_rating || 0,
+        loc_added: complexityData.loc_added || 0,
+        loc_modified: complexityData.loc_modified || 0,
+        test_cases_written: complexityData.test_cases_written || 0,
+        edge_cases: complexityData.edge_cases || 0,
+        mocking_complexity: complexityData.mocking_complexity || 0,
+        coordination_touchpoints: complexityData.coordination_touchpoints || 0,
+        review_rounds: complexityData.review_rounds || 0,
+        blockers_encountered: complexityData.blockers_encountered || 0,
+        cie_score: complexityData.cie_score || 0,
+      };
+    } else {
+      // Initialize with default values if no complexity data exists
+      ticket.complexity_metadata = {
+        ticket_id: ticket.id,
+        files_touched: 0,
+        modules_crossed: 0,
+        stack_layers_involved: 0,
+        dependencies: 0,
+        shared_state_touches: 0,
+        cascade_impact_zones: 0,
+        subjectivity_rating: 0,
+        loc_added: 0,
+        loc_modified: 0,
+        test_cases_written: 0,
+        edge_cases: 0,
+        mocking_complexity: 0,
+        coordination_touchpoints: 0,
+        review_rounds: 0,
+        blockers_encountered: 0,
+        cie_score: 0,
+      };
+    }
+
+    // Get comments
+    const commentsStmt = this.db.prepare(
+      'SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp',
+    );
+    ticket.comments = commentsStmt.all(ticket.id) as Comment[];
+
+    return ticket;
+  }
+
+  /**
+   * Reorder a ticket within its current status column
+   * @param id The ID of the ticket to reorder
+   * @param newOrderValue The new order value for the ticket
+   * @returns True if the ticket was reordered successfully, false otherwise
+   */
+  reorderTicket(id: string, newOrderValue: number): boolean {
+    // Check if the ticket exists
+    const existingTicket = this.getTicketById(id);
+    if (!existingTicket) return false;
+
+    // Update the ticket's order_value
+    const stmt = this.db.prepare(`
+      UPDATE tickets
+      SET
+        order_value = ?,
+        updated = ?
+      WHERE id = ?
+    `);
+
+    const result = stmt.run(newOrderValue, new Date().toISOString(), id);
+    return result.changes > 0;
+  }
+
+  /**
+   * Move a ticket to a different status and optionally reorder it
+   * If no new order value is specified, the ticket will be placed at the bottom of the new status column
+   * @param id The ID of the ticket to move
+   * @param newStatus The new status for the ticket
+   * @param newOrderValue Optional new order value for the ticket
+   * @returns True if the ticket was moved successfully, false otherwise
+   */
+  moveTicket(
+    id: string,
+    newStatus: 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
+    newOrderValue?: number,
+  ): boolean {
+    // Check if the ticket exists
+    const existingTicket = this.getTicketById(id);
+    if (!existingTicket) return false;
+
+    // If no order value is specified, place the ticket at the bottom of the new status column
+    if (newOrderValue === undefined) {
+      // Find the minimum order value in the new status column
+      const minOrderStmt = this.db.prepare(`
+        SELECT MIN(order_value) as min_order
+        FROM tickets
+        WHERE status = ?
+      `);
+
+      const result = minOrderStmt.get(newStatus) as { min_order: number } | undefined;
+
+      // If there are tickets in the new status, place this one below them
+      // Otherwise, start at 1000
+      if (result && result.min_order !== null) {
+        newOrderValue = result.min_order - 1000;
+      } else {
+        newOrderValue = 1000;
+      }
+    }
+
+    // Update the ticket's status and order_value
+    const stmt = this.db.prepare(`
+      UPDATE tickets
+      SET
+        status = ?,
+        order_value = ?,
+        updated = ?
+      WHERE id = ?
+    `);
+
+    const result = stmt.run(newStatus, newOrderValue, new Date().toISOString(), id);
+    return result.changes > 0;
   }
 }

@@ -1,0 +1,680 @@
+{
+  "summary": {
+    "fileCount": 7,
+    "totalErrors": 58
+  },
+  "errorsByFile": {
+    "src/mcp/test/tools.test.ts": [
+      {
+        "test": "API Routes › GET /api/export › should export all data as JSON",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      }
+    ],
+    "src/api/test/tickets.test.ts": [
+      {
+        "test": "MCP Tools › setupToolHandlers › should return list of available tools",
+        "error": "expect(received).toHaveLength(expected)",
+        "location": "tools.test.ts:100:30"
+      },
+      {
+        "test": "Ticket Endpoints › GET /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "Ticket Endpoints › POST /api/tickets › should create a new ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "Ticket Endpoints › POST /api/tickets › should return 400 if title is missing",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      }
+    ],
+    "src/api/test/server.test.ts": [
+      {
+        "test": "Ticket Endpoints › POST /api/tickets › should create a ticket with complexity metadata",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Server › should initialize correctly",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:771:6"
+      }
+    ],
+    "src/db/schema.test.ts": [
+      {
+        "test": "API Server › should start and stop the server",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:771:6"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Cannot nest a describe inside a test. Describe block \"Migration 003: Add order_value field\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:7:1"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"beforeEach\" is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:10:3"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"afterEach\" is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:30:3"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should add order_value column to tickets table\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:34:3"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should populate order_value for existing tickets\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:45:3"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should remove order_value column when rolling back\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:102:3"
+      },
+      {
+        "test": "Database Schema › should create database with required tables",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "Database Schema › should enforce foreign key constraints",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "Database Schema › should set correct schema version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "Database Schema › should include agent_context column in tickets table",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "Database Schema › should migrate from older schema version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      }
+    ],
+    "src/db/queries.test.ts": [
+      {
+        "test": "Database Schema › should handle column dropping based on SQLite version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Cannot nest a describe inside a test. Describe block \"Migration 003: Add order_value field\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:7:1"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"beforeEach\" is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:10:3"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"afterEach\" is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:30:3"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should add order_value column to tickets table\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:34:3"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should populate order_value for existing tickets\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:45:3"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should remove order_value column when rolling back\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:102:3"
+      },
+      {
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "TicketQueries › should update a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "TicketQueries › should delete a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "TicketQueries › should add a comment to a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "TicketQueries › should filter tickets by status",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      }
+    ],
+    "src/api/test/agent-context.test.ts": [
+      {
+        "test": "TicketQueries › should export tickets to JSON format",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "test": "Agent Context Functionality › Creating Tickets › should create a ticket with agent_context",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:35:88"
+      },
+      {
+        "test": "Agent Context Functionality › Creating Tickets › should create a ticket with null agent_context if not provided",
+        "error": "SqliteError: unable to open database file",
+        "location": "test-utils.ts:105:6"
+      },
+      {
+        "test": "Agent Context Functionality › Updating Tickets › should update a ticket with agent_context",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "Agent Context Functionality › Updating Tickets › should preserve agent_context when updating other fields",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:108:10"
+      },
+      {
+        "test": "Agent Context Functionality › Retrieving Tickets › should retrieve a ticket with agent_context field",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:146:10"
+      }
+    ],
+    "src/api/test/routes.test.ts": [
+      {
+        "test": "Agent Context Functionality › Retrieving Tickets › should include agent_context in ticket list results",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:165:71"
+      },
+      {
+        "test": "API Routes › PUT /api/tickets/:id › should update an existing ticket",
+        "error": "expected 200 \"OK\", got 500 \"Internal Server Error\"",
+        "location": "routes.test.ts:40:10"
+      },
+      {
+        "test": "API Routes › PUT /api/tickets/:id › should update only provided fields",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › PUT /api/tickets/:id › should update complexity metadata",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › PUT /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › PUT /api/tickets/:id › should accept empty fields for update",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › DELETE /api/tickets/:id › should delete an existing ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › DELETE /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/tickets/:id/comments › should return comments for a ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/tickets/:id/comments › should return empty array for ticket with no comments",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/tickets/:id/comments › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › POST /api/tickets/:id/comments › should add a comment to a ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › POST /api/tickets/:id/comments › should add a comment with default values",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › POST /api/tickets/:id/comments › should return 400 for invalid comment data",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › POST /api/tickets/:id/comments › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/search › should search tickets by query",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/search › should filter search results by status",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/search › should filter search results by priority",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/search › should sort and paginate search results",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/search › should return 400 for invalid search parameters",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "test": "API Routes › GET /api/export › should export all data as JSON",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      }
+    ]
+  },
+  "errorsByType": {
+    "SQLite: attempt to write a readonly database": [
+      {
+        "file": "src/mcp/test/tools.test.ts",
+        "test": "API Routes › GET /api/export › should export all data as JSON",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/tickets.test.ts",
+        "test": "Ticket Endpoints › GET /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/tickets.test.ts",
+        "test": "Ticket Endpoints › POST /api/tickets › should create a new ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/tickets.test.ts",
+        "test": "Ticket Endpoints › POST /api/tickets › should return 400 if title is missing",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/server.test.ts",
+        "test": "Ticket Endpoints › POST /api/tickets › should create a ticket with complexity metadata",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › PUT /api/tickets/:id › should update only provided fields",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › PUT /api/tickets/:id › should update complexity metadata",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › PUT /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › PUT /api/tickets/:id › should accept empty fields for update",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › DELETE /api/tickets/:id › should delete an existing ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › DELETE /api/tickets/:id › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/tickets/:id/comments › should return comments for a ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/tickets/:id/comments › should return empty array for ticket with no comments",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/tickets/:id/comments › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › POST /api/tickets/:id/comments › should add a comment to a ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › POST /api/tickets/:id/comments › should add a comment with default values",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › POST /api/tickets/:id/comments › should return 400 for invalid comment data",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › POST /api/tickets/:id/comments › should return 404 for non-existent ticket",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/search › should search tickets by query",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/search › should filter search results by status",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/search › should filter search results by priority",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/search › should sort and paginate search results",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/search › should return 400 for invalid search parameters",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › GET /api/export › should export all data as JSON",
+        "error": "SqliteError: attempt to write a readonly database",
+        "location": "test-utils.ts:104:6"
+      }
+    ],
+    "Assertion Error": [
+      {
+        "file": "src/api/test/tickets.test.ts",
+        "test": "MCP Tools › setupToolHandlers › should return list of available tools",
+        "error": "expect(received).toHaveLength(expected)",
+        "location": "tools.test.ts:100:30"
+      }
+    ],
+    "SQLite: disk I/O error": [
+      {
+        "file": "src/api/test/server.test.ts",
+        "test": "API Server › should initialize correctly",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:771:6"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "API Server › should start and stop the server",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:771:6"
+      },
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "Agent Context Functionality › Updating Tickets › should update a ticket with agent_context",
+        "error": "SqliteError: disk I/O error",
+        "location": "test-utils.ts:104:6"
+      }
+    ],
+    "Test Structure: Nested describe": [
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Cannot nest a describe inside a test. Describe block \"Migration 003: Add order_value field\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:7:1"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Cannot nest a describe inside a test. Describe block \"Migration 003: Add order_value field\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:7:1"
+      }
+    ],
+    "Test Structure: Hooks in tests": [
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"beforeEach\" is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:10:3"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"afterEach\" is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:30:3"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"beforeEach\" is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:10:3"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Hooks cannot be defined inside tests. Hook of type \"afterEach\" is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:30:3"
+      }
+    ],
+    "Test Structure: Nested tests": [
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should add order_value column to tickets table\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:34:3"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should populate order_value for existing tickets\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:45:3"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "Tests cannot be nested. Test \"should remove order_value column when rolling back\" cannot run because it is nested within \"should create database with required tables\".",
+        "location": "003-add-order-value.test.ts:102:3"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should add order_value column to tickets table\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:34:3"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should populate order_value for existing tickets\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:45:3"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "Tests cannot be nested. Test \"should remove order_value column when rolling back\" cannot run because it is nested within \"should create and retrieve a ticket\".",
+        "location": "003-add-order-value.test.ts:102:3"
+      }
+    ],
+    "SQLite: cannot rollback - no transaction is active": [
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should create database with required tables",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should enforce foreign key constraints",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should set correct schema version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should include agent_context column in tickets table",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/schema.test.ts",
+        "test": "Database Schema › should migrate from older schema version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "Database Schema › should handle column dropping based on SQLite version",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should create and retrieve a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should update a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should delete a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should add a comment to a ticket",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/db/queries.test.ts",
+        "test": "TicketQueries › should filter tickets by status",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      },
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "TicketQueries › should export tickets to JSON format",
+        "error": "SqliteError: cannot rollback - no transaction is active",
+        "location": "index.ts:117:8"
+      }
+    ],
+    "Other": [
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "Agent Context Functionality › Creating Tickets › should create a ticket with agent_context",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:35:88"
+      },
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "Agent Context Functionality › Updating Tickets › should preserve agent_context when updating other fields",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:108:10"
+      },
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "Agent Context Functionality › Retrieving Tickets › should retrieve a ticket with agent_context field",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:146:10"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "Agent Context Functionality › Retrieving Tickets › should include agent_context in ticket list results",
+        "error": "expected 201 \"Created\", got 500 \"Internal Server Error\"",
+        "location": "agent-context.test.ts:165:71"
+      },
+      {
+        "file": "src/api/test/routes.test.ts",
+        "test": "API Routes › PUT /api/tickets/:id › should update an existing ticket",
+        "error": "expected 200 \"OK\", got 500 \"Internal Server Error\"",
+        "location": "routes.test.ts:40:10"
+      }
+    ],
+    "SQLite: unable to open database file": [
+      {
+        "file": "src/api/test/agent-context.test.ts",
+        "test": "Agent Context Functionality › Creating Tickets › should create a ticket with null agent_context if not provided",
+        "error": "SqliteError: unable to open database file",
+        "location": "test-utils.ts:105:6"
+      }
+    ]
+  }
+}

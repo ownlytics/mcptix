@@ -1,10 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import {
-  CallToolRequestSchema,
-  ErrorCode,
-  ListToolsRequestSchema,
-  McpError,
-} from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } from '@modelcontextprotocol/sdk/types.js';
 
 import { sampleTickets, sampleComments, sampleComplexityMetrics } from '../../api/test/fixtures';
 import { TicketQueries } from '../../db/queries';
@@ -65,20 +60,14 @@ describe('MCP Tools', () => {
     test('should register list_tools handler', () => {
       setupToolHandlers(mockServer, mockTicketQueries);
 
-      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        ListToolsRequestSchema,
-        expect.any(Function),
-      );
+      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(ListToolsRequestSchema, expect.any(Function));
       expect(mockLogger.log).toHaveBeenCalledWith('Setting up MCP tool handlers');
     });
 
     test('should register call_tool handler', () => {
       setupToolHandlers(mockServer, mockTicketQueries);
 
-      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        CallToolRequestSchema,
-        expect.any(Function),
-      );
+      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(CallToolRequestSchema, expect.any(Function));
     });
 
     test('should return list of available tools', async () => {
@@ -97,7 +86,7 @@ describe('MCP Tools', () => {
         const mockContext = { signal: new AbortController().signal };
 
         const result = (await listToolsHandler(mockRequest, mockContext)) as ListToolsResponse;
-        expect(result.tools).toHaveLength(8); // There are 8 tools defined in tools.ts
+        expect(result.tools).toHaveLength(11); // There are 11 tools defined in tools.ts (8 original + 3 new ordering tools)
         expect(result.tools[0].name).toBe('list_tickets');
         expect(result.tools[1].name).toBe('get_ticket');
       }
@@ -463,13 +452,15 @@ describe('MCP Tools', () => {
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
       });
 
-      test('should throw error if content is missing', async () => {
+      test('should throw error if neither content nor summary/fullText is provided', async () => {
         const result = await callToolHandler('add_comment', {
           ticket_id: 'ticket-1',
         });
 
         expect(result.isError).toBe(true);
-        expect(result.content?.[0]?.text).toContain('Comment content is required');
+        expect(result.content?.[0]?.text).toContain(
+          'Comment content is required (either content, or summary and fullText)',
+        );
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
       });
 
@@ -484,6 +475,72 @@ describe('MCP Tools', () => {
         expect(result.isError).toBe(true);
         expect(result.content?.[0]?.text).toContain('not found');
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
+      });
+
+      test('should add summary and fullText when agent adds comment with content only', async () => {
+        const existingTicket = sampleTickets[0];
+        const newCommentId = 'new-comment-id';
+        mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
+        mockTicketQueries.addComment.mockReturnValue(newCommentId);
+
+        const content = 'This is a test comment with a longer explanation. It contains multiple sentences.';
+
+        const result = await callToolHandler('add_comment', {
+          ticket_id: existingTicket.id,
+          content,
+          author: 'agent',
+        });
+
+        expect(mockTicketQueries.addComment).toHaveBeenCalled();
+        expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
+          content,
+          fullText: content,
+          summary: 'This is a test comment with a longer explanation.',
+          display: 'collapsed',
+          author: 'agent',
+        });
+      });
+
+      test('should use provided summary and fullText for agent comment', async () => {
+        const existingTicket = sampleTickets[0];
+        const newCommentId = 'new-comment-id';
+        mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
+        mockTicketQueries.addComment.mockReturnValue(newCommentId);
+
+        const summary = 'Test summary';
+        const fullText = 'Detailed explanation of the test';
+
+        const result = await callToolHandler('add_comment', {
+          ticket_id: existingTicket.id,
+          content: '',
+          summary,
+          fullText,
+          author: 'agent',
+        });
+
+        expect(mockTicketQueries.addComment).toHaveBeenCalled();
+        expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
+          summary,
+          fullText,
+          display: 'collapsed',
+          author: 'agent',
+        });
+      });
+
+      test('should accept comment with summary and fullText instead of content', async () => {
+        const existingTicket = sampleTickets[0];
+        mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
+        mockTicketQueries.addComment.mockReturnValue('new-comment-id');
+
+        const result = await callToolHandler('add_comment', {
+          ticket_id: existingTicket.id,
+          summary: 'Test summary',
+          fullText: 'Test full text',
+          author: 'agent',
+        });
+
+        expect(result.isError).toBeUndefined();
+        expect(mockTicketQueries.addComment).toHaveBeenCalled();
       });
     });
 
@@ -525,7 +582,6 @@ describe('MCP Tools', () => {
         expect(result.content?.[0]?.text).toContain('Search query is required');
       });
     });
-
     describe('get_stats', () => {
       test('should return ticket statistics grouped by status', async () => {
         mockTicketQueries.getTickets.mockReturnValue([

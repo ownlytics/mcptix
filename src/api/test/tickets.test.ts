@@ -42,10 +42,7 @@ describe('Ticket Endpoints', () => {
 
     test('should filter tickets by priority', async () => {
       const priority = 'high';
-      const response = await testServer
-        .request()
-        .get(`/api/tickets?priority=${priority}`)
-        .expect(200);
+      const response = await testServer.request().get(`/api/tickets?priority=${priority}`).expect(200);
 
       expect(response.body.tickets.length).toBeGreaterThan(0);
       expect(response.body.tickets.every((t: any) => t.priority === priority)).toBe(true);
@@ -64,10 +61,7 @@ describe('Ticket Endpoints', () => {
     });
 
     test('should sort tickets', async () => {
-      const response = await testServer
-        .request()
-        .get('/api/tickets?sort=created&order=asc')
-        .expect(200);
+      const response = await testServer.request().get('/api/tickets?sort=created&order=asc').expect(200);
 
       const tickets = response.body.tickets;
       for (let i = 1; i < tickets.length; i++) {
@@ -77,10 +71,7 @@ describe('Ticket Endpoints', () => {
 
     test('should paginate tickets', async () => {
       const limit = 2;
-      const response = await testServer
-        .request()
-        .get(`/api/tickets?limit=${limit}&offset=0`)
-        .expect(200);
+      const response = await testServer.request().get(`/api/tickets?limit=${limit}&offset=0`).expect(200);
 
       expect(response.body.tickets).toHaveLength(limit);
       expect(response.body.metadata.limit).toBe(limit);
@@ -89,11 +80,15 @@ describe('Ticket Endpoints', () => {
 
   describe('GET /api/tickets/:id', () => {
     test('should return a ticket by ID', async () => {
-      const ticketId = sampleTickets[0].id;
-      const response = await testServer.request().get(`/api/tickets/${ticketId}`).expect(200);
+      // First get all tickets to find an actual ID from the database
+      const allTicketsResponse = await testServer.request().get('/api/tickets').expect(200);
+      const firstTicket = allTicketsResponse.body.tickets[0];
 
-      expect(response.body.id).toBe(ticketId);
-      expect(response.body.title).toBe(sampleTickets[0].title);
+      // Now get that specific ticket
+      const response = await testServer.request().get(`/api/tickets/${firstTicket.id}`).expect(200);
+
+      expect(response.body.id).toBe(firstTicket.id);
+      expect(response.body.title).toBe(firstTicket.title);
     });
 
     test('should return 404 for non-existent ticket', async () => {
@@ -130,11 +125,7 @@ describe('Ticket Endpoints', () => {
         status: 'backlog',
       };
 
-      const response = await testServer
-        .request()
-        .post('/api/tickets')
-        .send(invalidTicket)
-        .expect(400);
+      const response = await testServer.request().post('/api/tickets').send(invalidTicket).expect(400);
 
       expect(response.body.error).toBeDefined();
     });
