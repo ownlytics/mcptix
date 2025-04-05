@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "mcptix-dev": {
+      "command": "node",
+      "args": [
+        "/Users/tim/src2/mcptix/scripts/mcp-entry.js"
+      ],
+      "env": {
+        "MCPTIX_DB_PATH": "/Users/tim/src2/mcptix/.mcptix-dev/data/mcptix.db",
+        "MCPTIX_DEV_MODE": "true",
+        "HOME": "/Users/tim"
+      },
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
+}

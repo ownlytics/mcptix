@@ -148,14 +148,48 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     const runApi = args.includes('--api');
     const runMcp = args.includes('--mcp');
+    // Check for development mode and database path
+    const isDevMode = process.env.MCPTIX_DEV_MODE === 'true';
+    // Parse command line arguments
+    let dbPath;
+    let apiPort;
+    let apiHost;
+    for (const arg of args) {
+        if (arg.startsWith('--db-path=')) {
+            dbPath = arg.split('=')[1];
+        }
+        else if (arg.startsWith('--port=')) {
+            apiPort = parseInt(arg.split('=')[1], 10);
+        }
+        else if (arg.startsWith('--host=')) {
+            apiHost = arg.split('=')[1];
+        }
+    }
     // Default to API only if no specific flags are provided
     const config = {
         apiEnabled: runApi || !runMcp, // Enable API if --api flag is present or --mcp is not present
         mcpEnabled: runMcp, // Enable MCP only if --mcp flag is present
     };
+    // Apply command line configuration
+    if (dbPath) {
+        config.dbPath = dbPath;
+    }
+    if (apiPort) {
+        config.apiPort = apiPort;
+    }
+    if (apiHost) {
+        config.apiHost = apiHost;
+    }
+    // If in development mode, set log level to debug
+    if (isDevMode) {
+        config.logLevel = 'debug';
+    }
     logger_1.Logger.info('McpTix', `Starting with configuration:
   - API server: ${config.apiEnabled ? 'enabled' : 'disabled'}
-  - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}`);
+  - MCP server: ${config.mcpEnabled ? 'enabled' : 'disabled'}
+  - Database: ${config.dbPath || 'default'}
+  - API port: ${config.apiPort || 'default'}
+  - API host: ${config.apiHost || 'default'}`);
     const mcpTix = createMcpTix(config);
     mcpTix.start().catch(error => {
         logger_1.Logger.error('McpTix', 'Failed to start', error);

@@ -18,9 +18,7 @@
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "start": "ts-node src/index.ts --api",
-    "dev": "nodemon --exec ts-node src/index.ts --api",
-    "mcp": "ts-node src/index.ts --mcp",
+    "start": "node bin/mcptix.js start",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:api": "jest src/api",
@@ -28,7 +26,12 @@
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "dev:setup": "node scripts/setup-dev-environment.js",
+    "dev:api": "node scripts/dev-api.js",
+    "dev:reset": "rm -rf .mcptix-dev && npm run dev:setup",
+    "dev:docs": "cat DEVELOPMENT.md",
+    "make-executable": "chmod +x scripts/*.js"
   },
   "keywords": [
     "mcptix",

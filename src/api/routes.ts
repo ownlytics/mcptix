@@ -93,7 +93,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
         const ticketId = ticketQueries.createTicket(ticket);
 
         // Get the created ticket with the server-calculated CIE score
-        const createdTicket = ticketQueries.getTicketById(ticketId);
+        // const createdTicket = ticketQueries.getTicketById(ticketId);
 
         res.status(201).json({ id: ticketId, success: true });
       } catch (error) {

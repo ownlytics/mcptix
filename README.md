@@ -189,6 +189,10 @@ module.exports = {
 - **Enable MCP for testing**: If you want to test the MCP server directly, set `mcpEnabled` to `true`
 - **Change data location**: If you want to store data elsewhere, change `dbPath`
 
+## Development Workflow
+
+If you're looking to develop mcptix locally, check out the [Development Workflow](DEVELOPMENT.md) guide.
+
 ## Troubleshooting
 
 ### mcptix won't start

@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+export declare const CURRENT_SCHEMA_VERSION = 2;
 /**
  * Ensure the data directory exists for the given database path
  * @param dbPath Path to the database file
@@ -12,10 +13,15 @@ export declare function ensureDataDirectory(dbPath: string): string;
 export declare function getDefaultDbPath(): string;
 export declare const DB_PATH: string;
 /**
- * Initialize the database
- * @param dbPath Path to the database file (default: DB_PATH)
- * @param clearData Whether to clear existing data (default: false)
- * @returns The database connection
+ * Migrate database to the latest schema version
+ * @param db Database connection
+ */
+export declare function migrateDatabase(db: Database.Database): void;
+/**
+ * Initialize database with the latest schema
+ * @param dbPath Path to the database file
+ * @param clearData Whether to clear existing data
+ * @returns Database connection
  */
 export declare function initializeDatabase(dbPath?: string, clearData?: boolean): Database.Database;
 /**
