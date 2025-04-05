@@ -4,7 +4,7 @@ A simple, powerful ticket tracking system with AI assistant integration.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg)
 
-![mcptix Banner](https://via.placeholder.com/800x200?text=mcptix)
+![mcptix Banner](./public/mcptix_banner.png)
 
 ## What is mcptix?
 
