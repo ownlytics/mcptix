@@ -45,12 +45,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mcptix/mcptix.git"
+    "url": "https://github.com/ownlytics/mcptix.git"
   },
   "bugs": {
-    "url": "https://github.com/mcptix/mcptix/issues"
+    "url": "https://github.com/ownlytics/mcptix/issues"
   },
-  "homepage": "https://github.com/mcptix/mcptix#readme",
+  "homepage": "https://github.com/ownlytics/mcptix#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
     "better-sqlite3": "^11.9.1",
