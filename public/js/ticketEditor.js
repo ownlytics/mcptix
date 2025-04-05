@@ -238,11 +238,19 @@ function openEditor(ticket) {
         commentCountDisplay.textContent = `(${commentCount})`;
       });
 
-      // Always add agent context section
+      // Get the sidebar content element
+      const sidebarContent = document.querySelector('.sidebar-content');
+      if (!sidebarContent) {
+        console.error('Sidebar content element not found');
+        return;
+      }
+
+      // Check if agent context section already exists
       let agentContextSection = document.getElementById('agent-context-section');
 
-      // If it doesn't exist, create it
+      // If it doesn't exist, create it and add it to sidebar content before the danger zone
       if (!agentContextSection) {
+        // Create the agent context section
         agentContextSection = document.createElement('section');
         agentContextSection.id = 'agent-context-section';
         agentContextSection.className = 'sidebar-section agent-workspace-section';
@@ -266,15 +274,15 @@ function openEditor(ticket) {
         agentContextSection.appendChild(sectionHeader);
         agentContextSection.appendChild(sectionContent);
 
-        // Add the section to the sidebar before the danger zone
-        const dangerSection = document.querySelector('.danger-section');
+        // Find the danger section
+        const dangerSection = sidebarContent.querySelector('.danger-section');
 
-        // Check if dangerSection exists and is a child of sidebar
-        if (dangerSection && sidebar.contains(dangerSection)) {
-          sidebar.insertBefore(agentContextSection, dangerSection);
+        // Insert the agent context section before the danger section if it exists
+        // otherwise append it to the end of the sidebar content
+        if (dangerSection) {
+          sidebarContent.insertBefore(agentContextSection, dangerSection);
         } else {
-          // If danger section doesn't exist or isn't a child of sidebar, just append to the end
-          sidebar.appendChild(agentContextSection);
+          sidebarContent.appendChild(agentContextSection);
         }
 
         // Set up toggle behavior
