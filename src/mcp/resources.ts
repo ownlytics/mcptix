@@ -54,7 +54,6 @@ export function setupResourceHandlers(server: Server, ticketQueries: TicketQueri
 
     try {
       // Parse the URI manually since URL class expects double slashes after protocol
-      console.error(`Original URI: ${uri}`);
       logger.log(`Parsing resource URI: ${uri}`);
 
       // Check if it's a tickets resource
@@ -67,7 +66,6 @@ export function setupResourceHandlers(server: Server, ticketQueries: TicketQueri
 
       // Extract the path part (everything after tickets://)
       const path = uri.substring('tickets://'.length);
-      console.error(`Path: ${path}`);
       logger.log(`Resource path: ${path}`);
 
       // Handle different resource types
@@ -129,8 +127,6 @@ async function handleAllTickets(ticketQueries: TicketQueries, uri: string) {
   const tickets = ticketQueries.getTickets({}, sort, order, limit, offset);
 
   // Log for debugging
-  console.log(`[MCP Resources] handleAllTickets: Found ${tickets.length} tickets`);
-  console.log('[MCP Resources] Database path:', process.cwd() + '/.mcptix/data/mcptix.db');
   logger.log(`Found ${tickets.length} tickets`);
   logger.log(`Database path: ${ticketQueries['db'].name}`);
 
