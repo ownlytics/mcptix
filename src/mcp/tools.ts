@@ -124,6 +124,11 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
                 cie_score: { type: 'number' },
               },
             },
+            agent_context: {
+              type: 'string',
+              description:
+                'Markdown-formatted workspace for the agent to store research, analysis, and implementation plans',
+            },
           },
           required: ['title'],
         },
@@ -177,6 +182,11 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
                 blockers_encountered: { type: 'number' },
                 cie_score: { type: 'number' },
               },
+            },
+            agent_context: {
+              type: 'string',
+              description:
+                'Markdown-formatted workspace for the agent to store research, analysis, and implementation plans',
             },
           },
           required: ['id'],
@@ -408,6 +418,7 @@ function handleCreateTicket(ticketQueries: TicketQueries, args: any) {
     status: args.status || 'backlog',
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
+    agent_context: args.agent_context || null,
   };
 
   if (args.complexity_metadata) {
@@ -450,6 +461,8 @@ function handleUpdateTicket(ticketQueries: TicketQueries, args: any) {
     status: args.status || existingTicket.status,
     created: existingTicket.created,
     updated: new Date().toISOString(),
+    agent_context:
+      args.agent_context !== undefined ? args.agent_context : existingTicket.agent_context,
   };
 
   // Update complexity metadata if provided

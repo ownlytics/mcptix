@@ -70,7 +70,8 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
     validateRequest(validateCreateTicket),
     (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { title, description, priority, status, complexity_metadata } = req.body;
+        const { title, description, priority, status, complexity_metadata, agent_context } =
+          req.body;
 
         const ticket: Ticket = {
           id: `ticket-${Date.now()}`,
@@ -80,6 +81,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
           status: status || 'backlog',
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
+          agent_context: agent_context || null,
         };
 
         if (complexity_metadata) {
@@ -106,7 +108,8 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
     validateRequest(validateUpdateTicket),
     (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { title, description, priority, status, complexity_metadata } = req.body;
+        const { title, description, priority, status, complexity_metadata, agent_context } =
+          req.body;
 
         // Check if ticket exists
         const existingTicket = ticketQueries.getTicketById(req.params.id);
@@ -124,6 +127,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
           status: status !== undefined ? status : existingTicket.status,
           created: existingTicket.created,
           updated: new Date().toISOString(),
+          agent_context: agent_context !== undefined ? agent_context : existingTicket.agent_context,
         };
 
         // Update complexity metadata if provided

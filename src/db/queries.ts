@@ -184,8 +184,8 @@ export class TicketQueries {
     const transaction = this.db.transaction(() => {
       // Insert ticket
       const ticketStmt = this.db.prepare(`
-        INSERT INTO tickets (id, title, description, priority, status, created, updated)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tickets (id, title, description, priority, status, created, updated, agent_context)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       ticketStmt.run(
@@ -196,6 +196,7 @@ export class TicketQueries {
         ticket.status || 'backlog',
         now,
         now,
+        ticket.agent_context || null,
       );
 
       // Insert complexity if provided
@@ -312,7 +313,8 @@ export class TicketQueries {
             description = ?,
             priority = ?,
             status = ?,
-            updated = ?
+            updated = ?,
+            agent_context = ?
         WHERE id = ?
       `);
 
@@ -322,6 +324,7 @@ export class TicketQueries {
         ticket.priority || 'medium',
         ticket.status || 'backlog',
         now,
+        ticket.agent_context || null,
         ticket.id,
       );
 

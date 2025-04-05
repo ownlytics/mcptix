@@ -238,6 +238,63 @@ function openEditor(ticket) {
         commentCountDisplay.textContent = `(${commentCount})`;
       });
 
+      // Add agent context section if available
+      if (ticket.agent_context) {
+        // Check if there's an existing agent context section to update
+        let agentContextSection = document.getElementById('agent-context-section');
+
+        // If it doesn't exist, create it
+        if (!agentContextSection) {
+          agentContextSection = document.createElement('section');
+          agentContextSection.id = 'agent-context-section';
+          agentContextSection.className = 'sidebar-section agent-workspace-section';
+
+          // Create the section header
+          const sectionHeader = document.createElement('div');
+          sectionHeader.className = 'section-header';
+          sectionHeader.innerHTML = `
+            <h3>Agent's Workspace</h3>
+            <button type="button" class="toggle-btn" id="toggle-agent-context">
+              <span class="toggle-icon">▼</span>
+            </button>
+          `;
+
+          // Create the content container
+          const sectionContent = document.createElement('div');
+          sectionContent.className = 'section-content';
+          sectionContent.id = 'agent-context-content';
+
+          // Add the header and content container to the section
+          agentContextSection.appendChild(sectionHeader);
+          agentContextSection.appendChild(sectionContent);
+
+          // Add the section to the sidebar before the danger zone
+          const dangerSection = document.querySelector('.danger-section');
+          sidebar.insertBefore(agentContextSection, dangerSection);
+
+          // Set up toggle behavior
+          const toggleBtn = document.getElementById('toggle-agent-context');
+          if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+              sectionContent.classList.toggle('collapsed');
+              const icon = toggleBtn.querySelector('.toggle-icon');
+              icon.textContent = sectionContent.classList.contains('collapsed') ? '▼' : '▲';
+            });
+          }
+        }
+
+        // Update the content with the markdown rendered agent context
+        const contentContainer = document.getElementById('agent-context-content');
+        if (contentContainer) {
+          // Use the marked library to render markdown
+          contentContainer.innerHTML = `
+            <div class="agent-context-display markdown-content">
+              ${marked.parse(ticket.agent_context)}
+            </div>
+          `;
+        }
+      }
+
       // Show delete button
       deleteButton.style.display = 'block';
     } else {
@@ -456,6 +513,8 @@ function saveTicket() {
       status,
       updated: new Date().toISOString(),
       complexity_metadata: complexityMetadata,
+      // Preserve agent_context field if it exists
+      agent_context: currentTicket.agent_context,
     };
 
     // Queue the update
@@ -471,6 +530,7 @@ function saveTicket() {
       created: new Date().toISOString(),
       updated: new Date().toISOString(),
       complexity_metadata: complexityMetadata,
+      agent_context: null, // Initialize agent_context as null for new tickets
       comments: [],
     };
 
