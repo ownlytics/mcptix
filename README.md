@@ -23,7 +23,7 @@ mcptix is a ticket tracking system that helps you manage tasks, bugs, and featur
 Open your terminal and run:
 
 ```bash
-npm install mcptix
+npm install @ownlytics/mcptix
 ```
 
 ### Step 2: Initialize mcptix in your project
