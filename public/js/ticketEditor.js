@@ -268,7 +268,14 @@ function openEditor(ticket) {
 
         // Add the section to the sidebar before the danger zone
         const dangerSection = document.querySelector('.danger-section');
-        sidebar.insertBefore(agentContextSection, dangerSection);
+
+        // Check if dangerSection exists and is a child of sidebar
+        if (dangerSection && sidebar.contains(dangerSection)) {
+          sidebar.insertBefore(agentContextSection, dangerSection);
+        } else {
+          // If danger section doesn't exist or isn't a child of sidebar, just append to the end
+          sidebar.appendChild(agentContextSection);
+        }
 
         // Set up toggle behavior
         const toggleBtn = document.getElementById('toggle-agent-context');
