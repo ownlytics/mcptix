@@ -75,7 +75,7 @@ function createMcpServersJsonFile(dbPath) {
   const absoluteMcpServerPath = path.join(
     projectPath,
     'node_modules',
-    'mcptix',
+    '@ownlytics/mcptix',
     'dist',
     'mcp',
     'index.js',
