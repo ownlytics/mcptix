@@ -1,14 +1,14 @@
-# McpTix [![Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://github.com/mcptix/mcptix)
+# mcptix [![Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://github.com/mcptix/mcptix)
 
 A simple, powerful ticket tracking system with AI assistant integration.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg)
 
-![McpTix Banner](https://via.placeholder.com/800x200?text=McpTix)
+![mcptix Banner](https://via.placeholder.com/800x200?text=mcptix)
 
-## What is McpTix?
+## What is mcptix?
 
-McpTix is a ticket tracking system that helps you manage tasks, bugs, and features for your projects. It's designed to be easy to use and integrates with AI assistants through the Model Context Protocol (MCP).
+mcptix is a ticket tracking system that helps you manage tasks, bugs, and features for your projects. It's designed to be easy to use and integrates with AI assistants through the Model Context Protocol (MCP).
 
 - 📋 **Track tickets** - Create, update, and manage tickets for your projects
 - 🧠 **Measure complexity** - Track how complex your tickets are with the Complexity Intelligence Engine
@@ -43,14 +43,13 @@ This will:
 npx mcptix start
 ```
 
-That's it! McpTix will start and open in your browser automatically.
 That's it! mcptix will start and open in your browser automatically.
 
-## Using McpTix
+## Using mcptix
 
 ### The Kanban Board
 
-When you open McpTix, you'll see a Kanban board with columns for different ticket statuses:
+When you open mcptix, you'll see a Kanban board with columns for different ticket statuses:
 
 - **Backlog** - Tickets that need to be worked on
 - **Up Next** - Tickets that are ready to be worked on
@@ -83,7 +82,7 @@ When you open McpTix, you'll see a Kanban board with columns for different ticke
 
 ## Connecting AI Assistants (MCP Configuration)
 
-McpTix includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by McpTix itself.
+mcptix includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by mcptix itself.
 
 ### 1. Install mcptix
 
@@ -116,12 +115,12 @@ For other AI assistants, consult their documentation on how to configure MCP ser
 The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server:
 
 ```json
-// McpTix MCP Server Configuration
-// This file is used by LLM agents (like Roo) to connect to the McpTix MCP server.
+// mcptix MCP Server Configuration
+// This file is used by LLM agents (like Roo) to connect to the mcptix MCP server.
 // Copy this file to your LLM agent's configuration directory.
 // For Roo, this would typically be .roo/mcp.json in your project root.
 //
-// IMPORTANT: The MCP server is started by the LLM agent, not by McpTix.
+// IMPORTANT: The MCP server is started by the LLM agent, not by mcptix.
 // You only need to run 'npx mcptix start' to start the UI.
 
 {
@@ -146,7 +145,7 @@ The configuration file contains all the necessary information for your AI assist
 npx mcptix start
 ```
 
-This will start only the McpTix UI (API server). The MCP server will be started by your AI assistant when needed.
+This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
 This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
 
 ### 5. Use mcptix with your AI assistant
@@ -162,7 +161,7 @@ The MCP server provides these capabilities through tools and resources that your
 
 ## Customizing mcptix
 
-You can customize McpTix by editing the `.mcptix/mcptix.config.js` file in your project:
+You can customize mcptix by editing the `.mcptix/mcptix.config.js` file in your project:
 
 ```javascript
 module.exports = {
@@ -193,11 +192,9 @@ module.exports = {
 
 ## Troubleshooting
 
-### McpTix won't start
-
 ### mcptix won't start
 
-If McpTix won't start, check:
+If mcptix won't start, check:
 
 1. Is another application using port 3000? Change the port in the config file.
 2. Do you have permission to write to the data directory? Check file permissions.
@@ -205,7 +202,7 @@ If McpTix won't start, check:
 
 ### Can't connect AI assistant
 
-If your AI assistant can't connect to McpTix:
+If your AI assistant can't connect to mcptix:
 
 1. Check that your MCP configuration file is correctly copied to your AI assistant's configuration directory
 2. Verify that the paths in the MCP configuration file are correct
@@ -217,10 +214,10 @@ If your AI assistant can't connect to McpTix:
 mcptix provides several command line options:
 
 ```bash
-# Initialize McpTix in your project
+# Initialize mcptix in your project
 npx mcptix init
 
-# Start McpTix
+# Start mcptix
 npx mcptix start
 
 # Start with custom port and host
@@ -235,7 +232,7 @@ npx mcptix mcp
 
 ## Important Note About MCP Server
 
-The MCP server is designed to be started by your AI assistant, not by McpTix itself. This is why:
+The MCP server is designed to be started by your AI assistant, not by mcptix itself. This is why:
 
 1. The `mcpEnabled` option is set to `false` by default
 2. The `npx mcptix start` command only starts the UI (API server)
@@ -243,12 +240,12 @@ The MCP server is designed to be started by your AI assistant, not by McpTix its
 
 The `npx mcptix mcp` command is provided for development and testing purposes only. In normal operation, you should not need to start the MCP server manually.
 
-When your AI assistant needs to interact with McpTix, it will:
+When your AI assistant needs to interact with mcptix, it will:
 
 1. Read the MCP configuration file from its configuration directory
 2. Start the MCP server as specified in the configuration
 3. Connect to the MCP server
-4. Use the tools and resources provided by the MCP server to interact with McpTix
+4. Use the tools and resources provided by the MCP server to interact with mcptix
 
 This architecture ensures that:
 
@@ -263,7 +260,7 @@ If you're comfortable with code, you can also use mcptix programmatically:
 ```javascript
 const { createMcpTix } = require('mcptix');
 
-// Create a McpTix instance
+// Create a mcptix instance
 const mcpTix = createMcpTix();
 
 // Start the API server (UI)
