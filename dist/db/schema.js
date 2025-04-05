@@ -7,6 +7,7 @@ exports.DB_PATH = exports.CURRENT_SCHEMA_VERSION = void 0;
 exports.ensureDataDirectory = ensureDataDirectory;
 exports.getDefaultDbPath = getDefaultDbPath;
 exports.migrateDatabase = migrateDatabase;
+exports.getAvailableMigrations = getAvailableMigrations;
 exports.initializeDatabase = initializeDatabase;
 exports.closeDatabase = closeDatabase;
 exports.clearDatabase = clearDatabase;
@@ -14,7 +15,22 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const logger_1 = require("../utils/logger");
-// Schema version constants
+const migrations_1 = require("./migrations");
+/**
+ * SQLite Column Dropping Note:
+ *
+ * As of SQLite version 3.35.0 (released March 2021), SQLite supports directly dropping columns with:
+ * ALTER TABLE table_name DROP COLUMN column_name;
+ *
+ * For older SQLite versions, column dropping requires a workaround:
+ * 1. Create a new table without the column
+ * 2. Copy data from the old table to the new one
+ * 3. Drop the old table
+ * 4. Rename the new table to the original name
+ *
+ * Our migration system attempts to detect SQLite version and use the appropriate method.
+ */
+// Schema version constants - this should match the highest migration version
 exports.CURRENT_SCHEMA_VERSION = 2; // Increment this when schema changes
 /**
  * Ensure the data directory exists for the given database path
@@ -79,22 +95,12 @@ function migrateDatabase(db) {
         const currentVersion = result ? result.version : 0;
         if (currentVersion < exports.CURRENT_SCHEMA_VERSION) {
             logger_1.Logger.info('Schema', `Migrating database from version ${currentVersion} to ${exports.CURRENT_SCHEMA_VERSION}`);
-            // Run migrations based on current version
-            if (currentVersion < 1) {
-                // Migration to version 1 (base schema)
-                applyBaseSchema(db);
-            }
-            if (currentVersion < 2) {
-                // Migration to version 2 (add agent_context column)
-                addAgentContextColumn(db);
-            }
-            // Update schema version
+            // If this is a fresh database, insert the schema version record
             if (currentVersion === 0) {
-                db.prepare('INSERT INTO schema_version (id, version) VALUES (1, ?)').run(exports.CURRENT_SCHEMA_VERSION);
+                db.prepare('INSERT INTO schema_version (id, version) VALUES (1, 0)').run();
             }
-            else {
-                db.prepare('UPDATE schema_version SET version = ? WHERE id = 1').run(exports.CURRENT_SCHEMA_VERSION);
-            }
+            // Load and apply migrations
+            (0, migrations_1.applyMigrations)(db, currentVersion, exports.CURRENT_SCHEMA_VERSION);
             logger_1.Logger.success('Schema', `Database migrated to version ${exports.CURRENT_SCHEMA_VERSION}`);
         }
         else {
@@ -107,88 +113,13 @@ function migrateDatabase(db) {
     }
 }
 /**
- * Apply base schema (version 1)
- * @param db Database connection
+ * Get all available migrations with their versions
+ * Used for testing and debugging
+ * @returns Array of available migration versions
  */
-function applyBaseSchema(db) {
-    db.exec(`
-    -- Tickets table
-    CREATE TABLE IF NOT EXISTS tickets (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT,
-      priority TEXT CHECK(priority IN ('low', 'medium', 'high')),
-      status TEXT CHECK(status IN ('backlog', 'up-next', 'in-progress', 'in-review', 'completed')),
-      created TEXT NOT NULL,
-      updated TEXT NOT NULL
-    );
-
-    -- Complexity metrics table
-    CREATE TABLE IF NOT EXISTS complexity (
-      ticket_id TEXT PRIMARY KEY,
-      files_touched INTEGER DEFAULT 0,
-      modules_crossed INTEGER DEFAULT 0,
-      stack_layers_involved INTEGER DEFAULT 0,
-      dependencies INTEGER DEFAULT 0,
-      shared_state_touches INTEGER DEFAULT 0,
-      cascade_impact_zones INTEGER DEFAULT 0,
-      subjectivity_rating REAL DEFAULT 0,
-      loc_added INTEGER DEFAULT 0,
-      loc_modified INTEGER DEFAULT 0,
-      test_cases_written INTEGER DEFAULT 0,
-      edge_cases INTEGER DEFAULT 0,
-      mocking_complexity INTEGER DEFAULT 0,
-      coordination_touchpoints INTEGER DEFAULT 0,
-      review_rounds INTEGER DEFAULT 0,
-      blockers_encountered INTEGER DEFAULT 0,
-      cie_score REAL DEFAULT 0,
-      FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
-    );
-
-    -- Comments table
-    CREATE TABLE IF NOT EXISTS comments (
-      id TEXT PRIMARY KEY,
-      ticket_id TEXT NOT NULL,
-      content TEXT,
-      type TEXT CHECK(type IN ('comment', 'request_changes', 'change_proposal')),
-      author TEXT CHECK(author IN ('developer', 'agent')),
-      status TEXT CHECK(status IN ('open', 'in_progress', 'resolved', 'wont_fix')),
-      timestamp TEXT NOT NULL,
-      summary TEXT,
-      full_text TEXT,
-      display TEXT CHECK(display IN ('expanded', 'collapsed')),
-      FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
-    );
-
-    -- Create indexes for efficient querying
-    CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
-    CREATE INDEX IF NOT EXISTS idx_tickets_priority ON tickets(priority);
-    CREATE INDEX IF NOT EXISTS idx_comments_ticket_id ON comments(ticket_id);
-    CREATE INDEX IF NOT EXISTS idx_complexity_cie_score ON complexity(cie_score);
-  `);
-    logger_1.Logger.info('Schema', 'Applied base schema (version 1)');
-}
-/**
- * Add agent_context column migration (version 2)
- * @param db Database connection
- */
-function addAgentContextColumn(db) {
-    try {
-        // Check if the column already exists
-        const tableInfo = db.prepare('PRAGMA table_info(tickets)').all();
-        const hasAgentContext = tableInfo.some(col => col.name === 'agent_context');
-        if (!hasAgentContext) {
-            db.exec(`ALTER TABLE tickets ADD COLUMN agent_context TEXT;`);
-            logger_1.Logger.info('Schema', 'Added agent_context column to tickets table');
-        }
-        else {
-            logger_1.Logger.info('Schema', 'agent_context column already exists');
-        }
-    }
-    catch (error) {
-        logger_1.Logger.error('Schema', 'Error adding agent_context column', error);
-        throw error;
-    }
+function getAvailableMigrations() {
+    const migrations = (0, migrations_1.getMigrations)();
+    return migrations.map(m => ({ version: m.version, name: m.name }));
 }
 /**
  * Initialize database with the latest schema
