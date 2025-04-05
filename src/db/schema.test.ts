@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-import { initializeDatabase, closeDatabase } from './schema';
+import Database from 'better-sqlite3';
+
+import { initializeDatabase, closeDatabase, CURRENT_SCHEMA_VERSION } from './schema';
 
 describe('Database Schema', () => {
   const testDbPath = path.join(process.cwd(), 'test.db');
@@ -92,5 +94,80 @@ describe('Database Schema', () => {
     expect(invalidInsert).toThrow();
 
     closeDatabase(db);
+  });
+
+  test('should set correct schema version', () => {
+    const db = initializeDatabase(testDbPath);
+
+    // Check if schema_version table exists and has the correct version
+    const versionResult = db.prepare('SELECT version FROM schema_version WHERE id = 1').get() as
+      | { version: number }
+      | undefined;
+
+    expect(versionResult).toBeDefined();
+    expect(versionResult?.version).toBe(CURRENT_SCHEMA_VERSION);
+
+    closeDatabase(db);
+  });
+
+  test('should include agent_context column in tickets table', () => {
+    const db = initializeDatabase(testDbPath);
+
+    // Check if the agent_context column exists in the tickets table
+    const tableInfo = db.prepare('PRAGMA table_info(tickets)').all() as Array<{ name: string }>;
+    const hasAgentContext = tableInfo.some(col => col.name === 'agent_context');
+
+    expect(hasAgentContext).toBe(true);
+
+    closeDatabase(db);
+  });
+
+  test('should migrate from older schema version', () => {
+    // Create a database with an older schema (version 1)
+    const db = new Database(testDbPath);
+
+    // Create schema_version table with version 1
+    db.exec(`
+      CREATE TABLE schema_version (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        version INTEGER NOT NULL
+      );
+      INSERT INTO schema_version (id, version) VALUES (1, 1);
+    `);
+
+    // Create tickets table without agent_context column (version 1 schema)
+    db.exec(`
+      CREATE TABLE tickets (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        priority TEXT CHECK(priority IN ('low', 'medium', 'high')),
+        status TEXT CHECK(status IN ('backlog', 'up-next', 'in-progress', 'in-review', 'completed')),
+        created TEXT NOT NULL,
+        updated TEXT NOT NULL
+      );
+    `);
+
+    db.close();
+
+    // Now initialize the database again, which should trigger migration
+    const migratedDb = initializeDatabase(testDbPath, false);
+
+    // Check that the schema version was updated
+    const versionResult = migratedDb
+      .prepare('SELECT version FROM schema_version WHERE id = 1')
+      .get() as { version: number } | undefined;
+
+    expect(versionResult?.version).toBe(CURRENT_SCHEMA_VERSION);
+
+    // Check that the agent_context column was added
+    const tableInfo = migratedDb.prepare('PRAGMA table_info(tickets)').all() as Array<{
+      name: string;
+    }>;
+    const hasAgentContext = tableInfo.some(col => col.name === 'agent_context');
+
+    expect(hasAgentContext).toBe(true);
+
+    closeDatabase(migratedDb);
   });
 });

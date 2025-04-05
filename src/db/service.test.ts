@@ -4,7 +4,7 @@ import path from 'path';
 import Database from 'better-sqlite3';
 
 import { McpTixConfig } from '../config';
-import { getDefaultDbPath } from '../db/schema';
+import { getDefaultDbPath, initializeDatabase as initDb } from '../db/schema';
 import { Logger } from '../utils/logger';
 
 import { DatabaseService } from './service';
@@ -34,6 +34,12 @@ describe('DatabaseService', () => {
       close: jest.fn(),
     } as unknown as jest.Mocked<Database.Database>;
     (Database as unknown as jest.Mock).mockImplementation(() => mockDb);
+
+    // Mock the centralized schema initialization function
+    (initDb as jest.Mock).mockImplementation(dbPath => {
+      // Return the mockDb to simulate successful database initialization
+      return mockDb;
+    });
 
     // Mock path functions
     (path.isAbsolute as jest.Mock).mockImplementation((p: string) => p.startsWith('/'));
