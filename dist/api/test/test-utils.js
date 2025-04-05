@@ -38,7 +38,8 @@ function initTestDatabase() {
       priority TEXT CHECK(priority IN ('low', 'medium', 'high')),
       status TEXT CHECK(status IN ('backlog', 'up-next', 'in-progress', 'in-review', 'completed')),
       created TEXT NOT NULL,
-      updated TEXT NOT NULL
+      updated TEXT NOT NULL,
+      agent_context TEXT
     );
 
     -- Complexity metrics table

@@ -1202,3 +1202,18 @@ input[type='range']::-moz-range-thumb {
   max-height: 400px;
   overflow-y: auto;
 }
+
+/* Empty state styling for agent context */
+.agent-context-display.empty-state {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f4ff;
+  border: 1px dashed #7c4dff;
+}
+
+/* Ensure collapsed content is properly hidden */
+.section-content.collapsed {
+  display: none;
+}

@@ -12,6 +12,7 @@ exports.sampleTickets = [
         status: 'in-progress',
         created: '2025-04-01T12:00:00Z',
         updated: '2025-04-01T12:00:00Z',
+        agent_context: '# API Server Implementation Notes\n\n## Requirements\n- RESTful design\n- Express.js framework\n- Proper error handling\n- Authentication middleware\n\n## Implementation Steps\n1. Set up Express server\n2. Define routes\n3. Implement controllers\n4. Add middleware\n5. Test endpoints',
     },
     {
         id: 'ticket-2',
@@ -21,6 +22,7 @@ exports.sampleTickets = [
         status: 'backlog',
         created: '2025-04-01T12:30:00Z',
         updated: '2025-04-01T12:30:00Z',
+        agent_context: '# WebSocket Implementation\n\n## Libraries to Consider\n- Socket.IO\n- ws (WebSocket)\n- SockJS\n\n## Key Features\n- Real-time updates\n- Connection management\n- Error handling\n- Reconnection logic',
     },
     {
         id: 'ticket-3',
@@ -30,6 +32,7 @@ exports.sampleTickets = [
         status: 'up-next',
         created: '2025-04-01T13:00:00Z',
         updated: '2025-04-01T13:00:00Z',
+        agent_context: '# Error Handling Strategy\n\n## Approach\n- Centralized error middleware\n- Custom error classes\n- Consistent error response format\n- Logging integration\n\n## Error Categories\n1. Validation errors\n2. Authentication errors\n3. Authorization errors\n4. Resource not found\n5. Server errors',
     },
     {
         id: 'ticket-4',
@@ -39,6 +42,7 @@ exports.sampleTickets = [
         status: 'completed',
         created: '2025-04-01T13:30:00Z',
         updated: '2025-04-01T14:00:00Z',
+        agent_context: '# API Documentation Plan\n\n## Documentation Tools\n- Swagger/OpenAPI\n- Postman Collections\n- Markdown files\n\n## Documentation Structure\n- Authentication\n- Endpoints by resource\n- Request/response examples\n- Error codes\n- Rate limiting',
     },
     {
         id: 'ticket-5',
@@ -48,6 +52,7 @@ exports.sampleTickets = [
         status: 'in-review',
         created: '2025-04-01T14:30:00Z',
         updated: '2025-04-01T14:30:00Z',
+        agent_context: '# Search Implementation\n\n## Search Features\n- Full-text search\n- Filtering by fields\n- Sorting options\n- Pagination\n\n## Implementation Approach\n- Use SQLite FTS extension\n- Create search index\n- Implement query parsing\n- Add relevance scoring',
     },
 ];
 // Sample comments for testing

@@ -238,58 +238,64 @@ function openEditor(ticket) {
         commentCountDisplay.textContent = `(${commentCount})`;
       });
 
-      // Add agent context section if available
-      if (ticket.agent_context) {
-        // Check if there's an existing agent context section to update
-        let agentContextSection = document.getElementById('agent-context-section');
+      // Always add agent context section
+      let agentContextSection = document.getElementById('agent-context-section');
 
-        // If it doesn't exist, create it
-        if (!agentContextSection) {
-          agentContextSection = document.createElement('section');
-          agentContextSection.id = 'agent-context-section';
-          agentContextSection.className = 'sidebar-section agent-workspace-section';
+      // If it doesn't exist, create it
+      if (!agentContextSection) {
+        agentContextSection = document.createElement('section');
+        agentContextSection.id = 'agent-context-section';
+        agentContextSection.className = 'sidebar-section agent-workspace-section';
 
-          // Create the section header
-          const sectionHeader = document.createElement('div');
-          sectionHeader.className = 'section-header';
-          sectionHeader.innerHTML = `
-            <h3>Agent's Workspace</h3>
-            <button type="button" class="toggle-btn" id="toggle-agent-context">
-              <span class="toggle-icon">▼</span>
-            </button>
-          `;
+        // Create the section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h3>Agent's Workspace</h3>
+          <button type="button" class="toggle-btn" id="toggle-agent-context">
+            <span class="toggle-icon">▼</span>
+          </button>
+        `;
 
-          // Create the content container
-          const sectionContent = document.createElement('div');
-          sectionContent.className = 'section-content';
-          sectionContent.id = 'agent-context-content';
+        // Create the content container
+        const sectionContent = document.createElement('div');
+        sectionContent.className = 'section-content collapsed'; // Collapsed by default
+        sectionContent.id = 'agent-context-content';
 
-          // Add the header and content container to the section
-          agentContextSection.appendChild(sectionHeader);
-          agentContextSection.appendChild(sectionContent);
+        // Add the header and content container to the section
+        agentContextSection.appendChild(sectionHeader);
+        agentContextSection.appendChild(sectionContent);
 
-          // Add the section to the sidebar before the danger zone
-          const dangerSection = document.querySelector('.danger-section');
-          sidebar.insertBefore(agentContextSection, dangerSection);
+        // Add the section to the sidebar before the danger zone
+        const dangerSection = document.querySelector('.danger-section');
+        sidebar.insertBefore(agentContextSection, dangerSection);
 
-          // Set up toggle behavior
-          const toggleBtn = document.getElementById('toggle-agent-context');
-          if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-              sectionContent.classList.toggle('collapsed');
-              const icon = toggleBtn.querySelector('.toggle-icon');
-              icon.textContent = sectionContent.classList.contains('collapsed') ? '▼' : '▲';
-            });
-          }
+        // Set up toggle behavior
+        const toggleBtn = document.getElementById('toggle-agent-context');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            sectionContent.classList.toggle('collapsed');
+            const icon = toggleBtn.querySelector('.toggle-icon');
+            icon.textContent = sectionContent.classList.contains('collapsed') ? '▼' : '▲';
+          });
         }
+      }
 
-        // Update the content with the markdown rendered agent context
-        const contentContainer = document.getElementById('agent-context-content');
-        if (contentContainer) {
+      // Update the content with the markdown rendered agent context
+      const contentContainer = document.getElementById('agent-context-content');
+      if (contentContainer) {
+        if (ticket.agent_context) {
           // Use the marked library to render markdown
           contentContainer.innerHTML = `
             <div class="agent-context-display markdown-content">
               ${marked.parse(ticket.agent_context)}
+            </div>
+          `;
+        } else {
+          // Show a message when no agent context is available
+          contentContainer.innerHTML = `
+            <div class="agent-context-display empty-state">
+              <p>No agent workspace content yet. This area will be populated when the AI agent analyzes this ticket.</p>
             </div>
           `;
         }

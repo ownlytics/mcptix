@@ -161,10 +161,10 @@ class TicketQueries {
         const transaction = this.db.transaction(() => {
             // Insert ticket
             const ticketStmt = this.db.prepare(`
-        INSERT INTO tickets (id, title, description, priority, status, created, updated)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tickets (id, title, description, priority, status, created, updated, agent_context)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
-            ticketStmt.run(ticketId, ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, now);
+            ticketStmt.run(ticketId, ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, now, ticket.agent_context || null);
             // Insert complexity if provided
             if (ticket.complexity_metadata) {
                 // Extract complexity metrics
@@ -240,10 +240,11 @@ class TicketQueries {
             description = ?,
             priority = ?,
             status = ?,
-            updated = ?
+            updated = ?,
+            agent_context = ?
         WHERE id = ?
       `);
-            const result = ticketStmt.run(ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, ticket.id);
+            const result = ticketStmt.run(ticket.title, ticket.description || '', ticket.priority || 'medium', ticket.status || 'backlog', now, ticket.agent_context || null, ticket.id);
             if (result.changes === 0)
                 return false;
             // Update complexity if provided

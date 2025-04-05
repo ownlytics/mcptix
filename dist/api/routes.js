@@ -54,7 +54,7 @@ function setupRoutes(app, ticketQueries) {
     // Create a new ticket
     app.post('/api/tickets', (0, middleware_1.validateRequest)(validation_1.validateCreateTicket), (req, res, next) => {
         try {
-            const { title, description, priority, status, complexity_metadata } = req.body;
+            const { title, description, priority, status, complexity_metadata, agent_context } = req.body;
             const ticket = {
                 id: `ticket-${Date.now()}`,
                 title,
@@ -63,6 +63,7 @@ function setupRoutes(app, ticketQueries) {
                 status: status || 'backlog',
                 created: new Date().toISOString(),
                 updated: new Date().toISOString(),
+                agent_context: agent_context || null,
             };
             if (complexity_metadata) {
                 ticket.complexity_metadata = {
@@ -82,7 +83,7 @@ function setupRoutes(app, ticketQueries) {
     // Update an existing ticket
     app.put('/api/tickets/:id', (0, middleware_1.validateRequest)(validation_1.validateUpdateTicket), (req, res, next) => {
         try {
-            const { title, description, priority, status, complexity_metadata } = req.body;
+            const { title, description, priority, status, complexity_metadata, agent_context } = req.body;
             // Check if ticket exists
             const existingTicket = ticketQueries.getTicketById(req.params.id);
             if (!existingTicket) {
@@ -98,6 +99,7 @@ function setupRoutes(app, ticketQueries) {
                 status: status !== undefined ? status : existingTicket.status,
                 created: existingTicket.created,
                 updated: new Date().toISOString(),
+                agent_context: agent_context !== undefined ? agent_context : existingTicket.agent_context,
             };
             // Update complexity metadata if provided
             if (complexity_metadata) {

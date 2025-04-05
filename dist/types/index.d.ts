@@ -6,6 +6,7 @@ export interface Ticket {
     status: 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed';
     created: string;
     updated: string;
+    agent_context?: string;
     complexity_metadata?: ComplexityMetadata;
     comments?: Comment[];
 }
