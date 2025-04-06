@@ -20,11 +20,12 @@ function getMigrations() {
         return [];
     }
     try {
-        // Get all .js and .ts files in the migrations directory, excluding index files
+        // Get all .js and .ts files in the migrations directory, excluding index and test files
         const migrationFiles = fs_1.default.readdirSync(migrationsDir).filter(file => {
             const isJsOrTs = file.endsWith('.js') || file.endsWith('.ts');
             const isNotIndex = !file.startsWith('index.');
-            return isJsOrTs && isNotIndex;
+            const isNotTest = !file.includes('.test.') && !file.includes('.spec.');
+            return isJsOrTs && isNotIndex && isNotTest;
         });
         // Load and sort migrations
         const migrations = [];
@@ -58,6 +59,7 @@ function getMigrations() {
  */
 function applyMigrations(db, currentVersion, targetVersion) {
     const migrations = getMigrations();
+    let transactionStarted = false;
     // Filter migrations that need to be applied
     const pendingMigrations = migrations.filter(m => m.version > currentVersion && m.version <= targetVersion);
     if (pendingMigrations.length === 0) {
@@ -65,9 +67,10 @@ function applyMigrations(db, currentVersion, targetVersion) {
         return;
     }
     logger_1.Logger.info('Migrations', `Applying ${pendingMigrations.length} migrations`);
-    // Begin a transaction for all migrations
-    db.exec('BEGIN TRANSACTION;');
     try {
+        // Begin a transaction for all migrations
+        db.exec('BEGIN TRANSACTION;');
+        transactionStarted = true;
         // Apply each migration in order
         for (const migration of pendingMigrations) {
             logger_1.Logger.info('Migrations', `Applying migration v${migration.version}: ${migration.name}`);
@@ -78,11 +81,19 @@ function applyMigrations(db, currentVersion, targetVersion) {
         }
         // Commit the transaction
         db.exec('COMMIT;');
+        transactionStarted = false;
         logger_1.Logger.success('Migrations', `Database migrated from version ${currentVersion} to ${targetVersion}`);
     }
     catch (error) {
-        // Rollback on error
-        db.exec('ROLLBACK;');
+        // Rollback on error only if transaction was started
+        if (transactionStarted) {
+            try {
+                db.exec('ROLLBACK;');
+            }
+            catch (rollbackError) {
+                logger_1.Logger.error('Migrations', 'Rollback failed:', rollbackError);
+            }
+        }
         logger_1.Logger.error('Migrations', 'Migration failed, rolling back:', error);
         throw error;
     }
@@ -112,9 +123,11 @@ function rollbackMigrations(db, currentVersion, targetVersion) {
         throw new Error(`Cannot rollback: some migrations do not have down functions`);
     }
     logger_1.Logger.info('Migrations', `Rolling back ${migrationsToRollback.length} migrations`);
-    // Begin a transaction for all rollbacks
-    db.exec('BEGIN TRANSACTION;');
+    let transactionStarted = false;
     try {
+        // Begin a transaction for all rollbacks
+        db.exec('BEGIN TRANSACTION;');
+        transactionStarted = true;
         // Roll back each migration in reverse order
         for (const migration of migrationsToRollback) {
             logger_1.Logger.info('Migrations', `Rolling back migration v${migration.version}: ${migration.name}`);
@@ -130,11 +143,19 @@ function rollbackMigrations(db, currentVersion, targetVersion) {
         }
         // Commit the transaction
         db.exec('COMMIT;');
+        transactionStarted = false;
         logger_1.Logger.success('Migrations', `Database rolled back from version ${currentVersion} to ${targetVersion}`);
     }
     catch (error) {
-        // Rollback on error
-        db.exec('ROLLBACK;');
+        // Rollback on error only if transaction was started
+        if (transactionStarted) {
+            try {
+                db.exec('ROLLBACK;');
+            }
+            catch (rollbackError) {
+                logger_1.Logger.error('Migrations', 'Rollback failed:', rollbackError);
+            }
+        }
         logger_1.Logger.error('Migrations', 'Rollback failed:', error);
         throw error;
     }

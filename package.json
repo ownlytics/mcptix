@@ -17,7 +17,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build",
     "start": "node bin/mcptix.js start",
     "test": "jest",
     "test:watch": "jest --watch",

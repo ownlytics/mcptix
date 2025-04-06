@@ -1240,3 +1240,30 @@ input[type='range']::-moz-range-thumb {
 .section-content.collapsed {
   display: none;
 }
+
+/* Large title input for new ticket form */
+.large-title-input {
+  width: 100%;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  border: none;
+  background: transparent;
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.large-title-input:focus {
+  outline: none;
+  border-bottom-color: var(--primary-color);
+  box-shadow: none;
+}
+
+/* Make placeholder text lighter and more subtle */
+.large-title-input::placeholder {
+  color: #ccc;
+  opacity: 0.6;
+  font-weight: 400;
+}

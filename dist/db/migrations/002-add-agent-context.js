@@ -32,7 +32,7 @@ const migration = {
             // Check SQLite version to see if direct column dropping is supported
             const versionResult = db.prepare('SELECT sqlite_version() as version').get();
             const sqliteVersion = versionResult.version;
-            const [major, minor, patch] = sqliteVersion.split('.').map(Number);
+            const [major, minor] = sqliteVersion.split('.').map(Number); // add patch level if needed
             // SQLite 3.35.0 and newer support ALTER TABLE DROP COLUMN
             const supportsDropColumn = major > 3 || (major === 3 && minor >= 35);
             if (supportsDropColumn) {

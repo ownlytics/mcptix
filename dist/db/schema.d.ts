@@ -13,7 +13,7 @@ import Database from 'better-sqlite3';
  *
  * Our migration system attempts to detect SQLite version and use the appropriate method.
  */
-export declare const CURRENT_SCHEMA_VERSION = 2;
+export declare const CURRENT_SCHEMA_VERSION = 3;
 /**
  * Ensure the data directory exists for the given database path
  * @param dbPath Path to the database file
