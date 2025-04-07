@@ -1,65 +1,50 @@
-# Contributing to mcptix
+# Contributing to McpTix
 
-Thank you for your interest in contributing to mcptix! This document provides guidelines and instructions for contributing.
+Thank you for your interest in McpTix, our patent-pending platform for structured human-AI collaboration!
 
-## Code of Conduct
+## Our Collaborative Philosophy
 
-Please be respectful and considerate of others when contributing to this project. We aim to foster an inclusive and welcoming community.
+We believe great software benefits from diverse perspectives while respecting intellectual property rights. Our approach to contributions reflects this balance.
 
-## How to Contribute
+## Contribution Types Welcome
 
-### Reporting Bugs
+### Currently Accepted:
 
-If you find a bug, please create an issue on GitHub with the following information:
+- **Bug reports and issue identification** via GitHub Issues
+- **Documentation improvements** including clarifications, typo fixes, and examples
+- **Performance optimizations** that don't modify core algorithms
+- **Feature suggestions** through GitHub Discussions
 
-- A clear, descriptive title
-- Steps to reproduce the bug
-- Expected behavior
-- Actual behavior
-- Screenshots (if applicable)
-- Environment information (OS, browser, Node.js version, etc.)
+### Not Currently Accepted:
 
-### Suggesting Features
+- Modifications to core protocol implementation covered by our patent application
+- Pull requests that implement new features
+- Code refactoring of protected components
 
-If you have an idea for a new feature, please create an issue on GitHub with the following information:
+## How to Submit Feedback
 
-- A clear, descriptive title
-- A detailed description of the feature
-- Why this feature would be useful
-- Any implementation ideas you have
+1. **Create an Issue** with a clear, descriptive title
+2. Provide detailed reproduction steps for bugs
+3. For feature suggestions, explain the use case and benefits
 
-### Pull Requests
+## Intellectual Property Notice
 
-1. Fork the repository
-2. Create a new branch for your changes
-3. Make your changes
-4. Write tests for your changes (if applicable)
-5. Run the tests to make sure they pass
-6. Submit a pull request
+By submitting feedback, you acknowledge:
 
-## Development Setup
+1. McpTix implements methods covered by US Patent Application No. 63/783,954
+2. Submissions may influence future development but do not grant you any rights to our IP
+3. We may incorporate concepts from your feedback into our protected implementation
 
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Build the project with `npm run build`
-4. Run tests with `npm test`
+## Licensing Clarification
 
-## Project Structure
+McpTix is provided under the Business Source License 1.1 (BSL 1.1) as detailed in LICENSE.md, not an MIT license as previously stated in earlier versions of this document.
 
-- `src/` - TypeScript source files
-- `dist/` - Compiled JavaScript files
-- `bin/` - CLI scripts
-- `templates/` - Configuration templates
-- `public/` - UI files
-- `examples/` - Example usage
+## Commercial Use
 
-## Coding Standards
+For commercial licensing inquiries, please contact: tim@ownlytics.ai
 
-- Use TypeScript for all new code
-- Follow the existing code style
-- Write tests for new features
-- Update documentation for changes
+We offer flexible licensing programs for organizations interested in building on our technology.
 
-## License
+---
 
-By contributing to mcptix, you agree that your contributions will be licensed under the project's MIT license.
+© 2025–Present Tesseract Labs, LLC. All rights reserved.
