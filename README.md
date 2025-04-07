@@ -124,10 +124,10 @@ IMPORTANT: _The MCP server should be started started by the LLM agent/extension,
 {
   "mcpServers": {
     "mcptix": {
-      "command": "node",
+      "command": "/absolute/path/to/your/node",
       "args": ["/absolute/path/to/node_modules/mcptix/dist/mcp/index.js"],
       "env": {
-        "MCPTIX_DB_PATH": "/absolute/path/to/.mcptix/data/mcptix.db",
+        "MCPTIX_HOME_DIR": "/absolute/path/to/.mcptix",
         "HOME": "/home/your-username"
       },
       "disabled": false,
