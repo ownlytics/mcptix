@@ -1,14 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __importDefault(require("path"));
-const config_1 = require("../config");
-const queries_1 = require("../db/queries");
-const service_1 = require("../db/service");
-const logger_1 = require("../utils/logger");
-const server_1 = require("./server");
 /**
  * Standalone MCP server for McpTix
  * This file is designed to be executed directly by Node.js or by Roo
@@ -18,8 +8,20 @@ const server_1 = require("./server");
  * SIMPLIFIED VERSION: This assumes the MCP server will only be started
  * through this entry point directly.
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 // Set MCP mode environment variable to ensure proper logging behavior
+// CRITICAL: This must be set before any imports to ensure the Logger
+// initializes correctly with MCP mode enabled
 process.env.MCPTIX_MCP_MODE = 'true';
+const path_1 = __importDefault(require("path"));
+const config_1 = require("../config");
+const queries_1 = require("../db/queries");
+const service_1 = require("../db/service");
+const logger_1 = require("../utils/logger");
+const server_1 = require("./server");
 // Initialize the configuration with environment variables
 // Get configuration from environment variables or use defaults
 const userConfig = {

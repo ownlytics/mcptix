@@ -162,9 +162,7 @@ describe('TicketQueries - Reorder Ticket', () => {
 
     // Get all tickets in order
     const tickets = db
-      .prepare(
-        "SELECT id, order_value FROM tickets WHERE status = 'in-progress' ORDER BY order_value DESC",
-      )
+      .prepare("SELECT id, order_value FROM tickets WHERE status = 'in-progress' ORDER BY order_value DESC")
       .all() as Array<{ id: string; order_value: number }>;
 
     expect(tickets[0].id).toBe('ticket-1'); // Top (3000)
@@ -184,9 +182,7 @@ describe('TicketQueries - Reorder Ticket', () => {
     expect(result).toBe(true);
 
     // Check the new status and order value
-    const ticket = db
-      .prepare('SELECT status, order_value FROM tickets WHERE id = ?')
-      .get('ticket-3') as {
+    const ticket = db.prepare('SELECT status, order_value FROM tickets WHERE id = ?').get('ticket-3') as {
       status: string;
       order_value: number;
     };
@@ -196,9 +192,7 @@ describe('TicketQueries - Reorder Ticket', () => {
 
     // Get all backlog tickets in order
     const tickets = db
-      .prepare(
-        "SELECT id, order_value FROM tickets WHERE status = 'backlog' ORDER BY order_value DESC",
-      )
+      .prepare("SELECT id, order_value FROM tickets WHERE status = 'backlog' ORDER BY order_value DESC")
       .all() as Array<{ id: string; order_value: number }>;
 
     expect(tickets[0].id).toBe('ticket-4'); // Top (3000)
@@ -213,9 +207,7 @@ describe('TicketQueries - Reorder Ticket', () => {
     expect(result).toBe(true);
 
     // Check the new status and order value
-    const ticket = db
-      .prepare('SELECT status, order_value FROM tickets WHERE id = ?')
-      .get('ticket-3') as {
+    const ticket = db.prepare('SELECT status, order_value FROM tickets WHERE id = ?').get('ticket-3') as {
       status: string;
       order_value: number;
     };
@@ -229,6 +221,17 @@ describe('TicketQueries - Reorder Ticket', () => {
 
     expect(ticket.order_value).toBe(lowestOrderValueInBacklog.min_order);
     expect(ticket.order_value).toBeLessThan(2000); // Less than the previous minimum (ticket-5)
+  });
+
+  test('getTickets should use order_value as default sort field', () => {
+    // Get tickets without specifying a sort field
+    const result = ticketQueries.getTickets({ status: 'in-progress' });
+
+    // Verify they're sorted by order_value in descending order by default
+    expect(result.length).toBe(3);
+    expect(result[0].id).toBe('ticket-1'); // Top (3000)
+    expect(result[1].id).toBe('ticket-2'); // Middle (2000)
+    expect(result[2].id).toBe('ticket-3'); // Bottom (1000)
   });
 
   test('moveTicket should return false if the ticket does not exist', () => {

@@ -13,8 +13,12 @@ const path_1 = __importDefault(require("path"));
 const chalk_1 = __importDefault(require("chalk"));
 /**
  * Environment detection for MCP server mode
+ * Using a function instead of a constant ensures we always have the latest value,
+ * even if the environment variable is set after this module is initialized
  */
-const isMcpMode = process.env.MCPTIX_MCP_MODE === 'true';
+function isMcpMode() {
+    return process.env.MCPTIX_MCP_MODE === 'true';
+}
 /**
  * Log levels with corresponding colors
  */
@@ -59,7 +63,7 @@ class Logger {
                 const header = `\n\n==== MCPTIX LOG STARTED AT ${timestamp} ====\n`;
                 fs_1.default.appendFileSync(Logger.logFilePath, header);
                 // Log to stderr in MCP mode that we've initialized file logging
-                if (isMcpMode) {
+                if (isMcpMode()) {
                     console.error(`[LOGGER] Initialized file logging at ${Logger.logFilePath}`);
                 }
             }
@@ -197,10 +201,18 @@ class Logger {
         }
         // Get color function for the log level
         const colorFn = Logger.getColor(level);
-        // Log to console if configured
+        // MCP mode check - must be evaluated at log time, not just initialization time
+        const inMcpMode = isMcpMode();
+        // In MCP mode, always log to stderr to avoid interfering with stdout MCP protocol
+        if (inMcpMode) {
+            console.error(Logger.config.enableColors ? message : message);
+            // Exit early - in MCP mode we don't want to risk logging to stdout
+            return;
+        }
+        // For non-MCP mode, log to console if configured
         if ([LogTransport.CONSOLE, LogTransport.BOTH].includes(Logger.config.logTransport)) {
-            if (isMcpMode || level === LogLevel.ERROR || level === LogLevel.WARN) {
-                // Use console.error in MCP mode or for errors/warnings
+            if (level === LogLevel.ERROR || level === LogLevel.WARN) {
+                // Use console.error for errors/warnings
                 console.error(Logger.config.enableColors ? message : message);
             }
             else {
@@ -315,7 +327,7 @@ Logger.config = {
     enableColors: true,
     showTimestamp: true,
     logLevel: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    logTransport: isMcpMode ? LogTransport.FILE : LogTransport.CONSOLE,
+    logTransport: isMcpMode() ? LogTransport.FILE : LogTransport.CONSOLE,
     logDirectory: process.env.MCPTIX_HOME_DIR
         ? path_1.default.join(process.env.MCPTIX_HOME_DIR, 'logs')
         : path_1.default.join(process.cwd(), '.mcptix', 'logs'),

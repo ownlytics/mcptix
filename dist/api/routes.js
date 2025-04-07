@@ -17,7 +17,7 @@ function setupRoutes(app, ticketQueries) {
                 priority: req.query.priority,
                 search: req.query.search,
             };
-            const sort = req.query.sort || 'updated';
+            const sort = req.query.sort || 'order_value';
             const order = req.query.order || 'desc';
             const limit = parseInt(req.query.limit || '100', 10);
             const offset = parseInt(req.query.offset || '0', 10);
@@ -193,7 +193,7 @@ function setupRoutes(app, ticketQueries) {
                 priority: req.query.priority,
                 search: query,
             };
-            const sort = req.query.sort || 'updated';
+            const sort = req.query.sort || 'order_value';
             const order = req.query.order || 'desc';
             const limit = parseInt(req.query.limit || '100', 10);
             const offset = parseInt(req.query.offset || '0', 10);
@@ -262,8 +262,7 @@ function setupRoutes(app, ticketQueries) {
     app.put('/api/tickets/:id/move', (req, res, next) => {
         try {
             const { status, order_value } = req.body;
-            if (!status ||
-                !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(status)) {
+            if (!status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(status)) {
                 res.status(400).json({
                     error: 'status must be one of: backlog, up-next, in-progress, in-review, completed',
                 });

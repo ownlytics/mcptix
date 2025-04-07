@@ -4,12 +4,7 @@ import { TicketQueries } from '../db/queries';
 import { Ticket, Comment } from '../types';
 
 import { validateRequest } from './middleware';
-import {
-  validateCreateTicket,
-  validateUpdateTicket,
-  validateCreateComment,
-  validateSearch,
-} from './validation';
+import { validateCreateTicket, validateUpdateTicket, validateCreateComment, validateSearch } from './validation';
 
 /**
  * Sets up all API routes
@@ -26,7 +21,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
         search: req.query.search as string,
       };
 
-      const sort = (req.query.sort as string) || 'updated';
+      const sort = (req.query.sort as string) || 'order_value';
       const order = (req.query.order as string) || 'desc';
       const limit = parseInt((req.query.limit as string) || '100', 10);
       const offset = parseInt((req.query.offset as string) || '0', 10);
@@ -65,42 +60,37 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
   });
 
   // Create a new ticket
-  app.post(
-    '/api/tickets',
-    validateRequest(validateCreateTicket),
-    (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const { title, description, priority, status, complexity_metadata, agent_context } =
-          req.body;
+  app.post('/api/tickets', validateRequest(validateCreateTicket), (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { title, description, priority, status, complexity_metadata, agent_context } = req.body;
 
-        const ticket: Ticket = {
-          id: `ticket-${Date.now()}`,
-          title,
-          description: description || '',
-          priority: priority || 'medium',
-          status: status || 'backlog',
-          created: new Date().toISOString(),
-          updated: new Date().toISOString(),
-          agent_context: agent_context || null,
+      const ticket: Ticket = {
+        id: `ticket-${Date.now()}`,
+        title,
+        description: description || '',
+        priority: priority || 'medium',
+        status: status || 'backlog',
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+        agent_context: agent_context || null,
+      };
+
+      if (complexity_metadata) {
+        ticket.complexity_metadata = {
+          ticket_id: ticket.id,
+          ...complexity_metadata,
         };
-
-        if (complexity_metadata) {
-          ticket.complexity_metadata = {
-            ticket_id: ticket.id,
-            ...complexity_metadata,
-          };
-        }
-        const ticketId = ticketQueries.createTicket(ticket);
-
-        // Get the created ticket with the server-calculated CIE score
-        // const createdTicket = ticketQueries.getTicketById(ticketId);
-
-        res.status(201).json({ id: ticketId, success: true });
-      } catch (error) {
-        next(error);
       }
-    },
-  );
+      const ticketId = ticketQueries.createTicket(ticket);
+
+      // Get the created ticket with the server-calculated CIE score
+      // const createdTicket = ticketQueries.getTicketById(ticketId);
+
+      res.status(201).json({ id: ticketId, success: true });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   // Update an existing ticket
   app.put(
@@ -108,8 +98,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
     validateRequest(validateUpdateTicket),
     (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { title, description, priority, status, complexity_metadata, agent_context } =
-          req.body;
+        const { title, description, priority, status, complexity_metadata, agent_context } = req.body;
 
         // Check if ticket exists
         const existingTicket = ticketQueries.getTicketById(req.params.id);
@@ -229,42 +218,38 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
   );
 
   // Search for tickets
-  app.get(
-    '/api/search',
-    validateRequest(validateSearch),
-    (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const query = req.query.q as string;
+  app.get('/api/search', validateRequest(validateSearch), (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query.q as string;
 
-        const filters = {
-          status: req.query.status as string,
-          priority: req.query.priority as string,
-          search: query,
-        };
+      const filters = {
+        status: req.query.status as string,
+        priority: req.query.priority as string,
+        search: query,
+      };
 
-        const sort = (req.query.sort as string) || 'updated';
-        const order = (req.query.order as string) || 'desc';
-        const limit = parseInt((req.query.limit as string) || '100', 10);
-        const offset = parseInt((req.query.offset as string) || '0', 10);
+      const sort = (req.query.sort as string) || 'order_value';
+      const order = (req.query.order as string) || 'desc';
+      const limit = parseInt((req.query.limit as string) || '100', 10);
+      const offset = parseInt((req.query.offset as string) || '0', 10);
 
-        const tickets = ticketQueries.getTickets(filters, sort, order, limit, offset);
+      const tickets = ticketQueries.getTickets(filters, sort, order, limit, offset);
 
-        res.json({
-          tickets,
-          metadata: {
-            query,
-            total: tickets.length,
-            limit,
-            offset,
-            sort,
-            order,
-          },
-        });
-      } catch (error) {
-        next(error);
-      }
-    },
-  );
+      res.json({
+        tickets,
+        metadata: {
+          query,
+          total: tickets.length,
+          limit,
+          offset,
+          sort,
+          order,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   // Export all data to JSON format
   app.get('/api/export', (req: Request, res: Response, next: NextFunction) => {
@@ -280,12 +265,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
   // Get the next ticket from a status category
   app.get('/api/tickets/next/:status', (req: Request, res: Response, next: NextFunction) => {
     try {
-      const status = req.params.status as
-        | 'backlog'
-        | 'up-next'
-        | 'in-progress'
-        | 'in-review'
-        | 'completed';
+      const status = req.params.status as 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed';
       const ticket = ticketQueries.getNextTicket(status);
 
       if (!ticket) {
@@ -327,10 +307,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
     try {
       const { status, order_value } = req.body;
 
-      if (
-        !status ||
-        !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(status)
-      ) {
+      if (!status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(status)) {
         res.status(400).json({
           error: 'status must be one of: backlog, up-next, in-progress, in-review, completed',
         });

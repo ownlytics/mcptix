@@ -9,7 +9,7 @@ export class TicketQueries {
   // Get all tickets with optional filtering
   getTickets(
     filters: TicketFilter = {},
-    sort: string = 'updated',
+    sort: string = 'order_value',
     order: string = 'desc',
     limit: number = 100,
     offset: number = 0,
@@ -35,11 +35,15 @@ export class TicketQueries {
 
     // Build query
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Validate the sort field to ensure it exists in the tickets table
+    const sortField = ['updated', 'created', 'order_value'].includes(sort) ? sort : 'order_value';
+
     const query = `
       SELECT t.*
       FROM tickets t
       ${whereClause}
-      ORDER BY ${sort} ${order}
+      ORDER BY ${sortField} ${order}
       LIMIT :limit OFFSET :offset
     `;
     // Execute query
@@ -442,7 +446,7 @@ export class TicketQueries {
     const ticketsStmt = this.db.prepare(`
       SELECT t.*
       FROM tickets t
-      ORDER BY t.updated DESC
+      ORDER BY t.order_value DESC, t.updated DESC
     `);
 
     const tickets = ticketsStmt.all() as Ticket[];

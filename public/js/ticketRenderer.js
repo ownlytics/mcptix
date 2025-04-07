@@ -454,7 +454,7 @@ function calculateNewOrderValue(ticketId, insertionData, container) {
 
     if (!prevTicket) {
       // If inserting at the bottom
-      return Math.max((refTicket.order_value || 0) - 1000, 0);
+      return Math.max((refTicket.order_value || 0) - 1000, 1);
     }
 
     // Insert between refTicket and prevTicket

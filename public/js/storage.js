@@ -223,6 +223,11 @@ function updateTicket(ticket) {
     const index = column.tickets.findIndex(t => t.id === ticket.id);
 
     if (index !== -1) {
+      // Keep track of the original order_value if not specified in the update
+      if (ticket.order_value === undefined && column.tickets[index].order_value !== undefined) {
+        ticket.order_value = column.tickets[index].order_value;
+      }
+
       // If the status has changed, move the ticket to the new column
       if (column.id !== ticket.status) {
         // Remove from current column
@@ -231,6 +236,13 @@ function updateTicket(ticket) {
         // Add to new column
         const newColumn = currentTickets.columns.find(col => col.id === ticket.status);
         if (newColumn) {
+          // If no order_value is specified for a moved ticket, assign a high value to place it at the top
+          if (ticket.order_value === undefined) {
+            // Find the highest order value in the new column
+            const highestOrder =
+              newColumn.tickets.length > 0 ? Math.max(...newColumn.tickets.map(t => t.order_value || 0)) : 0;
+            ticket.order_value = highestOrder + 1000;
+          }
           newColumn.tickets.push(ticket);
         }
       } else {
