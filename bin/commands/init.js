@@ -81,7 +81,8 @@ function createMcpServersJsonFile(dbPath) {
         command: nodeExecutable,
         args: [absoluteMcpServerPath],
         env: {
-          MCPTIX_HOME_DIR: mcptixDir,
+          MCPTIX_HOME_DIR: mcptixDir.toString(),
+          MCPTIX_DEV_MODE: 'true',
           HOME: process.env.HOME || process.env.USERPROFILE, // Cross-platform home directory
         },
         disabled: false,
@@ -91,7 +92,7 @@ function createMcpServersJsonFile(dbPath) {
   };
 
   // Write the file
-  fs.writeFileSync(mcpJsonPath, mcpServersJson);
+  fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpServersJson, null, 2));
   console.log('Created MCP server configuration file at .mcptix/mcp-server-config.json');
   console.log("IMPORTANT: Copy this file to your LLM agent's configuration directory.");
   console.log('For Roo, this would typically be .roo/mcp.json in your project root.');
