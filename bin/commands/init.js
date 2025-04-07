@@ -32,10 +32,7 @@ function init() {
     // Create db-config.json with absolute path
     const dbPath = path.resolve(path.join(dataDir, 'mcptix.db'));
     const dbConfig = { dbPath };
-    fs.writeFileSync(
-      path.join(process.cwd(), '.mcptix', 'db-config.json'),
-      JSON.stringify(dbConfig, null, 2),
-    );
+    fs.writeFileSync(path.join(process.cwd(), '.mcptix', 'db-config.json'), JSON.stringify(dbConfig, null, 2));
     console.log(`Created database configuration with path: ${dbPath}`);
 
     // Create configuration file
@@ -70,25 +67,21 @@ function createMcpServersJsonFile(dbPath) {
     return;
   }
 
+  // Get the absolute path to the Node.js executable
+  const nodeExecutable = process.execPath;
+
   // Get the absolute path to the MCP server script
   const projectPath = process.cwd();
-  const absoluteMcpServerPath = path.join(
-    projectPath,
-    'node_modules',
-    '@ownlytics/mcptix',
-    'dist',
-    'mcp',
-    'index.js',
-  );
+  const absoluteMcpServerPath = path.join(projectPath, 'node_modules', '@ownlytics/mcptix', 'dist', 'mcp', 'index.js');
 
-  // Create the MCP servers JSON content with the absolute path and database path
+  // Create the MCP servers JSON content with the absolute path and mcptix home dir
   const mcpServersJson = {
     mcpServers: {
       mcptix: {
-        command: 'node',
+        command: nodeExecutable,
         args: [absoluteMcpServerPath],
         env: {
-          MCPTIX_DB_PATH: dbPath,
+          MCPTIX_HOME_DIR: mcptixDir,
           HOME: process.env.HOME || process.env.USERPROFILE, // Cross-platform home directory
         },
         disabled: false,
@@ -97,19 +90,8 @@ function createMcpServersJsonFile(dbPath) {
     },
   };
 
-  // Add a comment at the top of the file
-  const mcpServersJsonWithComment = `// McpTix MCP Server Configuration
-// This file is used by LLM agents (like Roo) to connect to the McpTix MCP server.
-// Copy this file to your LLM agent's configuration directory.
-// For Roo, this would typically be .roo/mcp.json in your project root.
-//
-// IMPORTANT: The MCP server is started by the LLM agent, not by McpTix.
-// You only need to run 'npx mcptix start' to start the UI.
-
-${JSON.stringify(mcpServersJson, null, 2)}`;
-
   // Write the file
-  fs.writeFileSync(mcpJsonPath, mcpServersJsonWithComment);
+  fs.writeFileSync(mcpJsonPath, mcpServersJson);
   console.log('Created MCP server configuration file at .mcptix/mcp-server-config.json');
   console.log("IMPORTANT: Copy this file to your LLM agent's configuration directory.");
   console.log('For Roo, this would typically be .roo/mcp.json in your project root.');
