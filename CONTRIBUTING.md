@@ -35,6 +35,26 @@ By submitting feedback, you acknowledge:
 2. Submissions may influence future development but do not grant you any rights to our IP
 3. We may incorporate concepts from your feedback into our protected implementation
 
+### Why We've Made This Public
+
+We believe in advancing the field of human-AI collaboration and helping developers understand best practices for implementing structured context protocols. By making this code available, we aim to:
+
+1. Foster innovation in the AI collaboration space
+2. Demonstrate the power of our patent-pending approach
+3. Allow non-commercial exploration and learning
+
+### Important Legal Notice
+
+While we encourage exploration for personal and research purposes, please note:
+
+- Commercial implementation of the methods described in our patent application requires a license from Tesseract Labs, LLC
+- We actively monitor for unauthorized commercial use of our intellectual property
+- Early adopters who recognize our IP rights may be eligible for preferential licensing terms
+
+## Get a Commercial License
+
+For commercial licensing inquiries, please contact: tim@ownlytics.ai
+
 ## Licensing Clarification
 
 McpTix is provided under the Business Source License 1.1 (BSL 1.1) as detailed in LICENSE.md, not an MIT license as previously stated in earlier versions of this document.
