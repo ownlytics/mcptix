@@ -5,6 +5,13 @@ All notable changes to mcptix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.17] - 2025-04-07 [BETA]
+
+### Fixed
+
+- Fixed ticket ordering inconsistency between UI and MCP server creation by assigning appropriate initial order_value to tickets created via MCP
+- Resolved drag-and-drop functionality issues for tickets created through the MCP server
+
 ## [0.1.16] - 2025-04-07 [BETA]
 
 ### Added

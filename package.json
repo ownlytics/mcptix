@@ -1,6 +1,6 @@
 {
   "name": "@ownlytics/mcptix",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "A simple, powerful ticket tracking system with AI assistant integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
