@@ -66,7 +66,6 @@ export class DatabaseService {
       const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
       const safePath = path.join(safeDir, '.mcptix', 'data', 'mcptix.db');
       Logger.info('DatabaseService', `Redirecting to safe path: ${safePath}`);
-      console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
       this.dbPath = safePath;
     } else {
       this.dbPath = dbPath;
@@ -85,11 +84,7 @@ export class DatabaseService {
         Logger.error('DatabaseService', `Failed to create directory: ${dbDir}`, error);
 
         // Fall back to a directory we know we can write to
-        const fallbackDir = path.join(
-          process.env.HOME || process.env.USERPROFILE || process.cwd(),
-          '.mcptix',
-          'data',
-        );
+        const fallbackDir = path.join(process.env.HOME || process.env.USERPROFILE || process.cwd(), '.mcptix', 'data');
         Logger.info('DatabaseService', `Falling back to: ${fallbackDir}`);
 
         // Create the fallback directory
@@ -158,10 +153,7 @@ export class DatabaseService {
         migrateDatabase(db);
       } catch (err) {
         // If migration fails, log it but continue (for test compatibility)
-        Logger.warn(
-          'DatabaseService',
-          `Schema migration error: ${err instanceof Error ? err.message : String(err)}`,
-        );
+        Logger.warn('DatabaseService', `Schema migration error: ${err instanceof Error ? err.message : String(err)}`);
       }
 
       // Create tables with proper constraints and indexes (for test compatibility)

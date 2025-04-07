@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupToolHandlers = setupToolHandlers;
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
-const debug_logger_1 = require("./debug-logger");
+const logger_1 = require("../utils/logger");
 function setupToolHandlers(server, ticketQueries) {
-    const logger = debug_logger_1.DebugLogger.getInstance();
-    logger.log('Setting up MCP tool handlers');
+    // Log setup
+    logger_1.Logger.info('McpServer', 'Setting up MCP tool handlers');
     // List available tools
     server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => ({
         tools: [
@@ -360,10 +360,10 @@ function setupToolHandlers(server, ticketQueries) {
     // Handle tool calls
     server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
-        logger.log(`Tool call received: ${name}`);
-        logger.log(`Tool arguments: ${JSON.stringify(args)}`);
+        logger_1.Logger.debug('McpServer', `Tool call received: ${name}`);
+        logger_1.Logger.debug('McpServer', `Tool arguments: ${JSON.stringify(args)}`);
         try {
-            logger.log(`Processing tool call: ${name}`);
+            logger_1.Logger.debug('McpServer', `Processing tool call: ${name}`);
             switch (name) {
                 case 'list_tickets':
                     return handleListTickets(ticketQueries, args);
@@ -393,7 +393,7 @@ function setupToolHandlers(server, ticketQueries) {
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            logger.log(`Tool call error: ${errorMessage}`);
+            logger_1.Logger.error('McpServer', `Tool call error: ${errorMessage}`);
             return {
                 content: [
                     {
@@ -408,18 +408,14 @@ function setupToolHandlers(server, ticketQueries) {
 }
 // Handler for list_tickets tool
 function handleListTickets(ticketQueries, args) {
-    const logger = debug_logger_1.DebugLogger.getInstance();
-    console.log('[MCP Tools] handleListTickets called with args:', JSON.stringify(args));
-    logger.log(`handleListTickets called with args: ${JSON.stringify(args)}`);
+    logger_1.Logger.debug('McpServer', `handleListTickets called with args: ${JSON.stringify(args)}`);
     const filters = {
         status: args.status,
         priority: args.priority,
         search: args.search,
     };
-    console.log('[MCP Tools] Using filters:', JSON.stringify(filters));
-    logger.log(`Using filters: ${JSON.stringify(filters)}`);
+    logger_1.Logger.debug('McpServer', `Using filters: ${JSON.stringify(filters)}`);
     const tickets = ticketQueries.getTickets(filters, args.sort || 'updated', args.order || 'desc', args.limit || 100, args.offset || 0);
-    logger.log(`Found ${tickets.length} tickets`);
     return {
         content: [
             {
@@ -432,12 +428,16 @@ function handleListTickets(ticketQueries, args) {
 // Handler for get_ticket tool
 function handleGetTicket(ticketQueries, args) {
     if (!args.id) {
+        logger_1.Logger.warn('McpServer', 'Ticket ID is required');
         throw new Error('Ticket ID is required');
     }
+    logger_1.Logger.debug('McpServer', `Getting ticket with ID: ${args.id}`);
     const ticket = ticketQueries.getTicketById(args.id);
     if (!ticket) {
+        logger_1.Logger.warn('McpServer', `Ticket with ID ${args.id} not found`);
         throw new Error(`Ticket with ID ${args.id} not found`);
     }
+    logger_1.Logger.debug('McpServer', `Found ticket: ${args.id}`);
     return {
         content: [
             {
@@ -578,8 +578,7 @@ function handleAddComment(ticketQueries, args) {
             }
             else {
                 // If no sentence ending found, use first 100 chars or the whole content
-                comment.summary =
-                    args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
+                comment.summary = args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
             }
         }
         // Set fullText from args or fall back to content
@@ -620,8 +619,7 @@ function handleSearchTickets(ticketQueries, args) {
 }
 // Handler for get_next_ticket tool
 function handleGetNextTicket(ticketQueries, args) {
-    if (!args.status ||
-        !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
+    if (!args.status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
         throw new Error('Valid status is required (backlog, up-next, in-progress, in-review, completed)');
     }
     const ticket = ticketQueries.getNextTicket(args.status);
@@ -666,8 +664,7 @@ function handleMoveTicket(ticketQueries, args) {
     if (!args.id) {
         throw new Error('Ticket ID is required');
     }
-    if (!args.status ||
-        !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
+    if (!args.status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
         throw new Error('Valid status is required (backlog, up-next, in-progress, in-review, completed)');
     }
     // Check if ticket exists

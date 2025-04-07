@@ -3,12 +3,8 @@ import path from 'path';
 
 import Database from 'better-sqlite3';
 
-import {
-  initializeDatabase,
-  closeDatabase,
-  CURRENT_SCHEMA_VERSION,
-  getAvailableMigrations,
-} from './schema';
+import { initializeDatabase, closeDatabase, CURRENT_SCHEMA_VERSION, getAvailableMigrations } from './schema';
+import { Logger } from '../utils/logger';
 
 describe('Database Schema', () => {
   const testDbPath = path.join(process.cwd(), 'test.db');
@@ -175,9 +171,9 @@ describe('Database Schema', () => {
     const migratedDb = initializeDatabase(testDbPath, false);
 
     // Check that the schema version was updated
-    const versionResult = migratedDb
-      .prepare('SELECT version FROM schema_version WHERE id = 1')
-      .get() as { version: number } | undefined;
+    const versionResult = migratedDb.prepare('SELECT version FROM schema_version WHERE id = 1').get() as
+      | { version: number }
+      | undefined;
 
     expect(versionResult?.version).toBe(CURRENT_SCHEMA_VERSION);
 
@@ -269,7 +265,8 @@ describe('Database Schema', () => {
     }
 
     // Log which approach was used
-    console.log(
+    Logger.info(
+      'Database',
       `SQLite ${sqliteVersion} - Used ${supportsDropColumn ? 'direct DROP COLUMN' : 'table recreation'} approach`,
     );
 

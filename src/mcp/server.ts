@@ -5,7 +5,6 @@ import { McpTixConfig } from '../config';
 import { TicketQueries } from '../db/queries';
 import { Logger } from '../utils/logger';
 
-import { DebugLogger } from './debug-logger';
 import { setupResourceHandlers } from './resources';
 import { setupToolHandlers } from './tools';
 
@@ -18,7 +17,6 @@ export class McpTixServer {
   private ticketQueries: TicketQueries;
   private isRunning: boolean = false;
   private config: McpTixConfig;
-  private logger: DebugLogger;
 
   /**
    * Create a new McpTix MCP Server
@@ -28,23 +26,10 @@ export class McpTixServer {
   constructor(ticketQueries: TicketQueries, config: McpTixConfig) {
     this.ticketQueries = ticketQueries;
     this.config = config;
-    this.logger = DebugLogger.getInstance();
 
-    // Log database path for debugging
-    const dbPath = config.dbPath;
-    const actualDbPath = ticketQueries['db'].name;
-    const cwd = process.cwd();
-
-    Logger.info('McpServer', 'Database path from config: ' + dbPath);
-    Logger.info('McpServer', 'Actual database file path: ' + actualDbPath);
-    Logger.debug('McpServer', 'Current working directory: ' + cwd);
-
-    // Write to debug log
-    this.logger.log('MCP Server initialized');
-    this.logger.log(`Database path from config: ${dbPath}`);
-    this.logger.log(`Actual database file path: ${actualDbPath}`);
-    this.logger.log(`Current working directory: ${cwd}`);
-    this.logger.log(`Debug log path: ${this.logger.getLogPath()}`);
+    // Log initialization
+    Logger.info('McpServer', `Initializing server with configuration: ${this.config.dbPath}`);
+    Logger.debug('McpServer', `Current working directory: ${process.cwd()}`);
 
     // Create MCP server
     this.server = new Server(
@@ -68,12 +53,9 @@ export class McpTixServer {
 
     // Error handling
     this.server.onerror = error => {
+      // Log error to file in MCP mode
       Logger.error('McpServer', 'MCP Error', error);
-      this.logger.log(`MCP Error: ${error instanceof Error ? error.message : String(error)}`);
     };
-
-    // Log server initialization
-    this.logger.log('MCP Server fully initialized');
   }
 
   /**
@@ -91,12 +73,10 @@ export class McpTixServer {
       await this.server.connect(transport);
       this.isRunning = true;
       Logger.success('McpServer', 'Server running on stdio');
-      this.logger.log('McpTix MCP server running on stdio');
       return this;
     } catch (error) {
       const errorMsg = `Error starting MCP server: ${error instanceof Error ? error.message : String(error)}`;
       Logger.error('McpServer', errorMsg);
-      this.logger.log(errorMsg);
       throw error;
     }
   }
@@ -123,11 +103,9 @@ export class McpTixServer {
       await this.server.close();
       this.isRunning = false;
       Logger.success('McpServer', 'Server closed');
-      this.logger.log('MCP server closed');
     } catch (error) {
       const errorMsg = `Error closing MCP server: ${error instanceof Error ? error.message : String(error)}`;
       Logger.error('McpServer', errorMsg);
-      this.logger.log(errorMsg);
       throw error;
     }
   }

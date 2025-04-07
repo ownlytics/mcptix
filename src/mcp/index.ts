@@ -1,11 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
-import { TicketQueries } from '../db/queries';
-import { DatabaseService } from '../db/service';
-
-import { McpTixServer } from './server';
-
 /**
  * Standalone MCP server for McpTix
  * This file is designed to be executed directly by Node.js or by Roo
@@ -16,184 +8,98 @@ import { McpTixServer } from './server';
  * through this entry point directly.
  */
 
-console.log('=== MCPTIX MCP SERVER STARTING ===');
-console.log(`Process ID: ${process.pid}`);
-console.log(`Current working directory: ${process.cwd()}`);
-console.log(`Module directory: ${__dirname}`);
+// Set MCP mode environment variable to ensure proper logging behavior
+// CRITICAL: This must be set before any imports to ensure the Logger
+// initializes correctly with MCP mode enabled
+process.env.MCPTIX_MCP_MODE = 'true';
 
-// Configuration with sane defaults
-const config = {
-  dbPath: '', // Will be set below
-  apiPort: parseInt(process.env.MCPTIX_API_PORT || '3000', 10),
-  apiHost: process.env.MCPTIX_API_HOST || 'localhost',
+import fs from 'fs';
+import path from 'path';
+
+import { McpTixConfig, ensureHomeDirectory, mergeConfig } from '../config';
+import { TicketQueries } from '../db/queries';
+import { DatabaseService } from '../db/service';
+import { Logger } from '../utils/logger';
+
+import { McpTixServer } from './server';
+
+// Initialize the configuration with environment variables
+
+// Get configuration from environment variables or use defaults
+const userConfig: Partial<McpTixConfig> = {
+  homeDir: process.env.MCPTIX_HOME_DIR || path.join(process.cwd(), '.mcptix'),
+  apiPort: process.env.MCPTIX_API_PORT ? parseInt(process.env.MCPTIX_API_PORT, 10) : undefined,
+  apiHost: process.env.MCPTIX_API_HOST,
+  dbPath: process.env.MCPTIX_DB_PATH,
   mcpEnabled: true,
   apiEnabled: false,
   logLevel: (process.env.MCPTIX_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'info',
   clearDataOnInit: false,
 };
 
-// DATABASE PATH RESOLUTION STRATEGY
-// 1. Use environment variable if provided
-// 2. Look for db-config.json in current directory and parents
-// 3. Look for .mcptix/data/mcptix.db in current directory and parents
-// 4. Fall back to default path in current directory
+// Merge with defaults and resolve derived paths
+const config = mergeConfig(userConfig);
 
-// 1. Check environment variable
-if (process.env.MCPTIX_DB_PATH) {
-  config.dbPath = process.env.MCPTIX_DB_PATH;
-  console.log(`[MCP] Using database path from environment variable: ${config.dbPath}`);
-}
+// Ensure the home directory and required subdirectories exist
+ensureHomeDirectory(config);
 
-// Helper function to find a file in current directory or parents
-function findFileInParents(filename: string): string | null {
-  let dir = process.cwd();
-  const maxDepth = 10; // Prevent infinite loops
-  let depth = 0;
+// Configure the logger with the home directory
+Logger.setBaseDirectory(config.homeDir!);
 
-  while (depth < maxDepth) {
-    const filePath = path.join(dir, filename);
-    if (fs.existsSync(filePath)) {
-      return filePath;
-    }
+// Log the configuration
+Logger.info('McpServer', `Using home directory: ${config.homeDir}`);
+Logger.info('McpServer', `Using database: ${config.dbPath}`);
+Logger.info('McpServer', `Using log directory: ${config.logDir}`);
 
-    // Stop if we've reached the root
-    if (dir === path.dirname(dir)) {
-      break;
-    }
-
-    dir = path.dirname(dir);
-    depth++;
-  }
-
-  return null;
-}
-
-// 2. Look for db-config.json
-if (!config.dbPath) {
-  const dbConfigPath = findFileInParents('.mcptix/db-config.json');
-  if (dbConfigPath) {
-    try {
-      const dbConfig = JSON.parse(fs.readFileSync(dbConfigPath, 'utf8'));
-      if (dbConfig.dbPath) {
-        config.dbPath = dbConfig.dbPath;
-        console.log(`[MCP] Using database path from db-config.json: ${config.dbPath}`);
-      }
-    } catch (error) {
-      console.warn(
-        `[MCP] Error reading db-config.json: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-}
-
-// 3. Look for .mcptix/data/mcptix.db
-if (!config.dbPath) {
-  // First check current directory
-  const defaultDbPath = path.join(process.cwd(), '.mcptix', 'data', 'mcptix.db');
-  if (fs.existsSync(path.dirname(defaultDbPath))) {
-    config.dbPath = defaultDbPath;
-    console.log(`[MCP] Using database path from current directory: ${config.dbPath}`);
-  } else {
-    // Then check parent directories
-    let dir = process.cwd();
-    const maxDepth = 10;
-    let depth = 0;
-
-    while (depth < maxDepth) {
-      // Stop if we've reached the root
-      if (dir === path.dirname(dir)) {
-        break;
-      }
-
-      dir = path.dirname(dir);
-      const dbDir = path.join(dir, '.mcptix', 'data');
-      const dbPath = path.join(dbDir, 'mcptix.db');
-
-      if (fs.existsSync(dbDir)) {
-        config.dbPath = dbPath;
-        console.log(`[MCP] Using database path from parent directory: ${config.dbPath}`);
-        break;
-      }
-
-      depth++;
-    }
-  }
-}
-
-// 4. Fall back to default path
-if (!config.dbPath) {
-  config.dbPath = path.join(process.cwd(), '.mcptix', 'data', 'mcptix.db');
-  console.log(`[MCP] Using default database path: ${config.dbPath}`);
-
-  // Ensure the directory exists
-  const dbDir = path.dirname(config.dbPath);
-  if (!fs.existsSync(dbDir)) {
-    try {
-      fs.mkdirSync(dbDir, { recursive: true });
-      console.log(`[MCP] Created database directory: ${dbDir}`);
-    } catch (error) {
-      console.error(
-        `[MCP] Failed to create database directory: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-}
-
-// Log final configuration
-console.log('[MCP] Final configuration:');
-console.log(JSON.stringify(config, null, 2));
-
-// Initialize database
-console.log(`[MCP] Initializing database at: ${config.dbPath}`);
+// Initialize database with the resolved configuration
 const dbService = DatabaseService.getInstance();
 const db = dbService.initialize(config);
-console.log(`[MCP] Database initialized at absolute path: ${db.name}`);
+
+// Log database initialization
+Logger.info('McpServer', `Database initialized at absolute path: ${db.name}`);
 
 // Verify database is accessible
 try {
   const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
-  console.log(`[MCP] Database tables: ${tables.map((t: any) => t.name).join(', ')}`);
+  Logger.info('McpServer', `Database tables: ${tables.map((t: any) => t.name).join(', ')}`);
 
   // Check if tickets table exists and has data
   if (tables.some((t: any) => t.name === 'tickets')) {
     const ticketCount = db.prepare('SELECT COUNT(*) as count FROM tickets').get() as {
       count: number;
     };
-    console.log(`[MCP] Found ${ticketCount.count} tickets in database`);
+    Logger.info('McpServer', `Found ${ticketCount.count} tickets in database`);
   }
 } catch (error) {
-  console.error(
-    `[MCP] Error accessing database: ${error instanceof Error ? error.message : String(error)}`,
-  );
+  Logger.error('McpServer', 'Error accessing database', error);
 }
 
 // Initialize ticket queries
 const ticketQueries = new TicketQueries(db);
 
 // Create and start MCP server
-console.log('[MCP] Starting McpTix MCP server...');
+Logger.info('McpServer', 'Starting MCP server...');
 const server = new McpTixServer(ticketQueries, config);
 
 // Handle shutdown
 process.on('SIGINT', async () => {
-  console.log('\n[MCP] Shutting down McpTix MCP server...');
+  Logger.info('McpServer', 'Shutting down MCP server...');
   await server.close();
   dbService.close();
-  console.log('[MCP] MCP server shutdown complete');
+  Logger.info('McpServer', 'MCP server shutdown complete');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('\n[MCP] Shutting down McpTix MCP server...');
+  Logger.info('McpServer', 'Shutting down MCP server...');
   await server.close();
   dbService.close();
-  console.log('[MCP] MCP server shutdown complete');
+  Logger.info('McpServer', 'MCP server shutdown complete');
   process.exit(0);
 });
 
 // Run the server
 server.run().catch(error => {
-  const errorMsg = `Failed to start MCP server: ${error instanceof Error ? error.message : String(error)}`;
-  console.error(errorMsg);
+  Logger.error('McpServer', 'Failed to start MCP server', error);
   process.exit(1);
 });

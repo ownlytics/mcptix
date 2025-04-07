@@ -3,8 +3,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { TicketQueries } from '../../db/queries';
 import { Ticket } from '../../types';
-
-import { DebugLogger } from '../debug-logger';
+import { Logger } from '../../utils/logger';
 import { setupToolHandlers } from '../tools';
 
 // Define types for the MCP SDK response structure
@@ -15,12 +14,11 @@ interface ToolResponse {
 
 // Mock dependencies
 jest.mock('@modelcontextprotocol/sdk/server/index.js');
-jest.mock('../debug-logger');
+jest.mock('../../utils/logger');
 
 describe('MCP Ticket Ordering Tools', () => {
   let mockServer: jest.Mocked<Server>;
   let mockTicketQueries: jest.Mocked<TicketQueries>;
-  let mockLogger: jest.Mocked<DebugLogger>;
 
   beforeEach(() => {
     // Reset mocks
@@ -30,12 +28,6 @@ describe('MCP Ticket Ordering Tools', () => {
     mockServer = {
       setRequestHandler: jest.fn(),
     } as unknown as jest.Mocked<Server>;
-
-    // Setup mock logger
-    mockLogger = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<DebugLogger>;
-    (DebugLogger.getInstance as jest.Mock).mockReturnValue(mockLogger);
 
     // Setup mock ticket queries
     mockTicketQueries = {

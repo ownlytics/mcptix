@@ -46,7 +46,7 @@ export function ensureDataDirectory(dbPath: string): string {
     // Use an absolute path based on the safe cwd
     const absoluteDir = path.join(cwd, '.mcptix', 'data');
 
-    console.log(`Using safe data directory: ${absoluteDir}`);
+    Logger.info('Database', `Using safe data directory: ${absoluteDir}`);
 
     // Create the directory if it doesn't exist
     if (!fs.existsSync(absoluteDir)) {
@@ -100,10 +100,7 @@ export function migrateDatabase(db: Database.Database): void {
     const currentVersion = result ? result.version : 0;
 
     if (currentVersion < CURRENT_SCHEMA_VERSION) {
-      Logger.info(
-        'Schema',
-        `Migrating database from version ${currentVersion} to ${CURRENT_SCHEMA_VERSION}`,
-      );
+      Logger.info('Schema', `Migrating database from version ${currentVersion} to ${CURRENT_SCHEMA_VERSION}`);
 
       // If this is a fresh database, insert the schema version record
       if (currentVersion === 0) {
@@ -139,30 +136,27 @@ export function getAvailableMigrations(): { version: number; name: string }[] {
  * @param clearData Whether to clear existing data
  * @returns Database connection
  */
-export function initializeDatabase(
-  dbPath: string = DB_PATH,
-  clearData: boolean = false,
-): Database.Database {
+export function initializeDatabase(dbPath: string = DB_PATH, clearData: boolean = false): Database.Database {
   try {
-    console.log(`[initializeDatabase] Called with dbPath: ${dbPath}`);
-    console.log(`[initializeDatabase] Current working directory: ${process.cwd()}`);
-    console.log(`[initializeDatabase] Default DB_PATH: ${DB_PATH}`);
+    Logger.info('Database', `initializeDatabase called with dbPath: ${dbPath}`);
+    Logger.info('Database', `Current working directory: ${process.cwd()}`);
+    Logger.info('Database', `Default DB_PATH: ${DB_PATH}`);
 
     // Ensure the data directory exists
     const dataDir = ensureDataDirectory(dbPath);
-    console.log(`Database directory: ${dataDir}`);
+    Logger.info('Database', `Database directory: ${dataDir}`);
 
     // Make sure we're using an absolute path for the database file
     let absoluteDbPath = dbPath;
     if (!path.isAbsolute(dbPath)) {
       // If the path is not absolute, make it absolute
       absoluteDbPath = path.join(dataDir, path.basename(dbPath));
-      console.log(`Using absolute database path: ${absoluteDbPath}`);
+      Logger.info('Database', `Using absolute database path: ${absoluteDbPath}`);
     }
 
     // If clearData is true and the database file exists, delete it
     if (clearData && fs.existsSync(absoluteDbPath)) {
-      console.log(`Clearing existing database at ${absoluteDbPath}`);
+      Logger.info('Database', `Clearing existing database at ${absoluteDbPath}`);
       fs.unlinkSync(absoluteDbPath);
     }
 
@@ -175,12 +169,10 @@ export function initializeDatabase(
     // Instead of directly creating tables, run migrations
     migrateDatabase(db);
 
-    console.log(`Database initialized at ${dbPath}`);
+    Logger.info('Database', `Database initialized at ${dbPath}`);
     return db;
   } catch (error) {
-    console.error(
-      `Error initializing database: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    Logger.error('Database', 'Error initializing database', error);
     throw error;
   }
 }
@@ -192,11 +184,9 @@ export function initializeDatabase(
 export function closeDatabase(db: Database.Database): void {
   try {
     db.close();
-    console.log('Database connection closed');
+    Logger.info('Database', 'Database connection closed');
   } catch (error) {
-    console.error(
-      `Error closing database: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    Logger.error('Database', 'Error closing database', error);
   }
 }
 
@@ -217,13 +207,11 @@ export function clearDatabase(db: Database.Database): void {
     // Commit the transaction
     db.exec('COMMIT;');
 
-    console.log('Database cleared');
+    Logger.info('Database', 'Database cleared');
   } catch (error) {
     // Rollback on error
     db.exec('ROLLBACK;');
-    console.error(
-      `Error clearing database: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    Logger.error('Database', 'Error clearing database', error);
     throw error;
   }
 }

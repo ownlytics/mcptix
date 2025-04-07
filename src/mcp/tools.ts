@@ -1,20 +1,13 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import {
-  CallToolRequestSchema,
-  ErrorCode,
-  ListToolsRequestSchema,
-  McpError,
-} from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } from '@modelcontextprotocol/sdk/types.js';
 
 import { TicketQueries } from '../db/queries';
 import { Ticket, Comment } from '../types';
-
-import { DebugLogger } from './debug-logger';
+import { Logger } from '../utils/logger';
 
 export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) {
-  const logger = DebugLogger.getInstance();
-  logger.log('Setting up MCP tool handlers');
-
+  // Log setup
+  Logger.info('McpServer', 'Setting up MCP tool handlers');
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
@@ -218,18 +211,15 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
             },
             content: {
               type: 'string',
-              description:
-                'Comment content (deprecated for agent comments - use summary and fullText instead)',
+              description: 'Comment content (deprecated for agent comments - use summary and fullText instead)',
             },
             summary: {
               type: 'string',
-              description:
-                'A concise summary of the comment (1-2 sentences) that will be shown by default in the UI',
+              description: 'A concise summary of the comment (1-2 sentences) that will be shown by default in the UI',
             },
             fullText: {
               type: 'string',
-              description:
-                'The complete, detailed explanation or analysis that can be expanded by the user',
+              description: 'The complete, detailed explanation or analysis that can be expanded by the user',
             },
             type: {
               type: 'string',
@@ -374,11 +364,11 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
   // Handle tool calls
   server.setRequestHandler(CallToolRequestSchema, async request => {
     const { name, arguments: args } = request.params;
-    logger.log(`Tool call received: ${name}`);
-    logger.log(`Tool arguments: ${JSON.stringify(args)}`);
+    Logger.debug('McpServer', `Tool call received: ${name}`);
+    Logger.debug('McpServer', `Tool arguments: ${JSON.stringify(args)}`);
 
     try {
-      logger.log(`Processing tool call: ${name}`);
+      Logger.debug('McpServer', `Processing tool call: ${name}`);
       switch (name) {
         case 'list_tickets':
           return handleListTickets(ticketQueries, args);
@@ -407,7 +397,7 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.log(`Tool call error: ${errorMessage}`);
+      Logger.error('McpServer', `Tool call error: ${errorMessage}`);
       return {
         content: [
           {
@@ -423,9 +413,7 @@ export function setupToolHandlers(server: Server, ticketQueries: TicketQueries) 
 
 // Handler for list_tickets tool
 function handleListTickets(ticketQueries: TicketQueries, args: any) {
-  const logger = DebugLogger.getInstance();
-  console.log('[MCP Tools] handleListTickets called with args:', JSON.stringify(args));
-  logger.log(`handleListTickets called with args: ${JSON.stringify(args)}`);
+  Logger.debug('McpServer', `handleListTickets called with args: ${JSON.stringify(args)}`);
 
   const filters = {
     status: args.status,
@@ -433,8 +421,7 @@ function handleListTickets(ticketQueries: TicketQueries, args: any) {
     search: args.search,
   };
 
-  console.log('[MCP Tools] Using filters:', JSON.stringify(filters));
-  logger.log(`Using filters: ${JSON.stringify(filters)}`);
+  Logger.debug('McpServer', `Using filters: ${JSON.stringify(filters)}`);
 
   const tickets = ticketQueries.getTickets(
     filters,
@@ -444,7 +431,6 @@ function handleListTickets(ticketQueries: TicketQueries, args: any) {
     args.offset || 0,
   );
 
-  logger.log(`Found ${tickets.length} tickets`);
   return {
     content: [
       {
@@ -458,14 +444,20 @@ function handleListTickets(ticketQueries: TicketQueries, args: any) {
 // Handler for get_ticket tool
 function handleGetTicket(ticketQueries: TicketQueries, args: any) {
   if (!args.id) {
+    Logger.warn('McpServer', 'Ticket ID is required');
     throw new Error('Ticket ID is required');
   }
+
+  Logger.debug('McpServer', `Getting ticket with ID: ${args.id}`);
 
   const ticket = ticketQueries.getTicketById(args.id);
 
   if (!ticket) {
+    Logger.warn('McpServer', `Ticket with ID ${args.id} not found`);
     throw new Error(`Ticket with ID ${args.id} not found`);
   }
+
+  Logger.debug('McpServer', `Found ticket: ${args.id}`);
 
   return {
     content: [
@@ -534,8 +526,7 @@ function handleUpdateTicket(ticketQueries: TicketQueries, args: any) {
     status: args.status || existingTicket.status,
     created: existingTicket.created,
     updated: new Date().toISOString(),
-    agent_context:
-      args.agent_context !== undefined ? args.agent_context : existingTicket.agent_context,
+    agent_context: args.agent_context !== undefined ? args.agent_context : existingTicket.agent_context,
   };
 
   // Update complexity metadata if provided
@@ -627,8 +618,7 @@ function handleAddComment(ticketQueries: TicketQueries, args: any) {
         comment.summary = firstSentenceMatch[1];
       } else {
         // If no sentence ending found, use first 100 chars or the whole content
-        comment.summary =
-          args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
+        comment.summary = args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
       }
     }
 
@@ -684,13 +674,8 @@ function handleSearchTickets(ticketQueries: TicketQueries, args: any) {
 
 // Handler for get_next_ticket tool
 function handleGetNextTicket(ticketQueries: TicketQueries, args: any) {
-  if (
-    !args.status ||
-    !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)
-  ) {
-    throw new Error(
-      'Valid status is required (backlog, up-next, in-progress, in-review, completed)',
-    );
+  if (!args.status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
+    throw new Error('Valid status is required (backlog, up-next, in-progress, in-review, completed)');
   }
 
   const ticket = ticketQueries.getNextTicket(
@@ -746,13 +731,8 @@ function handleMoveTicket(ticketQueries: TicketQueries, args: any) {
     throw new Error('Ticket ID is required');
   }
 
-  if (
-    !args.status ||
-    !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)
-  ) {
-    throw new Error(
-      'Valid status is required (backlog, up-next, in-progress, in-review, completed)',
-    );
+  if (!args.status || !['backlog', 'up-next', 'in-progress', 'in-review', 'completed'].includes(args.status)) {
+    throw new Error('Valid status is required (backlog, up-next, in-progress, in-review, completed)');
   }
 
   // Check if ticket exists

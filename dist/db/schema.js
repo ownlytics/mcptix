@@ -50,7 +50,7 @@ function ensureDataDirectory(dbPath) {
         }
         // Use an absolute path based on the safe cwd
         const absoluteDir = path_1.default.join(cwd, '.mcptix', 'data');
-        console.log(`Using safe data directory: ${absoluteDir}`);
+        logger_1.Logger.info('Database', `Using safe data directory: ${absoluteDir}`);
         // Create the directory if it doesn't exist
         if (!fs_1.default.existsSync(absoluteDir)) {
             fs_1.default.mkdirSync(absoluteDir, { recursive: true });
@@ -129,22 +129,22 @@ function getAvailableMigrations() {
  */
 function initializeDatabase(dbPath = exports.DB_PATH, clearData = false) {
     try {
-        console.log(`[initializeDatabase] Called with dbPath: ${dbPath}`);
-        console.log(`[initializeDatabase] Current working directory: ${process.cwd()}`);
-        console.log(`[initializeDatabase] Default DB_PATH: ${exports.DB_PATH}`);
+        logger_1.Logger.info('Database', `initializeDatabase called with dbPath: ${dbPath}`);
+        logger_1.Logger.info('Database', `Current working directory: ${process.cwd()}`);
+        logger_1.Logger.info('Database', `Default DB_PATH: ${exports.DB_PATH}`);
         // Ensure the data directory exists
         const dataDir = ensureDataDirectory(dbPath);
-        console.log(`Database directory: ${dataDir}`);
+        logger_1.Logger.info('Database', `Database directory: ${dataDir}`);
         // Make sure we're using an absolute path for the database file
         let absoluteDbPath = dbPath;
         if (!path_1.default.isAbsolute(dbPath)) {
             // If the path is not absolute, make it absolute
             absoluteDbPath = path_1.default.join(dataDir, path_1.default.basename(dbPath));
-            console.log(`Using absolute database path: ${absoluteDbPath}`);
+            logger_1.Logger.info('Database', `Using absolute database path: ${absoluteDbPath}`);
         }
         // If clearData is true and the database file exists, delete it
         if (clearData && fs_1.default.existsSync(absoluteDbPath)) {
-            console.log(`Clearing existing database at ${absoluteDbPath}`);
+            logger_1.Logger.info('Database', `Clearing existing database at ${absoluteDbPath}`);
             fs_1.default.unlinkSync(absoluteDbPath);
         }
         // Create or open the database
@@ -153,11 +153,11 @@ function initializeDatabase(dbPath = exports.DB_PATH, clearData = false) {
         db.pragma('foreign_keys = ON');
         // Instead of directly creating tables, run migrations
         migrateDatabase(db);
-        console.log(`Database initialized at ${dbPath}`);
+        logger_1.Logger.info('Database', `Database initialized at ${dbPath}`);
         return db;
     }
     catch (error) {
-        console.error(`Error initializing database: ${error instanceof Error ? error.message : String(error)}`);
+        logger_1.Logger.error('Database', 'Error initializing database', error);
         throw error;
     }
 }
@@ -168,10 +168,10 @@ function initializeDatabase(dbPath = exports.DB_PATH, clearData = false) {
 function closeDatabase(db) {
     try {
         db.close();
-        console.log('Database connection closed');
+        logger_1.Logger.info('Database', 'Database connection closed');
     }
     catch (error) {
-        console.error(`Error closing database: ${error instanceof Error ? error.message : String(error)}`);
+        logger_1.Logger.error('Database', 'Error closing database', error);
     }
 }
 /**
@@ -188,12 +188,12 @@ function clearDatabase(db) {
         db.exec('DELETE FROM tickets;');
         // Commit the transaction
         db.exec('COMMIT;');
-        console.log('Database cleared');
+        logger_1.Logger.info('Database', 'Database cleared');
     }
     catch (error) {
         // Rollback on error
         db.exec('ROLLBACK;');
-        console.error(`Error clearing database: ${error instanceof Error ? error.message : String(error)}`);
+        logger_1.Logger.error('Database', 'Error clearing database', error);
         throw error;
     }
 }

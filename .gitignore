@@ -52,3 +52,6 @@ test-coverage-plan.md
 
 # Project memory bank
 memory-bank/
+
+# Development Files
+dist-dev/

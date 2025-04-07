@@ -7,8 +7,13 @@
  */
 export interface McpTixConfig {
     /**
+     * Base directory for all mcptix files (logs, database, etc)
+     * Default: './.mcptix'
+     */
+    homeDir?: string;
+    /**
      * Path to the SQLite database file
-     * Default: './data/mcptix.db'
+     * Default: '{homeDir}/data/mcptix.db'
      */
     dbPath?: string;
     /**
@@ -31,6 +36,16 @@ export interface McpTixConfig {
      * Default: true
      */
     apiEnabled?: boolean;
+    /**
+     * Path to the log directory
+     * Default: '{homeDir}/logs'
+     */
+    logDir?: string;
+    /**
+     * Name of the log file
+     * Default: 'mcptix.log'
+     */
+    logFile?: string;
     /**
      * Log level for the application
      * Default: 'info'
@@ -58,4 +73,9 @@ export declare function mergeConfig(userConfig?: Partial<McpTixConfig>): McpTixC
  * @throws Error if configuration is invalid
  */
 export declare function validateConfig(config: McpTixConfig): void;
+/**
+ * Ensure the home directory exists
+ * @param config Configuration to use
+ */
+export declare function ensureHomeDirectory(config: McpTixConfig): void;
 //# sourceMappingURL=config.d.ts.map

@@ -5,12 +5,9 @@ const complexityCalculator_1 = require("../utils/complexityCalculator");
 class TicketQueries {
     constructor(db) {
         this.db = db;
-        console.log(`[TicketQueries] Initialized with database at: ${this.db.name}`);
     }
     // Get all tickets with optional filtering
     getTickets(filters = {}, sort = 'updated', order = 'desc', limit = 100, offset = 0) {
-        console.log(`[TicketQueries] getTickets called with filters:`, JSON.stringify(filters));
-        console.log(`[TicketQueries] Database file:`, this.db.name);
         // Build WHERE clause from filters
         const whereConditions = [];
         const params = {};
@@ -37,13 +34,7 @@ class TicketQueries {
     `;
         // Execute query
         const stmt = this.db.prepare(query);
-        console.log(`[TicketQueries] Executing SQL query: ${query}`);
-        console.log(`[TicketQueries] With params:`, JSON.stringify({ ...params, limit, offset }));
         const tickets = stmt.all({ ...params, limit, offset });
-        console.log(`[TicketQueries] Found ${tickets.length} tickets`);
-        if (tickets.length > 0) {
-            console.log(`[TicketQueries] First ticket:`, JSON.stringify(tickets[0]));
-        }
         // For each ticket, get its full complexity metadata
         for (const ticket of tickets) {
             const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');

@@ -1,7 +1,15 @@
 /**
  * mcptix Logger
- * A centralized logging system with color-coded output
+ * A centralized logging system with console and file output
  */
+/**
+ * Transport types for logging
+ */
+declare enum LogTransport {
+    CONSOLE = "console",
+    FILE = "file",
+    BOTH = "both"
+}
 /**
  * Logger configuration
  */
@@ -9,18 +17,33 @@ interface LoggerConfig {
     enableColors: boolean;
     showTimestamp: boolean;
     logLevel: 'debug' | 'info' | 'warn' | 'error';
+    logTransport: LogTransport;
+    logDirectory: string;
+    logFilename: string;
 }
 /**
  * Centralized logger for mcptix
  * Provides consistent, color-coded logging across all components
+ * with support for file-based logging for MCP mode
  */
 export declare class Logger {
     private static config;
+    private static logFilePath;
+    /**
+     * Initialize the logger
+     * Creates log directory if it doesn't exist
+     */
+    static initialize(): void;
     /**
      * Configure the logger
      * @param config Configuration options
      */
     static configure(config: Partial<LoggerConfig>): void;
+    /**
+     * Set the base directory for logs
+     * @param baseDir Base directory for all mcptix files
+     */
+    static setBaseDirectory(baseDir: string): void;
     /**
      * Log an informational message
      * @param component Component name
@@ -67,6 +90,18 @@ export declare class Logger {
      * @param message Message to log
      */
     private static log;
+    /**
+     * Log to the configured transport
+     * @param message Formatted message to log
+     * @param level Log level
+     */
+    private static logToTransport;
+    /**
+     * Check if a message at the given level should be logged
+     * @param level Log level to check
+     * @returns Whether the message should be logged
+     */
+    private static shouldLog;
     /**
      * Get color function for log level
      * @param level Log level

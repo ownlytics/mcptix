@@ -4,9 +4,7 @@ import { Ticket, Comment, ComplexityMetadata, TicketFilter, ExportedData } from 
 import { calculateComplexityScore } from '../utils/complexityCalculator';
 
 export class TicketQueries {
-  constructor(private db: Database.Database) {
-    console.log(`[TicketQueries] Initialized with database at: ${this.db.name}`);
-  }
+  constructor(private db: Database.Database) {}
 
   // Get all tickets with optional filtering
   getTickets(
@@ -16,9 +14,6 @@ export class TicketQueries {
     limit: number = 100,
     offset: number = 0,
   ): Ticket[] {
-    console.log(`[TicketQueries] getTickets called with filters:`, JSON.stringify(filters));
-    console.log(`[TicketQueries] Database file:`, this.db.name);
-
     // Build WHERE clause from filters
     const whereConditions = [];
     const params: any = {};
@@ -49,14 +44,8 @@ export class TicketQueries {
     `;
     // Execute query
     const stmt = this.db.prepare(query);
-    console.log(`[TicketQueries] Executing SQL query: ${query}`);
-    console.log(`[TicketQueries] With params:`, JSON.stringify({ ...params, limit, offset }));
 
     const tickets = stmt.all({ ...params, limit, offset }) as Ticket[];
-    console.log(`[TicketQueries] Found ${tickets.length} tickets`);
-    if (tickets.length > 0) {
-      console.log(`[TicketQueries] First ticket:`, JSON.stringify(tickets[0]));
-    }
 
     // For each ticket, get its full complexity metadata
     for (const ticket of tickets) {
@@ -119,9 +108,7 @@ export class TicketQueries {
     if (!ticket) return null;
 
     // Get comments
-    const commentsStmt = this.db.prepare(
-      'SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp',
-    );
+    const commentsStmt = this.db.prepare('SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp');
     ticket.comments = commentsStmt.all(id) as Comment[];
 
     // Get complexity metadata
@@ -464,9 +451,7 @@ export class TicketQueries {
     const complexityStmt = this.db.prepare('SELECT * FROM complexity WHERE ticket_id = ?');
 
     // Get comments for each ticket
-    const commentsStmt = this.db.prepare(
-      'SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp',
-    );
+    const commentsStmt = this.db.prepare('SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp');
 
     // Organize tickets by column
     for (const ticket of tickets) {
@@ -536,9 +521,7 @@ export class TicketQueries {
    * @param status The status category to get the next ticket from
    * @returns The next ticket, or null if no tickets exist in the status
    */
-  getNextTicket(
-    status: 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed',
-  ): Ticket | null {
+  getNextTicket(status: 'backlog' | 'up-next' | 'in-progress' | 'in-review' | 'completed'): Ticket | null {
     // Get the ticket with the highest order_value in the specified status
     // If there are multiple tickets with the same order_value, get the most recently updated one
     const stmt = this.db.prepare(`
@@ -602,9 +585,7 @@ export class TicketQueries {
     }
 
     // Get comments
-    const commentsStmt = this.db.prepare(
-      'SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp',
-    );
+    const commentsStmt = this.db.prepare('SELECT * FROM comments WHERE ticket_id = ? ORDER BY timestamp');
     ticket.comments = commentsStmt.all(ticket.id) as Comment[];
 
     return ticket;

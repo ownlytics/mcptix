@@ -4,7 +4,7 @@ import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } fr
 import { sampleTickets, sampleComments, sampleComplexityMetrics } from '../../api/test/fixtures';
 import { TicketQueries } from '../../db/queries';
 import { Ticket, Comment } from '../../types';
-import { DebugLogger } from '../debug-logger';
+import { Logger } from '../../utils/logger';
 import { setupToolHandlers } from '../tools';
 
 // Define types for the MCP SDK response structure
@@ -23,12 +23,11 @@ interface ListToolsResponse {
 
 // Mock dependencies
 jest.mock('@modelcontextprotocol/sdk/server/index.js');
-jest.mock('../debug-logger');
+jest.mock('../../utils/logger');
 
 describe('MCP Tools', () => {
   let mockServer: jest.Mocked<Server>;
   let mockTicketQueries: jest.Mocked<TicketQueries>;
-  let mockLogger: jest.Mocked<DebugLogger>;
 
   beforeEach(() => {
     // Reset mocks
@@ -38,12 +37,6 @@ describe('MCP Tools', () => {
     mockServer = {
       setRequestHandler: jest.fn(),
     } as unknown as jest.Mocked<Server>;
-
-    // Setup mock logger
-    mockLogger = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<DebugLogger>;
-    (DebugLogger.getInstance as jest.Mock).mockReturnValue(mockLogger);
 
     // Setup mock ticket queries
     mockTicketQueries = {
@@ -61,7 +54,7 @@ describe('MCP Tools', () => {
       setupToolHandlers(mockServer, mockTicketQueries);
 
       expect(mockServer.setRequestHandler).toHaveBeenCalledWith(ListToolsRequestSchema, expect.any(Function));
-      expect(mockLogger.log).toHaveBeenCalledWith('Setting up MCP tool handlers');
+      expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Setting up MCP tool handlers');
     });
 
     test('should register call_tool handler', () => {

@@ -10,7 +10,7 @@ import Database from 'better-sqlite3';
 
 import { sampleTickets } from '../../api/test/fixtures';
 import { TicketQueries } from '../../db/queries';
-import { DebugLogger } from '../debug-logger';
+import { Logger } from '../../utils/logger';
 import { setupResourceHandlers } from '../resources';
 
 // Define types for the MCP SDK response structure
@@ -39,13 +39,12 @@ interface ResourceReadResponse {
 
 // Mock dependencies
 jest.mock('@modelcontextprotocol/sdk/server/index.js');
-jest.mock('../debug-logger');
+jest.mock('../../utils/logger');
 jest.mock('better-sqlite3');
 
 describe('MCP Resources', () => {
   let mockServer: jest.Mocked<Server>;
   let mockTicketQueries: jest.Mocked<TicketQueries>;
-  let mockLogger: jest.Mocked<DebugLogger>;
 
   beforeEach(() => {
     // Reset mocks
@@ -55,12 +54,6 @@ describe('MCP Resources', () => {
     mockServer = {
       setRequestHandler: jest.fn(),
     } as unknown as jest.Mocked<Server>;
-
-    // Setup mock logger
-    mockLogger = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<DebugLogger>;
-    (DebugLogger.getInstance as jest.Mock).mockReturnValue(mockLogger);
 
     // Setup mock ticket queries
     mockTicketQueries = {
@@ -73,11 +66,8 @@ describe('MCP Resources', () => {
     test('should register list_resources handler', () => {
       setupResourceHandlers(mockServer, mockTicketQueries);
 
-      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        ListResourcesRequestSchema,
-        expect.any(Function),
-      );
-      expect(mockLogger.log).toHaveBeenCalledWith('Setting up MCP resource handlers');
+      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(ListResourcesRequestSchema, expect.any(Function));
+      expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Setting up MCP resource handlers');
     });
 
     test('should register list_resource_templates handler', () => {
@@ -92,10 +82,7 @@ describe('MCP Resources', () => {
     test('should register read_resource handler', () => {
       setupResourceHandlers(mockServer, mockTicketQueries);
 
-      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        ReadResourceRequestSchema,
-        expect.any(Function),
-      );
+      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(ReadResourceRequestSchema, expect.any(Function));
     });
   });
 
@@ -135,10 +122,9 @@ describe('MCP Resources', () => {
 
     describe('list_resource_templates handler', () => {
       test('should return list of resource templates', async () => {
-        const handler = getHandler<
-          typeof ListResourceTemplatesRequestSchema,
-          ResourceTemplatesListResponse
-        >(ListResourceTemplatesRequestSchema);
+        const handler = getHandler<typeof ListResourceTemplatesRequestSchema, ResourceTemplatesListResponse>(
+          ListResourceTemplatesRequestSchema,
+        );
 
         expect(handler).toBeDefined();
 
@@ -152,8 +138,7 @@ describe('MCP Resources', () => {
           expect(result.resourceTemplates[0]).toEqual({
             uriTemplate: 'tickets://status/{status}',
             name: 'Tickets by Status',
-            description:
-              'Get tickets by status (backlog, up-next, in-progress, in-review, completed)',
+            description: 'Get tickets by status (backlog, up-next, in-progress, in-review, completed)',
           });
           expect(result.resourceTemplates[1]).toEqual({
             uriTemplate: 'tickets://id/{id}',
@@ -166,9 +151,7 @@ describe('MCP Resources', () => {
 
     describe('read_resource handler', () => {
       test('should handle tickets://all URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -204,22 +187,15 @@ describe('MCP Resources', () => {
             order: 'desc',
           });
 
-          expect(mockLogger.log).toHaveBeenCalledWith(
-            'Resource read request for URI: tickets://all',
-          );
-          expect(mockLogger.log).toHaveBeenCalledWith('Parsing resource URI: tickets://all');
-          expect(mockLogger.log).toHaveBeenCalledWith('Resource path: all');
-          expect(mockLogger.log).toHaveBeenCalledWith(
-            'Handling all tickets resource: tickets://all',
-          );
-          expect(mockLogger.log).toHaveBeenCalledWith(`Found ${mockTickets.length} tickets`);
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Resource read request for URI: tickets://all');
+          expect(Logger.debug).toHaveBeenCalledWith('McpServer', 'Resource path: all');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Handling all tickets resource: tickets://all');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', `Found ${mockTickets.length} tickets`);
         }
       });
 
       test('should handle tickets://status/{status} URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -253,18 +229,16 @@ describe('MCP Resources', () => {
             status: 'in-progress',
             total: mockTickets.length,
           });
-
-          expect(mockLogger.log).toHaveBeenCalledWith(
+          expect(Logger.info).toHaveBeenCalledWith(
+            'McpServer',
             'Resource read request for URI: tickets://status/in-progress',
           );
-          expect(mockLogger.log).toHaveBeenCalledWith('Handling tickets by status: in-progress');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Handling tickets by status: in-progress');
         }
       });
 
       test('should throw error for invalid status in tickets://status/{status} URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -282,9 +256,7 @@ describe('MCP Resources', () => {
       });
 
       test('should handle tickets://id/{id} URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -311,19 +283,14 @@ describe('MCP Resources', () => {
             resource: 'tickets://id/ticket-1',
             id: 'ticket-1',
           });
-
-          expect(mockLogger.log).toHaveBeenCalledWith(
-            'Resource read request for URI: tickets://id/ticket-1',
-          );
-          expect(mockLogger.log).toHaveBeenCalledWith('Handling ticket by ID: ticket-1');
-          expect(mockLogger.log).toHaveBeenCalledWith('Found ticket: ticket-1');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Resource read request for URI: tickets://id/ticket-1');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Handling ticket by ID: ticket-1');
+          expect(Logger.info).toHaveBeenCalledWith('McpServer', 'Found ticket: ticket-1');
         }
       });
 
       test('should throw error if ticket not found for tickets://id/{id} URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
         if (handler) {
@@ -339,14 +306,12 @@ describe('MCP Resources', () => {
             new McpError(ErrorCode.MethodNotFound, 'Ticket with ID ticket-non-existent not found'),
           );
 
-          expect(mockLogger.log).toHaveBeenCalledWith('Ticket not found: ticket-non-existent');
+          expect(Logger.warn).toHaveBeenCalledWith('McpServer', 'Ticket not found: ticket-non-existent');
         }
       });
 
       test('should throw error for invalid ticket ID format in tickets://id/{id} URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -364,9 +329,7 @@ describe('MCP Resources', () => {
       });
 
       test('should throw error for unknown resource URI', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -381,9 +344,7 @@ describe('MCP Resources', () => {
       });
 
       test('should throw error for unknown protocol', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -398,9 +359,7 @@ describe('MCP Resources', () => {
       });
 
       test('should handle unexpected errors', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -416,14 +375,12 @@ describe('MCP Resources', () => {
             new McpError(ErrorCode.InternalError, 'Error accessing resource: Database error'),
           );
 
-          expect(mockLogger.log).toHaveBeenCalledWith('Resource error: Database error');
+          expect(Logger.error).toHaveBeenCalledWith('McpServer', 'Resource error: Database error');
         }
       });
 
       test('should handle non-Error objects thrown', async () => {
-        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(
-          ReadResourceRequestSchema,
-        );
+        const handler = getHandler<typeof ReadResourceRequestSchema, ResourceReadResponse>(ReadResourceRequestSchema);
 
         expect(handler).toBeDefined();
 
@@ -439,7 +396,7 @@ describe('MCP Resources', () => {
             new McpError(ErrorCode.InternalError, 'Error accessing resource: Not an Error object'),
           );
 
-          expect(mockLogger.log).toHaveBeenCalledWith('Resource error: Not an Error object');
+          expect(Logger.error).toHaveBeenCalledWith('McpServer', 'Resource error: Not an Error object');
         }
       });
     });

@@ -9,7 +9,6 @@ export declare class McpTixServer {
     private ticketQueries;
     private isRunning;
     private config;
-    private logger;
     /**
      * Create a new McpTix MCP Server
      * @param ticketQueries The TicketQueries instance to use

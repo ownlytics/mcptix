@@ -1,6 +1,6 @@
 # mcptix Development Workflow
 
-This document describes the development workflow for mcptix, focusing on how to develop and test locally without affecting the production experience for end customers.
+This document describes the simplified development workflow for mcptix, focusing on how to develop and test locally without affecting the production experience for end customers.
 
 ## Overview
 
@@ -9,19 +9,13 @@ mcptix has a specific architecture with two main components:
 1. **API/UI Server**: Provides the web interface and REST API for managing tickets
 2. **MCP Server**: Provides Model Context Protocol functionality for AI assistants
 
-In production, these components work as follows:
+The development workflow now uses pre-compiled JavaScript instead of on-the-fly TypeScript compilation, making it compatible with environments that can't run TypeScript directly (like Claude Desktop).
 
-- End-customer installs the package with `npm install mcptix`
-- End-customer runs `npx mcptix init` to set up configurations
-- The AI assistant (e.g., Roo) starts the MCP server when needed
-- End-customer runs `npx mcptix start` to start the API UI server
-- Both servers access the same SQLite database
-
-## Development Environment Setup
-
-We've set up a development workflow that mimics this production flow while allowing you to work directly with your development code.
+## Development Environment
 
 ### Initial Setup
+
+If you haven't set up the development environment yet:
 
 ```bash
 # Set up the development environment
@@ -32,49 +26,47 @@ This creates:
 
 - A `.mcptix-dev` directory with development configurations
 - A development database in `.mcptix-dev/data/`
-- A `.roo` directory with MCP server configuration for Roo
 
-### Development Workflow
+### Simplified Development Workflow
 
-1. **Start the API Server**:
+1. **Build the Development Code**:
 
    ```bash
-   npm run dev:api
+   npm run build:dev
    ```
 
-   This starts the API server using your development code, connecting to the development database.
+   This compiles all TypeScript code to JavaScript in the `dist-dev` directory.
 
-   This will start the API server on port 3030 (to avoid conflicts with the default port 3000).
+2. **Start the API Server**:
+
+   ```bash
+   npm run start:dev:api
+   ```
+
+   This starts the API server using your compiled code, connecting to the development database.
+
+   The API server will run on port 3030 (to avoid conflicts with the default port 3000).
 
    You can access the API server at: http://localhost:3030
 
-2. **Use Roo in the Project**:
-   When you use Roo in the project, it will automatically use the development MCP server configuration from `.roo/mcp.json`. This configuration points to your development code.
+3. **Configure Claude Desktop or Other LLM Assistants**:
 
-   **IMPORTANT**: The MCP server should ONLY be started by the LLM agent (Roo), never manually. This matches the production workflow.
+   For Claude Desktop, configure the MCP server as follows:
 
-3. **Testing the Complete Workflow**:
-   - Start the API server with `npm run dev:api`
-   - Use Roo in the project, which will start the MCP server when needed
-   - Verify that both servers can access the same database by creating tickets through Roo and viewing them in the API UI
+   > **IMPORTANT**: The MCP server uses stdout for communication with Claude Desktop. All logging has been redirected to stderr to prevent interference with this communication channel.
 
-### How It Works
+   - **Command**: `node`
+   - **Arguments**: `/path/to/mcptix/dist-dev/mcp/index.js`
+   - **Environment Variables**:
+     - `MCPTIX_DB_PATH=/path/to/mcptix/.mcptix-dev/data/mcptix.db`
+     - `MCPTIX_MCP_MODE=true`
 
-#### API Server Development
+   > **Note**: The MCPTIX_MCP_MODE environment variable ensures all logging goes to stderr instead of stdout, which is essential for proper communication with Claude Desktop.
 
-The `dev:api` script:
-
-- Uses the development configuration from `.mcptix-dev`
-- Starts the API server using `ts-node` for TypeScript compilation
-- Points to the development database
-
-#### MCP Server Development
-
-For MCP server development, we've created:
-
-- A special `mcp-entry.js` script that compiles and runs the TypeScript code
-- A Roo configuration that points to this script
-- An environment setup that ensures both servers use the same database
+4. **Testing the Complete Workflow**:
+   - Start the API server with `npm run start:dev:api`
+   - Use Claude Desktop with the MCP server configuration above
+   - Verify that both servers can access the same database
 
 ### Database Management
 
@@ -94,48 +86,58 @@ npm run dev:setup
 ├── data/                 # Development data directory
 │   └── mcptix.db         # Development database
 ├── db-config.json        # Database configuration
-├── mcptix.config.js      # Development configuration
-└── README.md             # Development instructions
+└── mcptix.config.js      # Development configuration
 
-.roo/                     # Roo configuration directory
-└── mcp.json              # MCP server configuration for Roo
+dist-dev/                 # Compiled development code
+├── api/                  # Compiled API server code
+├── db/                   # Compiled database code
+├── mcp/                  # Compiled MCP server code
+└── index.js              # Main entry point
 
 scripts/                  # Development scripts
-├── dev-api.js            # API server development script
-├── mcp-entry.js          # MCP server entry script for Roo
-└── setup-dev-environment.js # Setup script
+└── build-dev.js          # Development build script
 ```
 
 ## Key Benefits
 
-This development workflow:
+This simplified development workflow:
 
-1. Allows testing changes without publishing the package
-2. Ensures both servers access the same database
-3. Matches the production workflow where the AI assistant starts the MCP server
-4. Doesn't affect the production code or customer experience
+1. Works with environments that can't run TypeScript directly (like Claude Desktop)
+2. Compiles all code to JavaScript for direct execution
+3. Preserves the database configuration and path resolution logic
+4. Maintains compatibility with existing tests
+5. Doesn't affect the production code or customer experience
 
 ## Troubleshooting
 
-### Database Synchronization Issues
+### JSON Parsing Errors
 
-If you're experiencing issues where the API server and MCP server aren't seeing the same data:
+If you see errors like these in Claude Desktop:
 
-1. Verify both are using the same database path by checking the logs
-2. Reset the development environment:
-   ```bash
-   rm -rf .mcptix-dev
-   npm run dev:setup
-   ```
+```
+Expected ',' or ']' after array element in JSON at position X (line 1 column Y)
+```
 
-### Roo Integration Issues
+This indicates that something is writing to stdout, which interferes with the MCP communication protocol. All logging in the MCP server should go to stderr or to a file, never to stdout.
 
-If Roo is not starting the MCP server correctly:
+If you add any new code to the MCP server components, make sure to:
 
-1. Check the Roo logs for any errors
-2. Verify the `.roo/mcp.json` configuration
-3. Reset the Roo configuration:
-   ```bash
-   rm .roo/mcp.json
-   npm run dev:setup
-   ```
+1. Use the `mcpLog`, `mcpWarn`, `mcpError`, etc. functions from `src/mcp/mcp-logger.ts`
+2. Never use `console.log` directly in any MCP-related code
+3. Set `MCPTIX_MCP_MODE=true` when running the MCP server with Claude Desktop
+
+### Database Path Issues
+
+If you're experiencing issues with database path resolution:
+
+1. Make sure you're setting the `MCPTIX_DB_PATH` environment variable correctly
+2. Verify the path to the database file is correct and absolute
+3. Check the logs for any database-related errors
+
+### Compilation Issues
+
+If you encounter problems with TypeScript compilation:
+
+1. Run `npm run clean:dev` to clean the dist-dev directory
+2. Make sure all TypeScript dependencies are installed: `npm install`
+3. Try running the build again: `npm run build:dev`

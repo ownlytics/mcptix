@@ -60,7 +60,6 @@ class DatabaseService {
             const safeDir = process.env.HOME || process.env.USERPROFILE || process.cwd();
             const safePath = path_1.default.join(safeDir, '.mcptix', 'data', 'mcptix.db');
             logger_1.Logger.info('DatabaseService', `Redirecting to safe path: ${safePath}`);
-            console.log(`[DatabaseService] Redirecting to safe path: ${safePath}`);
             this.dbPath = safePath;
         }
         else {
