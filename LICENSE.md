@@ -25,6 +25,8 @@ This software, its source code, associated tooling, and documentation are **inte
 
 **All rights are reserved** except those expressly granted by this license. Misuse, misrepresentation, or unauthorized commercial deployment will be actively pursued under applicable IP and contract law.
 
+The methods and systems implemented in this software are covered under US Patent Application No. 63/783,954 ("Method and System for Shared Task-Oriented Collaboration Between Human Users and Language Model Agents via a Structured Context Protocol").
+
 ---
 
 ## Commercial Use
