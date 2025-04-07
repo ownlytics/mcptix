@@ -1224,6 +1224,7 @@ input[type='range']::-moz-range-thumb {
   border-radius: var(--border-radius);
   max-height: 400px;
   overflow-y: auto;
+  position: relative;
 }
 
 /* Empty state styling for agent context */
@@ -1239,6 +1240,112 @@ input[type='range']::-moz-range-thumb {
 /* Ensure collapsed content is properly hidden */
 .section-content.collapsed {
   display: none;
+}
+
+/* Expand button */
+.expand-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-color);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.expand-btn:hover {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+/* Position the expand button in the agent context display */
+.context-expand-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  padding: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Agent context overlay */
+.agent-context-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.agent-context-overlay.active {
+  opacity: 1;
+}
+
+.agent-context-overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.overlay-header h2 {
+  margin: 0;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.collapse-btn:hover {
+  opacity: 1;
+}
+
+.agent-context-fullscreen {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: none;
+  height: 100%;
+  flex: 1;
 }
 
 /* Large title input for new ticket form */

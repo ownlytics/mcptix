@@ -91,10 +91,7 @@ function queueComplexityUpdate() {
     saveTicket()
       .then(updatedTicket => {
         if (updatedTicket && updatedTicket.complexity_metadata) {
-          console.log(
-            'Complexity update complete. New score:',
-            updatedTicket.complexity_metadata.cie_score,
-          );
+          console.log('Complexity update complete. New score:', updatedTicket.complexity_metadata.cie_score);
           // Update the score display with the server-calculated score
           ComplexityEngine.updateScoreDisplay(updatedTicket.complexity_metadata.cie_score);
         } else {
@@ -306,9 +303,29 @@ function openEditor(ticket) {
           // Use the marked library to render markdown
           contentContainer.innerHTML = `
             <div class="agent-context-display markdown-content">
+              <button type="button" class="expand-btn context-expand-btn" id="expand-agent-context" title="Expand to full screen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 3h6v6"></path>
+                  <path d="M9 21H3v-6"></path>
+                  <path d="M21 3l-7 7"></path>
+                  <path d="M3 21l7-7"></path>
+                </svg>
+              </button>
               ${marked.parse(ticket.agent_context)}
             </div>
           `;
+
+          // Add event listener for expand button
+          const expandBtn = document.getElementById('expand-agent-context');
+          if (expandBtn) {
+            expandBtn.addEventListener('click', event => {
+              // Stop event propagation to prevent bubbling
+              event.stopPropagation();
+
+              // Show the overlay
+              showAgentContextOverlay();
+            });
+          }
         } else {
           // Show a message when no agent context is available
           contentContainer.innerHTML = `
@@ -587,10 +604,7 @@ function saveTicket() {
 
           // Update the score display with the server-calculated score
           if (updatedTicket && updatedTicket.complexity_metadata) {
-            console.log(
-              'Updating score display with server value:',
-              updatedTicket.complexity_metadata.cie_score,
-            );
+            console.log('Updating score display with server value:', updatedTicket.complexity_metadata.cie_score);
             ComplexityEngine.updateScoreDisplay(updatedTicket.complexity_metadata.cie_score);
           }
 
@@ -689,6 +703,101 @@ function handleCommentSubmit(event) {
       console.error('Error adding comment:', error);
       alert('Error adding comment');
     });
+}
+/**
+ * Create the agent context overlay
+ * @returns {HTMLElement} The overlay element
+ */
+function createAgentContextOverlay() {
+  // Check if overlay already exists
+  if (document.getElementById('agent-context-overlay')) {
+    return document.getElementById('agent-context-overlay');
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'agent-context-overlay';
+  overlay.className = 'agent-context-overlay';
+
+  overlay.innerHTML = `
+    <div class="agent-context-overlay-content">
+      <div class="overlay-header">
+        <h2>Agent's Workspace</h2>
+        <button type="button" id="collapse-agent-context" class="collapse-btn" title="Return to normal view">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14h6v6"></path>
+            <path d="M20 10h-6V4"></path>
+            <path d="M14 10l7-7"></path>
+            <path d="M3 21l7-7"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="agent-context-overlay-content" class="markdown-content agent-context-fullscreen">
+        <!-- Content will be inserted here -->
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Add event listener for collapse button
+  const collapseButton = document.getElementById('collapse-agent-context');
+  collapseButton.addEventListener('click', hideAgentContextOverlay);
+
+  // Add event listener to close on Escape key
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && overlay.classList.contains('active')) {
+      hideAgentContextOverlay();
+    }
+  });
+
+  // Add event listener to close when clicking outside the content
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) {
+      hideAgentContextOverlay();
+    }
+  });
+
+  return overlay;
+}
+
+/**
+ * Show the agent context overlay with content
+ */
+function showAgentContextOverlay() {
+  // Create the overlay if it doesn't exist
+  const overlay = createAgentContextOverlay();
+
+  // Get content from the current ticket
+  const content = currentTicket.agent_context || '';
+
+  // Render the markdown
+  const contentContainer = document.getElementById('agent-context-overlay-content');
+  contentContainer.innerHTML = marked.parse(content);
+
+  // Show the overlay with animation
+  overlay.style.display = 'block';
+
+  // Trigger animation in the next frame
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+  });
+}
+
+/**
+ * Hide the agent context overlay
+ */
+function hideAgentContextOverlay() {
+  const overlay = document.getElementById('agent-context-overlay');
+
+  if (!overlay) return;
+
+  // Remove active class to trigger animation
+  overlay.classList.remove('active');
+
+  // Hide overlay after animation completes
+  setTimeout(() => {
+    overlay.style.display = 'none';
+  }, 300); // Match the CSS transition duration
 }
 
 // Export the module functions
