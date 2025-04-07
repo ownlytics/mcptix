@@ -2,7 +2,7 @@
 
 A simple, powerful ticket tracking system with AI assistant integration.
 
-![Version](https://img.shields.io/badge/version-0.1.15-purple.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg) [![npm version](https://img.shields.io/npm/v/@ownlytics/mcptix?color=cb0000&label=npm&logo=npm)](https://www.npmjs.com/package/@ownlytics/mcptix) [![License](https://img.shields.io/badge/License-BSL_1.1-blue.svg)](https://mariadb.com/bsl11/) ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg) ![Jest](https://img.shields.io/badge/Jest-passing-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-0.1.16-purple.svg) ![Status](https://img.shields.io/badge/status-beta-orange.svg) [![npm version](https://img.shields.io/npm/v/@ownlytics/mcptix?color=cb0000&label=npm&logo=npm)](https://www.npmjs.com/package/@ownlytics/mcptix) [![License](https://img.shields.io/badge/License-BSL_1.1-blue.svg)](https://mariadb.com/bsl11/) ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg) ![Jest](https://img.shields.io/badge/Jest-passing-brightgreen.svg)
 
 ![mcptix Banner](./public/mcptix_banner.png)
 

@@ -1374,3 +1374,57 @@ input[type='range']::-moz-range-thumb {
   opacity: 0.6;
   font-weight: 400;
 }
+
+/* Mermaid diagram styling */
+.mermaid-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  background-color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.mermaid {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  min-height: 400px;
+}
+
+.mermaid-error {
+  color: var(--danger-color);
+  padding: 1rem;
+  border: 1px solid var(--danger-color);
+  border-radius: var(--border-radius);
+  background-color: #fff5f5;
+}
+
+/* Ensure code blocks have proper styling */
+.markdown-content pre {
+  background-color: #f8f9fa;
+  border-radius: var(--border-radius);
+  margin: 1rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.markdown-content pre code {
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 0.9rem;
+  padding: 0;
+  background-color: transparent;
+  white-space: pre;
+  display: block;
+}
+
+/* Adjustments for highlighted code */
+.hljs {
+  background: transparent !important;
+  padding: 0 !important;
+}

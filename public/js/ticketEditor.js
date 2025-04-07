@@ -300,32 +300,42 @@ function openEditor(ticket) {
       const contentContainer = document.getElementById('agent-context-content');
       if (contentContainer) {
         if (ticket.agent_context) {
-          // Use the marked library to render markdown
-          contentContainer.innerHTML = `
-            <div class="agent-context-display markdown-content">
-              <button type="button" class="expand-btn context-expand-btn" id="expand-agent-context" title="Expand to full screen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M15 3h6v6"></path>
-                  <path d="M9 21H3v-6"></path>
-                  <path d="M21 3l-7 7"></path>
-                  <path d="M3 21l7-7"></path>
-                </svg>
-              </button>
-              ${marked.parse(ticket.agent_context)}
-            </div>
-          `;
+          // Render the markdown with mermaid support
+          renderMarkdownWithMermaid(ticket.agent_context).then(renderedHtml => {
+            contentContainer.innerHTML = `
+              <div class="agent-context-display markdown-content">
+                <button type="button" class="expand-btn context-expand-btn" id="expand-agent-context" title="Expand to full screen">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6"></path>
+                    <path d="M9 21H3v-6"></path>
+                    <path d="M21 3l-7 7"></path>
+                    <path d="M3 21l7-7"></path>
+                  </svg>
+                </button>
+                ${renderedHtml}
+              </div>
+            `;
 
-          // Add event listener for expand button
-          const expandBtn = document.getElementById('expand-agent-context');
-          if (expandBtn) {
-            expandBtn.addEventListener('click', event => {
-              // Stop event propagation to prevent bubbling
-              event.stopPropagation();
+            // Add event listener for expand button
+            const expandBtn = document.getElementById('expand-agent-context');
+            if (expandBtn) {
+              expandBtn.addEventListener('click', event => {
+                // Stop event propagation to prevent bubbling
+                event.stopPropagation();
 
-              // Show the overlay
-              showAgentContextOverlay();
+                // Show the overlay
+                showAgentContextOverlay();
+              });
+            }
+
+            // Initialize syntax highlighting for code blocks
+            document.querySelectorAll('.agent-context-display pre code:not(.language-mermaid)').forEach(block => {
+              hljs.highlightElement(block);
             });
-          }
+
+            // Render Mermaid diagrams now that they're in the DOM
+            renderMermaidDiagrams(contentContainer);
+          });
         } else {
           // Show a message when no agent context is available
           contentContainer.innerHTML = `
@@ -761,6 +771,58 @@ function createAgentContextOverlay() {
 }
 
 /**
+ * Render markdown content with Mermaid diagram support
+ * @param {string} content - The markdown content to render
+ * @returns {Promise<string>} A promise that resolves to the rendered HTML
+ */
+function renderMarkdownWithMermaid(content) {
+  return new Promise(resolve => {
+    console.log('Rendering markdown with Mermaid support');
+
+    // First pass: render markdown with marked
+    const html = marked.parse(content);
+
+    // Create a temporary div to hold the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    // Find all pre>code elements with language 'mermaid'
+    const mermaidBlocks = tempDiv.querySelectorAll('pre code.language-mermaid');
+    console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
+
+    // If no mermaid diagrams, return the HTML as is
+    if (mermaidBlocks.length === 0) {
+      resolve(html);
+      return;
+    }
+
+    // Process each mermaid block
+    mermaidBlocks.forEach((block, index) => {
+      const mermaidCode = block.textContent;
+      console.log(`Mermaid code ${index}:`, mermaidCode);
+
+      // Replace the <pre><code> with a div for mermaid
+      const preElement = block.parentElement;
+      const mermaidContainer = document.createElement('div');
+      mermaidContainer.className = 'mermaid-container';
+
+      // Create a simple mermaid div that will be processed automatically
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = mermaidCode;
+
+      mermaidContainer.appendChild(mermaidDiv);
+
+      // Replace in the DOM
+      preElement.parentElement.replaceChild(mermaidContainer, preElement);
+    });
+
+    // Return the modified HTML - mermaid will process these divs
+    resolve(tempDiv.innerHTML);
+  });
+}
+
+/**
  * Show the agent context overlay with content
  */
 function showAgentContextOverlay() {
@@ -770,9 +832,19 @@ function showAgentContextOverlay() {
   // Get content from the current ticket
   const content = currentTicket.agent_context || '';
 
-  // Render the markdown
+  // Render the markdown with mermaid support
   const contentContainer = document.getElementById('agent-context-overlay-content');
-  contentContainer.innerHTML = marked.parse(content);
+  renderMarkdownWithMermaid(content).then(renderedHtml => {
+    contentContainer.innerHTML = renderedHtml;
+
+    // Initialize syntax highlighting for code blocks
+    document.querySelectorAll('#agent-context-overlay-content pre code:not(.language-mermaid)').forEach(block => {
+      hljs.highlightElement(block);
+    });
+
+    // Render Mermaid diagrams now that they're in the DOM
+    renderMermaidDiagrams(contentContainer);
+  });
 
   // Show the overlay with animation
   overlay.style.display = 'block';
@@ -798,6 +870,52 @@ function hideAgentContextOverlay() {
   setTimeout(() => {
     overlay.style.display = 'none';
   }, 300); // Match the CSS transition duration
+}
+
+/**
+ * Render any Mermaid diagrams in the container
+ * @param {HTMLElement} container - The container element that contains mermaid diagrams
+ */
+function renderMermaidDiagrams(container) {
+  console.log('Running renderMermaidDiagrams');
+
+  try {
+    // Find all mermaid diagrams
+    const diagrams = container.querySelectorAll('.mermaid');
+    console.log(`Found ${diagrams.length} mermaid diagrams to render`);
+
+    if (diagrams.length === 0) return;
+
+    // Give unique IDs to any diagrams without IDs
+    diagrams.forEach((diagram, index) => {
+      if (!diagram.id) {
+        diagram.id = `mermaid-auto-${Date.now()}-${index}`;
+      }
+
+      // Skip if already rendered
+      if (diagram.querySelector('svg')) {
+        console.log(`Diagram ${diagram.id} already rendered, skipping`);
+        return;
+      }
+
+      console.log(`Preparing to render diagram ${diagram.id}`);
+    });
+
+    // This will tell mermaid to process all diagrams in the container
+    setTimeout(() => {
+      console.log('Calling mermaid.run');
+      mermaid
+        .run({
+          querySelector: '.mermaid',
+          nodes: diagrams,
+        })
+        .catch(error => {
+          console.error('Error running mermaid:', error);
+        });
+    }, 200); // Small delay to ensure DOM is ready
+  } catch (error) {
+    console.error('Error initializing mermaid diagrams:', error);
+  }
 }
 
 // Export the module functions

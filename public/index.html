@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="styles.css" />
     <!-- Include marked.js for markdown rendering (specific version) -->
     <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <!-- Add Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <!-- Add Mermaid for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.3.0/dist/mermaid.min.js"></script>
     <!-- Add debugging for marked library -->
     <script>
       window.addEventListener('DOMContentLoaded', () => {
@@ -16,6 +21,31 @@
         } else if (marked && typeof marked.parse === 'function') {
           console.log('Marked has a parse method');
         }
+
+        // Initialize mermaid with better debugging
+        console.log('Initializing Mermaid...');
+        window.mermaidAPI = mermaid.mermaidAPI;
+        mermaid.initialize({
+          startOnLoad: true, // Changed to true
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'loose',
+          flowchart: { useMaxWidth: true, htmlLabels: true },
+          fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+        });
+
+        // Set up marked with highlight.js
+        marked.setOptions({
+          highlight: function (code, language) {
+            if (language && hljs.getLanguage(language)) {
+              return hljs.highlight(code, { language }).value;
+            } else {
+              return hljs.highlightAuto(code).value;
+            }
+          },
+          breaks: true,
+          gfm: true,
+        });
       });
     </script>
   </head>
