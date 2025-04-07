@@ -53,5 +53,10 @@ test-coverage-plan.md
 # Project memory bank
 memory-bank/
 
+# Configuration & data files
+errors.json
+
 # Development Files
 dist-dev/
+.mcptix-dev/
+.roo/
