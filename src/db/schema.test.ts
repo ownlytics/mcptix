@@ -1,10 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
-import { initializeDatabase, closeDatabase, CURRENT_SCHEMA_VERSION, getAvailableMigrations } from './schema';
 import { Logger } from '../utils/logger';
+import { initializeDatabase, closeDatabase, CURRENT_SCHEMA_VERSION, getAvailableMigrations } from './schema';
 
 describe('Database Schema', () => {
   const testDbPath = path.join(process.cwd(), 'test.db');
@@ -74,8 +72,8 @@ describe('Database Schema', () => {
     const validInsert = () => {
       db.prepare(
         `
-        INSERT INTO comments (id, ticket_id, type, author, status, timestamp)
-        VALUES ('test-comment', 'test-ticket', 'comment', 'developer', 'open', '2023-01-01')
+        INSERT INTO comments (id, ticket_id, content, author, timestamp)
+        VALUES ('test-comment', 'test-ticket', 'Test comment', 'developer', '2023-01-01')
       `,
       ).run();
     };
@@ -86,8 +84,8 @@ describe('Database Schema', () => {
     const invalidInsert = () => {
       db.prepare(
         `
-        INSERT INTO comments (id, ticket_id, type, author, status, timestamp)
-        VALUES ('test-comment-2', 'non-existent-ticket', 'comment', 'developer', 'open', '2023-01-01')
+        INSERT INTO comments (id, ticket_id, content, author, timestamp)
+        VALUES ('test-comment-2', 'non-existent-ticket', 'Test comment', 'developer', '2023-01-01')
       `,
       ).run();
     };
@@ -127,16 +125,19 @@ describe('Database Schema', () => {
     // This test verifies that migrations are properly loaded
     const migrations = getAvailableMigrations();
 
-    // We should have at least two migrations (base schema and add agent_context)
-    expect(migrations.length).toBeGreaterThanOrEqual(2);
+    // We should have at least four migrations
+    expect(migrations.length).toBeGreaterThanOrEqual(4);
 
     // Verify that the migrations have the expected versions and are sorted
     expect(migrations[0].version).toBe(1);
     expect(migrations[1].version).toBe(2);
+    expect(migrations[2].version).toBe(3);
+    expect(migrations[3].version).toBe(4);
 
     // Verify that migration names are meaningful
     expect(migrations[0].name).toMatch(/base|schema/i);
     expect(migrations[1].name).toMatch(/agent|context/i);
+    expect(migrations[3].name).toMatch(/simplify|comments/i);
   });
 
   test('should migrate from older schema version', () => {
@@ -162,6 +163,21 @@ describe('Database Schema', () => {
         status TEXT CHECK(status IN ('backlog', 'up-next', 'in-progress', 'in-review', 'completed')),
         created TEXT NOT NULL,
         updated TEXT NOT NULL
+      );
+      
+      -- Create a basic comments table with all columns needed for migration
+      CREATE TABLE comments (
+        id TEXT PRIMARY KEY,
+        ticket_id TEXT NOT NULL,
+        content TEXT,
+        type TEXT DEFAULT 'comment',
+        author TEXT CHECK(author IN ('developer', 'agent')),
+        status TEXT DEFAULT 'open',
+        timestamp TEXT NOT NULL,
+        summary TEXT,
+        full_text TEXT,
+        display TEXT DEFAULT 'collapsed',
+        FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
       );
     `);
 

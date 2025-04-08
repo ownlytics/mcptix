@@ -1,10 +1,5 @@
 import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-
-import {
-  initTestDatabase,
-  cleanupTestDatabase,
-  resetTestDatabase,
-} from '../../api/test/test-utils';
+import { initTestDatabase, cleanupTestDatabase, resetTestDatabase } from '../../api/test/test-utils';
 import { TicketQueries } from '../../db/queries';
 import { Ticket } from '../../types';
 import { setupToolHandlers } from '../tools';
@@ -58,8 +53,7 @@ describe('MCP Agent Context Integration Tests', () => {
           description: 'Created via MCP tool',
           priority: 'high',
           status: 'backlog',
-          agent_context:
-            '# MCP Agent Analysis\n\n## Implementation Steps\n1. First step\n2. Second step',
+          agent_context: '# MCP Agent Analysis\n\n## Implementation Steps\n1. First step\n2. Second step',
         },
       };
 
@@ -105,8 +99,7 @@ describe('MCP Agent Context Integration Tests', () => {
         name: 'update_ticket',
         arguments: {
           id: ticketId,
-          agent_context:
-            '# Updated MCP Agent Analysis\n\n## New Steps\n1. Updated first step\n2. Updated second step',
+          agent_context: '# Updated MCP Agent Analysis\n\n## New Steps\n1. Updated first step\n2. Updated second step',
         },
       };
 

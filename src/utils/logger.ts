@@ -250,7 +250,7 @@ export class Logger {
     }
 
     // Get color function for the log level
-    const colorFn = Logger.getColor(level);
+    // We don't need to get the color function here since we're not using it
 
     // MCP mode check - must be evaluated at log time, not just initialization time
     const inMcpMode = isMcpMode();

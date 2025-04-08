@@ -1,6 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } from '@modelcontextprotocol/sdk/types.js';
-
 import { sampleTickets, sampleComments, sampleComplexityMetrics } from '../../api/test/fixtures';
 import { TicketQueries } from '../../db/queries';
 import { Ticket, Comment } from '../../types';
@@ -392,9 +391,7 @@ describe('MCP Tools', () => {
         const result = await callToolHandler('add_comment', {
           ticket_id: existingTicket.id,
           content: 'This is a test comment',
-          type: 'comment',
           author: 'agent',
-          status: 'open',
         });
 
         expect(mockTicketQueries.getTicketById).toHaveBeenCalledWith(existingTicket.id);
@@ -403,9 +400,7 @@ describe('MCP Tools', () => {
         expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
           ticket_id: existingTicket.id,
           content: 'This is a test comment',
-          type: 'comment',
           author: 'agent',
-          status: 'open',
         });
 
         expect(result).toEqual({
@@ -427,11 +422,8 @@ describe('MCP Tools', () => {
           ticket_id: existingTicket.id,
           content: 'This is a test comment',
         });
-
         expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
-          type: 'comment',
           author: 'agent',
-          status: 'open',
         });
       });
 
@@ -445,15 +437,13 @@ describe('MCP Tools', () => {
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
       });
 
-      test('should throw error if neither content nor summary/fullText is provided', async () => {
+      test('should throw error if content is not provided', async () => {
         const result = await callToolHandler('add_comment', {
           ticket_id: 'ticket-1',
         });
 
         expect(result.isError).toBe(true);
-        expect(result.content?.[0]?.text).toContain(
-          'Comment content is required (either content, or summary and fullText)',
-        );
+        expect(result.content?.[0]?.text).toContain('Comment content is required');
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
       });
 
@@ -470,7 +460,7 @@ describe('MCP Tools', () => {
         expect(mockTicketQueries.addComment).not.toHaveBeenCalled();
       });
 
-      test('should add summary and fullText when agent adds comment with content only', async () => {
+      test('should add a comment with content for an agent', async () => {
         const existingTicket = sampleTickets[0];
         const newCommentId = 'new-comment-id';
         mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
@@ -487,54 +477,13 @@ describe('MCP Tools', () => {
         expect(mockTicketQueries.addComment).toHaveBeenCalled();
         expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
           content,
-          fullText: content,
-          summary: 'This is a test comment with a longer explanation.',
-          display: 'collapsed',
           author: 'agent',
         });
       });
 
-      test('should use provided summary and fullText for agent comment', async () => {
-        const existingTicket = sampleTickets[0];
-        const newCommentId = 'new-comment-id';
-        mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
-        mockTicketQueries.addComment.mockReturnValue(newCommentId);
+      // Test removed: The summary/fullText functionality has been removed
 
-        const summary = 'Test summary';
-        const fullText = 'Detailed explanation of the test';
-
-        const result = await callToolHandler('add_comment', {
-          ticket_id: existingTicket.id,
-          content: '',
-          summary,
-          fullText,
-          author: 'agent',
-        });
-
-        expect(mockTicketQueries.addComment).toHaveBeenCalled();
-        expect(mockTicketQueries.addComment.mock.calls[0][1]).toMatchObject({
-          summary,
-          fullText,
-          display: 'collapsed',
-          author: 'agent',
-        });
-      });
-
-      test('should accept comment with summary and fullText instead of content', async () => {
-        const existingTicket = sampleTickets[0];
-        mockTicketQueries.getTicketById.mockReturnValue(existingTicket);
-        mockTicketQueries.addComment.mockReturnValue('new-comment-id');
-
-        const result = await callToolHandler('add_comment', {
-          ticket_id: existingTicket.id,
-          summary: 'Test summary',
-          fullText: 'Test full text',
-          author: 'agent',
-        });
-
-        expect(result.isError).toBeUndefined();
-        expect(mockTicketQueries.addComment).toHaveBeenCalled();
-      });
+      // Since summary and fullText are no longer supported, we don't need this test
     });
 
     describe('search_tickets', () => {

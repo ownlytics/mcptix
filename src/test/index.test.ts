@@ -97,10 +97,7 @@ describe('McpTix', () => {
       expect(DatabaseService.getInstance).toHaveBeenCalled();
       expect(mockDbService.initialize).toHaveBeenCalledWith(mockConfig, mockConfig.clearDataOnInit);
       expect(TicketQueries).toHaveBeenCalledWith(mockDb);
-      expect(Logger.info).toHaveBeenCalledWith(
-        'McpTix',
-        expect.stringContaining('Database initialized'),
-      );
+      expect(Logger.info).toHaveBeenCalledWith('McpTix', expect.stringContaining('Database initialized'));
 
       // Verify process event handlers are set
       expect(mockProcessOn).toHaveBeenCalledWith('SIGINT', expect.any(Function));
@@ -247,11 +244,7 @@ describe('McpTix', () => {
       // Should throw the error from mcpServer.close
       await expect(mcpTix.shutdown()).rejects.toThrow('MCP close error');
 
-      expect(Logger.error).toHaveBeenCalledWith(
-        'McpTix',
-        'Error during shutdown',
-        expect.any(Error),
-      );
+      expect(Logger.error).toHaveBeenCalledWith('McpTix', 'Error during shutdown', expect.any(Error));
     });
   });
 

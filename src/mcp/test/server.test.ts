@@ -1,6 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-
 import { McpTixConfig } from '../../config';
 import { TicketQueries } from '../../db/queries';
 import { Logger } from '../../utils/logger';

@@ -207,33 +207,13 @@ function setupToolHandlers(server, ticketQueries) {
                         },
                         content: {
                             type: 'string',
-                            description: 'Comment content (deprecated for agent comments - use summary and fullText instead)',
-                        },
-                        summary: {
-                            type: 'string',
-                            description: 'A concise summary of the comment (1-2 sentences) that will be shown by default in the UI',
-                        },
-                        fullText: {
-                            type: 'string',
-                            description: 'The complete, detailed explanation or analysis that can be expanded by the user',
-                        },
-                        type: {
-                            type: 'string',
-                            description: 'Comment type',
-                            enum: ['comment', 'request_changes', 'change_proposal'],
-                            default: 'comment',
+                            description: 'Comment content (supports markdown)',
                         },
                         author: {
                             type: 'string',
                             description: 'Comment author',
                             enum: ['developer', 'agent'],
                             default: 'agent',
-                        },
-                        status: {
-                            type: 'string',
-                            description: 'Comment status',
-                            enum: ['open', 'in_progress', 'resolved', 'wont_fix'],
-                            default: 'open',
                         },
                     },
                     required: ['ticket_id', 'content'],
@@ -486,7 +466,7 @@ function handleCreateTicket(ticketQueries, args) {
         // Only attempt to set order_value if ticketsInStatus is a valid array
         if (Array.isArray(ticketsInStatus) && ticketsInStatus.length > 0 && ticketsInStatus[0]?.id !== ticketId) {
             // The first ticket has the highest order_value
-            // @ts-ignore - order_value exists in the database but not in the type definition
+            // @ts-expect-error - order_value exists in the database but not in the type definition
             const maxOrderValue = ticketsInStatus[0].order_value || 0;
             const newOrderValue = maxOrderValue + 1000;
             // Update the ticket's order_value
@@ -572,8 +552,8 @@ function handleAddComment(ticketQueries, args) {
     if (!args.ticket_id) {
         throw new Error('Ticket ID is required');
     }
-    if (!args.content && !args.summary && !args.fullText) {
-        throw new Error('Comment content is required (either content, or summary and fullText)');
+    if (!args.content) {
+        throw new Error('Comment content is required');
     }
     // Check if ticket exists
     const existingTicket = ticketQueries.getTicketById(args.ticket_id);
@@ -585,35 +565,10 @@ function handleAddComment(ticketQueries, args) {
     const comment = {
         id: `comment-${Date.now()}`,
         ticket_id: args.ticket_id,
-        content: args.content || '',
-        type: args.type || 'comment',
+        content: args.content,
         author,
-        status: args.status || 'open',
         timestamp: new Date().toISOString(),
     };
-    // Handle summary and fullText based on author
-    if (author === 'agent') {
-        // For agent comments, we need summary and fullText for proper UI rendering
-        if (args.summary) {
-            comment.summary = args.summary;
-        }
-        else if (args.content) {
-            // Create a summary from content if not provided
-            // Use the first sentence or first 100 characters
-            const firstSentenceMatch = args.content.match(/^(.*?[.!?])\s/);
-            if (firstSentenceMatch && firstSentenceMatch[1]) {
-                comment.summary = firstSentenceMatch[1];
-            }
-            else {
-                // If no sentence ending found, use first 100 chars or the whole content
-                comment.summary = args.content.length > 100 ? args.content.substring(0, 100) + '...' : args.content;
-            }
-        }
-        // Set fullText from args or fall back to content
-        comment.fullText = args.fullText || args.content || '';
-        // Set default display state to collapsed
-        comment.display = 'collapsed';
-    }
     // Add comment
     const commentId = ticketQueries.addComment(args.ticket_id, comment);
     return {

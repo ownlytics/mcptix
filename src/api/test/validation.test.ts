@@ -1,11 +1,5 @@
 import { Request } from 'express';
-
-import {
-  validateCreateTicket,
-  validateUpdateTicket,
-  validateCreateComment,
-  validateSearch,
-} from '../validation';
+import { validateCreateTicket, validateUpdateTicket, validateCreateComment, validateSearch } from '../validation';
 
 // Helper to create mock Request objects
 const createMockRequest = (body = {}, query = {}): Request => {

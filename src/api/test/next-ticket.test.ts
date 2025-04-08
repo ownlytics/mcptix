@@ -1,10 +1,8 @@
 import Database from 'better-sqlite3';
 import { Express } from 'express';
 import request from 'supertest';
-
 import { TicketQueries } from '../../db/queries';
 import { Ticket } from '../../types';
-
 import { createTestServer } from './api-test-helper';
 
 describe('Next Ticket API', () => {
@@ -133,17 +131,15 @@ describe('Next Ticket API', () => {
   });
 
   test('PUT /api/tickets/:id/reorder should update the order of a ticket', async () => {
-    const response = await request(app)
-      .put('/api/tickets/ticket-in-progress-2/reorder')
-      .send({ order_value: 2500 });
+    const response = await request(app).put('/api/tickets/ticket-in-progress-2/reorder').send({ order_value: 2500 });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('success', true);
 
     // Check the new order value
-    const ticket = db
-      .prepare('SELECT order_value FROM tickets WHERE id = ?')
-      .get('ticket-in-progress-2') as { order_value: number };
+    const ticket = db.prepare('SELECT order_value FROM tickets WHERE id = ?').get('ticket-in-progress-2') as {
+      order_value: number;
+    };
     expect(ticket.order_value).toBe(2500);
   });
 
@@ -156,9 +152,7 @@ describe('Next Ticket API', () => {
     expect(response.body).toHaveProperty('success', true);
 
     // Check the new status and order value
-    const ticket = db
-      .prepare('SELECT status, order_value FROM tickets WHERE id = ?')
-      .get('ticket-in-progress-2') as {
+    const ticket = db.prepare('SELECT status, order_value FROM tickets WHERE id = ?').get('ticket-in-progress-2') as {
       status: string;
       order_value: number;
     };

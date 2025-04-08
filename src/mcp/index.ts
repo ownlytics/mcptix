@@ -11,17 +11,15 @@
 // Set MCP mode environment variable to ensure proper logging behavior
 // CRITICAL: This must be set before any imports to ensure the Logger
 // initializes correctly with MCP mode enabled
-process.env.MCPTIX_MCP_MODE = 'true';
-
-import fs from 'fs';
+// Import removed as it's unused
 import path from 'path';
-
 import { McpTixConfig, ensureHomeDirectory, mergeConfig } from '../config';
 import { TicketQueries } from '../db/queries';
 import { DatabaseService } from '../db/service';
 import { Logger } from '../utils/logger';
-
 import { McpTixServer } from './server';
+
+process.env.MCPTIX_MCP_MODE = 'true';
 
 // Initialize the configuration with environment variables
 

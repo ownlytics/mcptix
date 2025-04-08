@@ -159,7 +159,7 @@ function setupRoutes(app, ticketQueries) {
     // Add a comment to a ticket
     app.post('/api/tickets/:id/comments', (0, middleware_1.validateRequest)(validation_1.validateCreateComment), (req, res, next) => {
         try {
-            const { content, type, author, status } = req.body;
+            const { content, author } = req.body;
             // Check if ticket exists
             const existingTicket = ticketQueries.getTicketById(req.params.id);
             if (!existingTicket) {
@@ -171,9 +171,7 @@ function setupRoutes(app, ticketQueries) {
                 id: `comment-${Date.now()}`,
                 ticket_id: req.params.id,
                 content,
-                type: type || 'comment',
                 author: author || 'developer',
-                status: status || 'open',
                 timestamp: new Date().toISOString(),
             };
             // Add comment
