@@ -67,11 +67,7 @@ describe('Agent Context Functionality', () => {
         description: 'This ticket will be updated',
       };
 
-      const createResponse = await testServer
-        .request()
-        .post('/api/tickets')
-        .send(newTicket)
-        .expect(201);
+      const createResponse = await testServer.request().post('/api/tickets').send(newTicket).expect(201);
 
       const ticketId = createResponse.body.id;
 
@@ -81,11 +77,7 @@ describe('Agent Context Functionality', () => {
           '# Updated Agent Analysis\n\n## New Implementation Plan\n1. Updated step one\n2. Updated step two',
       };
 
-      const updateResponse = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const updateResponse = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       // Verify the ticket was updated
       const updatedTicket = ticketQueries.getTicketById(ticketId);
@@ -97,15 +89,10 @@ describe('Agent Context Functionality', () => {
       const newTicket = {
         title: 'Original Ticket',
         description: 'This ticket will be updated',
-        agent_context:
-          '# Original Agent Analysis\n\n## Implementation Plan\n1. Step one\n2. Step two',
+        agent_context: '# Original Agent Analysis\n\n## Implementation Plan\n1. Step one\n2. Step two',
       };
 
-      const createResponse = await testServer
-        .request()
-        .post('/api/tickets')
-        .send(newTicket)
-        .expect(201);
+      const createResponse = await testServer.request().post('/api/tickets').send(newTicket).expect(201);
 
       const ticketId = createResponse.body.id;
 
@@ -115,11 +102,7 @@ describe('Agent Context Functionality', () => {
         status: 'in-progress',
       };
 
-      const updateResponse = await testServer
-        .request()
-        .put(`/api/tickets/${ticketId}`)
-        .send(updateData)
-        .expect(200);
+      const updateResponse = await testServer.request().put(`/api/tickets/${ticketId}`).send(updateData).expect(200);
 
       // Verify the agent_context was preserved
       const updatedTicket = ticketQueries.getTicketById(ticketId);
@@ -135,15 +118,10 @@ describe('Agent Context Functionality', () => {
       const newTicket = {
         title: 'Ticket to Retrieve',
         description: 'This ticket will be retrieved',
-        agent_context:
-          '# Agent Analysis for Retrieval\n\n## Implementation Plan\n1. Step one\n2. Step two',
+        agent_context: '# Agent Analysis for Retrieval\n\n## Implementation Plan\n1. Step one\n2. Step two',
       };
 
-      const createResponse = await testServer
-        .request()
-        .post('/api/tickets')
-        .send(newTicket)
-        .expect(201);
+      const createResponse = await testServer.request().post('/api/tickets').send(newTicket).expect(201);
 
       const ticketId = createResponse.body.id;
 

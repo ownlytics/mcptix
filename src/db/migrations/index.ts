@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { Logger } from '../../utils/logger';
 
 /**
@@ -44,7 +42,6 @@ export function getMigrations(): Migration[] {
         // Use synchronous require instead of async import for Jest compatibility
         const migrationPath = path.join(migrationsDir, file);
 
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const migration = require(migrationPath);
 
         // Skip files that don't export a valid migration

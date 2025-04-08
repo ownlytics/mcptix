@@ -68,9 +68,7 @@ function calculateComplexityScore(metrics) {
             values.cascade_impact_zones / exports.NORMALIZATION.cascade_impact_zones) /
             3,
         cognitive_load: values.subjectivity_rating / exports.NORMALIZATION.subjectivity_rating,
-        change_volume: (values.loc_added / exports.NORMALIZATION.loc_added +
-            values.loc_modified / exports.NORMALIZATION.loc_modified) /
-            2,
+        change_volume: (values.loc_added / exports.NORMALIZATION.loc_added + values.loc_modified / exports.NORMALIZATION.loc_modified) / 2,
         quality_surface_area: (values.test_cases_written / exports.NORMALIZATION.test_cases_written +
             values.edge_cases / exports.NORMALIZATION.edge_cases +
             values.mocking_complexity / exports.NORMALIZATION.mocking_complexity) /
@@ -84,8 +82,7 @@ function calculateComplexityScore(metrics) {
     let weightedScore = 0;
     for (const category in normalizedScores) {
         weightedScore +=
-            normalizedScores[category] *
-                exports.WEIGHTS[category];
+            normalizedScores[category] * exports.WEIGHTS[category];
     }
     // Scale to 0-100 and round to 1 decimal place
     const finalScore = Math.min(100, weightedScore * 100);

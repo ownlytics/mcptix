@@ -205,15 +205,13 @@ class TicketQueries {
             if (ticket.comments && ticket.comments.length > 0) {
                 const commentStmt = this.db.prepare(`
           INSERT INTO comments (
-            id, ticket_id, content, type, author, status, timestamp,
-            summary, full_text, display
+            id, ticket_id, content, author, timestamp
           ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?
+            ?, ?, ?, ?, ?
           )
         `);
                 for (const comment of ticket.comments) {
-                    commentStmt.run(comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`, ticketId, comment.content || '', comment.type || 'comment', comment.author || 'developer', comment.status || 'open', comment.timestamp || now, comment.summary || null, comment.fullText || null, comment.display || 'collapsed');
+                    commentStmt.run(comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`, ticketId, comment.content, comment.author || 'developer', comment.timestamp || now);
                 }
             }
             return ticketId;
@@ -298,14 +296,12 @@ class TicketQueries {
         const commentId = comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const stmt = this.db.prepare(`
       INSERT INTO comments (
-        id, ticket_id, content, type, author, status, timestamp,
-        summary, full_text, display
+        id, ticket_id, content, author, timestamp
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?
+        ?, ?, ?, ?, ?
       )
     `);
-        stmt.run(commentId, ticketId, comment.content || '', comment.type || 'comment', comment.author || 'developer', comment.status || 'open', comment.timestamp || now, comment.summary || null, comment.fullText || null, comment.display || 'collapsed');
+        stmt.run(commentId, ticketId, comment.content, comment.author || 'developer', comment.timestamp || now);
         // Update ticket's updated timestamp
         this.db.prepare('UPDATE tickets SET updated = ? WHERE id = ?').run(now, ticketId);
         return commentId;

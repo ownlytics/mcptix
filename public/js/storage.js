@@ -461,9 +461,7 @@ function addComment(ticketId, comment) {
     },
     body: JSON.stringify({
       content: comment.content,
-      type: comment.type || 'comment',
       author: comment.author || 'developer',
-      status: comment.status || 'open',
     }),
   }).then(response => {
     if (!response.ok) {

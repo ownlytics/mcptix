@@ -1,7 +1,5 @@
 import Database from 'better-sqlite3';
-
 import { Logger } from '../../utils/logger';
-
 import { Migration } from './index';
 
 /**

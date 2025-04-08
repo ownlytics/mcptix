@@ -207,7 +207,6 @@ describe('API Routes', () => {
 
       const newComment = {
         content: 'This is a new test comment',
-        type: 'comment',
         author: 'developer',
       };
 
@@ -247,9 +246,7 @@ describe('API Routes', () => {
       const updatedTicket = ticketQueries.getTicketById(ticketId);
       const addedComment = updatedTicket.comments.find((c: any) => c.id === response.body.id);
       expect(addedComment).toBeDefined();
-      expect(addedComment.type).toBe('comment');
       expect(addedComment.author).toBe('developer');
-      expect(addedComment.status).toBe('open');
     });
 
     test('should return 400 for invalid comment data', async () => {
@@ -260,7 +257,6 @@ describe('API Routes', () => {
 
       const invalidComment = {
         // Missing required content field
-        type: 'comment',
         author: 'developer',
       };
 
@@ -276,7 +272,6 @@ describe('API Routes', () => {
     test('should return 404 for non-existent ticket', async () => {
       const newComment = {
         content: 'Comment on non-existent ticket',
-        type: 'comment',
         author: 'developer',
       };
 

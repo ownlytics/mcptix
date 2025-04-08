@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-
 import { Logger } from '../utils/logger';
 
 /**
@@ -12,12 +11,7 @@ export function notFoundHandler(req: Request, res: Response, _next: NextFunction
 /**
  * Middleware for handling errors
  */
-export function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction,
-): void | Response {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void | Response {
   Logger.error('API', 'Request error', err);
 
   // Handle specific error types

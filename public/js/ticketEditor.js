@@ -55,7 +55,7 @@ function initialize() {
   commentsContainer = document.getElementById('comments-container');
   commentForm = document.getElementById('comment-form');
   commentContent = document.getElementById('comment-content');
-  commentType = document.getElementById('comment-type');
+  // commentType is no longer needed with simplified comments
   addCommentButton = document.getElementById('add-comment');
   ticketIdDisplay = document.getElementById('ticket-id');
   ticketCreatedDisplay = document.getElementById('ticket-created');
@@ -686,7 +686,6 @@ function handleCommentSubmit(event) {
 
   // Get form values
   const content = commentContent.value.trim();
-  const type = commentType.value;
 
   // Validate form
   if (!content) {
@@ -696,7 +695,7 @@ function handleCommentSubmit(event) {
   }
 
   // Add the comment
-  Comments.addComment(currentTicket.id, content, type)
+  Comments.addComment(currentTicket.id, content)
     .then(() => {
       // Clear the form
       commentContent.value = '';

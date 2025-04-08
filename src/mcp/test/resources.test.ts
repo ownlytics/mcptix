@@ -7,7 +7,6 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 import Database from 'better-sqlite3';
-
 import { sampleTickets } from '../../api/test/fixtures';
 import { TicketQueries } from '../../db/queries';
 import { Logger } from '../../utils/logger';

@@ -1,12 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { McpTixConfig } from '../config';
 import { getDefaultDbPath, initializeDatabase as initDb } from '../db/schema';
 import { Logger } from '../utils/logger';
-
 import { DatabaseService } from './service';
 
 // Mock dependencies
@@ -86,14 +83,8 @@ describe('DatabaseService', () => {
 
       expect(result).toBe(mockDb);
       expect(Database as unknown as jest.Mock).toHaveBeenCalledWith('/test/path.db');
-      expect(Logger.info).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Initializing with path: /test/path.db',
-      );
-      expect(Logger.success).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Database initialized at /test/path.db',
-      );
+      expect(Logger.info).toHaveBeenCalledWith('DatabaseService', 'Initializing with path: /test/path.db');
+      expect(Logger.success).toHaveBeenCalledWith('DatabaseService', 'Database initialized at /test/path.db');
     });
 
     test('should initialize database with config object', () => {
@@ -102,10 +93,7 @@ describe('DatabaseService', () => {
 
       expect(result).toBe(mockDb);
       expect(Database as unknown as jest.Mock).toHaveBeenCalledWith('/config/path.db');
-      expect(Logger.info).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Initializing with path: /config/path.db',
-      );
+      expect(Logger.info).toHaveBeenCalledWith('DatabaseService', 'Initializing with path: /config/path.db');
     });
 
     test('should use default path if not provided in config', () => {
@@ -154,13 +142,8 @@ describe('DatabaseService', () => {
       const result = dbService.initialize('/unsafe.db');
 
       expect(result).toBe(mockDb);
-      expect(Logger.warn).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Unsafe path detected: /unsafe.db',
-      );
-      expect(Database as unknown as jest.Mock).toHaveBeenCalledWith(
-        '/home/user/.mcptix/data/mcptix.db',
-      );
+      expect(Logger.warn).toHaveBeenCalledWith('DatabaseService', 'Unsafe path detected: /unsafe.db');
+      expect(Database as unknown as jest.Mock).toHaveBeenCalledWith('/home/user/.mcptix/data/mcptix.db');
     });
 
     test('should create directory if it does not exist', () => {
@@ -188,19 +171,14 @@ describe('DatabaseService', () => {
         expect.any(Error),
       );
       expect(fs.mkdirSync).toHaveBeenCalledWith('/home/user/.mcptix/data', { recursive: true });
-      expect(Database as unknown as jest.Mock).toHaveBeenCalledWith(
-        '/home/user/.mcptix/data/mcptix.db',
-      );
+      expect(Database as unknown as jest.Mock).toHaveBeenCalledWith('/home/user/.mcptix/data/mcptix.db');
     });
 
     test('should clear existing database if clearData is true', () => {
       dbService.initialize('/test/path.db', true);
 
       expect(fs.unlinkSync).toHaveBeenCalledWith('/test/path.db');
-      expect(Logger.info).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Clearing existing database at /test/path.db',
-      );
+      expect(Logger.info).toHaveBeenCalledWith('DatabaseService', 'Clearing existing database at /test/path.db');
     });
 
     test('should enable foreign keys and create tables', () => {
@@ -217,11 +195,7 @@ describe('DatabaseService', () => {
       });
 
       expect(() => dbService.initialize('/test/path.db')).toThrow('Database error');
-      expect(Logger.error).toHaveBeenCalledWith(
-        'DatabaseService',
-        'Error initializing database',
-        expect.any(Error),
-      );
+      expect(Logger.error).toHaveBeenCalledWith('DatabaseService', 'Error initializing database', expect.any(Error));
     });
   });
 
@@ -236,9 +210,7 @@ describe('DatabaseService', () => {
     });
 
     test('should throw error if database not initialized', () => {
-      expect(() => dbService.getDatabase()).toThrow(
-        'Database not initialized. Call initialize() first.',
-      );
+      expect(() => dbService.getDatabase()).toThrow('Database not initialized. Call initialize() first.');
     });
   });
 

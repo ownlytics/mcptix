@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { TicketQueries } from '../../db/queries';
 import { initializeDatabase, closeDatabase } from '../../db/schema';
 
