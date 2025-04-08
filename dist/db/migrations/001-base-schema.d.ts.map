@@ -1,1 +1,1 @@
-{"version":3,"file":"001-base-schema.d.ts","sourceRoot":"","sources":["../../../src/db/migrations/001-base-schema.ts"],"names":[],"mappings":"AAIA,OAAO,EAAE,SAAS,EAAE,MAAM,SAAS,CAAC;AAEpC;;;;;;;;GAQG;AACH,QAAA,MAAM,SAAS,EAAE,SAiFhB,CAAC;AAEF,eAAe,SAAS,CAAC"}
+{"version":3,"file":"001-base-schema.d.ts","sourceRoot":"","sources":["../../../src/db/migrations/001-base-schema.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,SAAS,EAAE,MAAM,SAAS,CAAC;AAEpC;;;;;;;;GAQG;AACH,QAAA,MAAM,SAAS,EAAE,SAiFhB,CAAC;AAEF,eAAe,SAAS,CAAC"}

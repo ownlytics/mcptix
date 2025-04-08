@@ -1,7 +1,5 @@
 import Database from 'better-sqlite3';
-
 import { Logger } from '../../utils/logger';
-
 import { Migration } from './index';
 
 /**
@@ -46,10 +44,7 @@ const migration: Migration = {
       if (supportsDropColumn) {
         // Modern SQLite version - use direct column dropping
         db.exec(`ALTER TABLE tickets DROP COLUMN agent_context;`);
-        Logger.info(
-          'Migration',
-          `Removed agent_context column using direct DROP COLUMN (SQLite ${sqliteVersion})`,
-        );
+        Logger.info('Migration', `Removed agent_context column using direct DROP COLUMN (SQLite ${sqliteVersion})`);
       } else {
         // Older SQLite version - use workaround
         Logger.info('Migration', `Using workaround for dropping column (SQLite ${sqliteVersion})`);
@@ -84,10 +79,7 @@ const migration: Migration = {
           CREATE INDEX idx_tickets_priority ON tickets(priority);
         `);
 
-        Logger.info(
-          'Migration',
-          'Removed agent_context column from tickets table using recreation method',
-        );
+        Logger.info('Migration', 'Removed agent_context column from tickets table using recreation method');
       }
     } catch (error) {
       Logger.error('Migration', 'Error removing agent_context column', error);

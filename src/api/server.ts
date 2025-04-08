@@ -1,13 +1,10 @@
 import { Server as HttpServer } from 'http';
 import path from 'path';
-
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
-
 import { TicketQueries } from '../db/queries';
 import { Logger } from '../utils/logger';
-
 import { errorHandler, notFoundHandler, requestLogger } from './middleware';
 import { setupRoutes } from './routes';
 

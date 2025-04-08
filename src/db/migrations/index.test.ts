@@ -1,10 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { Logger } from '../../utils/logger';
-
 import { getMigrations, applyMigrations, rollbackMigrations, Migration } from './index';
 
 // Mock the fs and path modules
@@ -70,12 +67,7 @@ describe('Migration System', () => {
 
     // Mock fs functions
     (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.readdirSync as jest.Mock).mockReturnValue([
-      '001-test.ts',
-      '002-test.ts',
-      '003-test.ts',
-      'invalid.ts',
-    ]);
+    (fs.readdirSync as jest.Mock).mockReturnValue(['001-test.ts', '002-test.ts', '003-test.ts', 'invalid.ts']);
     (fs.mkdirSync as jest.Mock).mockImplementation(() => {});
 
     // Mock path functions
@@ -105,9 +97,7 @@ describe('Migration System', () => {
 
       // Mock implementation of getMigrations for testing
       const testGetMigrations = () => {
-        return [mockMigration2, mockMigration1, mockMigration3].sort(
-          (a, b) => a.version - b.version,
-        );
+        return [mockMigration2, mockMigration1, mockMigration3].sort((a, b) => a.version - b.version);
       };
 
       const migrations = testGetMigrations();
@@ -176,9 +166,7 @@ describe('Migration System', () => {
       // Call applyMigrations with our mocked context
       const testApplyMigrations = (db: any, currentVersion: number, targetVersion: number) => {
         // Filter migrations that need to be applied
-        const pendingMigrations = migrations.filter(
-          m => m.version > currentVersion && m.version <= targetVersion,
-        );
+        const pendingMigrations = migrations.filter(m => m.version > currentVersion && m.version <= targetVersion);
 
         // Apply each migration
         for (const migration of pendingMigrations) {

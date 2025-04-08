@@ -1,11 +1,11 @@
-const typescript = require('@typescript-eslint/eslint-plugin');
-const typescriptParser = require('@typescript-eslint/parser');
-const importPlugin = require('eslint-plugin-import');
-const prettierPlugin = require('eslint-plugin-prettier');
+import typescript from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
+import prettierPlugin from 'eslint-plugin-prettier';
 
-module.exports = [
+export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'public/**', 'templates/**', '*.js', '!eslint.config.js'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'public/**', 'templates/**', '*.js', '!eslint.config.mjs'],
   },
   // Base configuration for all TypeScript files
   {
@@ -23,24 +23,15 @@ module.exports = [
       prettier: prettierPlugin,
     },
     rules: {
-      // Use a subset of recommended rules instead of all
-      '@typescript-eslint/adjacent-overload-signatures': 'error',
-      '@typescript-eslint/ban-ts-comment': 'warn',
-      '@typescript-eslint/ban-types': 'warn',
-      'no-array-constructor': 'off',
-      '@typescript-eslint/no-array-constructor': 'error',
-      '@typescript-eslint/no-duplicate-enum-values': 'error',
+      // Using recommended rules from @typescript-eslint
+      ...typescript.configs.recommended.rules,
+
+      // Override specific rules
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-extra-non-null-assertion': 'error',
-      '@typescript-eslint/no-inferrable-types': 'error',
-      '@typescript-eslint/no-misused-new': 'error',
-      '@typescript-eslint/no-namespace': 'error',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-this-alias': 'error',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-var-requires': 'warn',
-      '@typescript-eslint/prefer-as-const': 'error',
-      '@typescript-eslint/triple-slash-reference': 'error',
 
       // Other rules
       '@typescript-eslint/interface-name-prefix': 'off',

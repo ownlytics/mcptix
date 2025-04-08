@@ -1,5 +1,4 @@
 import { ApiServer } from '../server';
-
 import { initTestDatabase, cleanupTestDatabase } from './test-utils';
 
 describe('API Server', () => {

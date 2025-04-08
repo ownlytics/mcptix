@@ -1,6 +1,6 @@
 {
   "name": "@ownlytics/mcptix",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "A simple, powerful ticket tracking system with AI assistant integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,8 +29,8 @@
     "test:errors:ai": "node scripts/parse-test-errors.js --json | grep -v 'Running tests' | grep -v 'Test Error'",
     "clean": "rimraf dist",
     "clean:dev": "rimraf dist-dev",
-    "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\" --max-warnings=0 --config eslint.config.mjs",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix --config eslint.config.mjs",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "make-executable": "chmod +x scripts/*.js"
