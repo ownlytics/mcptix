@@ -89,10 +89,7 @@ export function calculateComplexityScore(metrics: {
 
     cognitive_load: values.subjectivity_rating / NORMALIZATION.subjectivity_rating,
 
-    change_volume:
-      (values.loc_added / NORMALIZATION.loc_added +
-        values.loc_modified / NORMALIZATION.loc_modified) /
-      2,
+    change_volume: (values.loc_added / NORMALIZATION.loc_added + values.loc_modified / NORMALIZATION.loc_modified) / 2,
 
     quality_surface_area:
       (values.test_cases_written / NORMALIZATION.test_cases_written +
@@ -111,8 +108,7 @@ export function calculateComplexityScore(metrics: {
   let weightedScore = 0;
   for (const category in normalizedScores) {
     weightedScore +=
-      normalizedScores[category as keyof typeof normalizedScores] *
-      WEIGHTS[category as keyof typeof WEIGHTS];
+      normalizedScores[category as keyof typeof normalizedScores] * WEIGHTS[category as keyof typeof WEIGHTS];
   }
 
   // Scale to 0-100 and round to 1 decimal place

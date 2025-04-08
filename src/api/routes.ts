@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
-
 import { TicketQueries } from '../db/queries';
 import { Ticket, Comment } from '../types';
-
 import { validateRequest } from './middleware';
 import { validateCreateTicket, validateUpdateTicket, validateCreateComment, validateSearch } from './validation';
 
@@ -187,7 +185,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
     validateRequest(validateCreateComment),
     (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { content, type, author, status } = req.body;
+        const { content, author } = req.body;
 
         // Check if ticket exists
         const existingTicket = ticketQueries.getTicketById(req.params.id);
@@ -201,9 +199,7 @@ export function setupRoutes(app: express.Application, ticketQueries: TicketQueri
           id: `comment-${Date.now()}`,
           ticket_id: req.params.id,
           content,
-          type: type || 'comment',
           author: author || 'developer',
-          status: status || 'open',
           timestamp: new Date().toISOString(),
         };
 

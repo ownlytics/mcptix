@@ -9,12 +9,17 @@
  * It preserves the database configuration and path resolution logic.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-const rimraf = require('rimraf');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { sync as rimrafSync } from 'rimraf';
+import { fileURLToPath } from 'url';
 
 // Constants
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const PROJECT_ROOT = process.cwd();
 const DIST_DEV_DIR = path.join(PROJECT_ROOT, 'dist-dev');
 const SRC_DIR = path.join(PROJECT_ROOT, 'src');
@@ -37,7 +42,7 @@ function cleanDistDev() {
   // Ensure the directory exists before cleaning
   if (fs.existsSync(DIST_DEV_DIR)) {
     try {
-      rimraf.sync(DIST_DEV_DIR);
+      rimrafSync(DIST_DEV_DIR);
       logger.success('Cleaned dist-dev directory');
     } catch (error) {
       logger.error(`Failed to clean dist-dev directory: ${error.message}`);

@@ -31,7 +31,7 @@ const migrations_1 = require("./migrations");
  * Our migration system attempts to detect SQLite version and use the appropriate method.
  */
 // Schema version constants - this should match the highest migration version
-exports.CURRENT_SCHEMA_VERSION = 3; // Increment this when schema changes
+exports.CURRENT_SCHEMA_VERSION = 4; // Increment this when schema changes
 /**
  * Ensure the data directory exists for the given database path
  * @param dbPath Path to the database file

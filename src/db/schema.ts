@@ -1,10 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { Logger } from '../utils/logger';
-
 import { applyMigrations, getMigrations } from './migrations';
 
 /**
@@ -23,7 +20,7 @@ import { applyMigrations, getMigrations } from './migrations';
  */
 
 // Schema version constants - this should match the highest migration version
-export const CURRENT_SCHEMA_VERSION = 3; // Increment this when schema changes
+export const CURRENT_SCHEMA_VERSION = 4; // Increment this when schema changes
 
 /**
  * Ensure the data directory exists for the given database path

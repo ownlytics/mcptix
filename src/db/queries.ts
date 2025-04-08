@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-
 import { Ticket, Comment, ComplexityMetadata, TicketFilter, ExportedData } from '../types';
 import { calculateComplexityScore } from '../utils/complexityCalculator';
 
@@ -260,11 +259,9 @@ export class TicketQueries {
       if (ticket.comments && ticket.comments.length > 0) {
         const commentStmt = this.db.prepare(`
           INSERT INTO comments (
-            id, ticket_id, content, type, author, status, timestamp,
-            summary, full_text, display
+            id, ticket_id, content, author, timestamp
           ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?
+            ?, ?, ?, ?, ?
           )
         `);
 
@@ -272,14 +269,9 @@ export class TicketQueries {
           commentStmt.run(
             comment.id || `comment-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
             ticketId,
-            comment.content || '',
-            comment.type || 'comment',
+            comment.content,
             comment.author || 'developer',
-            comment.status || 'open',
             comment.timestamp || now,
-            comment.summary || null,
-            comment.fullText || null,
-            comment.display || 'collapsed',
           );
         }
       }
@@ -405,26 +397,13 @@ export class TicketQueries {
 
     const stmt = this.db.prepare(`
       INSERT INTO comments (
-        id, ticket_id, content, type, author, status, timestamp,
-        summary, full_text, display
+        id, ticket_id, content, author, timestamp
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?
+        ?, ?, ?, ?, ?
       )
     `);
 
-    stmt.run(
-      commentId,
-      ticketId,
-      comment.content || '',
-      comment.type || 'comment',
-      comment.author || 'developer',
-      comment.status || 'open',
-      comment.timestamp || now,
-      comment.summary || null,
-      comment.fullText || null,
-      comment.display || 'collapsed',
-    );
+    stmt.run(commentId, ticketId, comment.content, comment.author || 'developer', comment.timestamp || now);
 
     // Update ticket's updated timestamp
     this.db.prepare('UPDATE tickets SET updated = ? WHERE id = ?').run(now, ticketId);

@@ -1,7 +1,5 @@
 import Database from 'better-sqlite3';
-
 import { Ticket } from '../types';
-
 import { TicketQueries } from './queries';
 import { clearDatabase, initializeDatabase } from './schema';
 

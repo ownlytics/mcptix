@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
 import { Ticket } from '../types';
-
 import { TicketQueries } from './queries';
 import { initializeDatabase, closeDatabase } from './schema';
 

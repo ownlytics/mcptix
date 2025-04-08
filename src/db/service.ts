@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
 import Database from 'better-sqlite3';
-
 import { McpTixConfig } from '../config';
 import { getDefaultDbPath, migrateDatabase } from '../db/schema';
 import { Logger } from '../utils/logger';

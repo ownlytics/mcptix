@@ -1,4 +1,7 @@
 // Mock chalk before imports
+import chalk from 'chalk';
+import { Logger } from './logger';
+
 jest.mock('chalk', () => ({
   blue: jest.fn(text => `BLUE:${text}`),
   green: jest.fn(text => `GREEN:${text}`),
@@ -9,9 +12,6 @@ jest.mock('chalk', () => ({
   white: jest.fn(text => `WHITE:${text}`),
   magenta: jest.fn(text => `MAGENTA:${text}`),
 }));
-
-import chalk from 'chalk';
-import { Logger } from './logger';
 
 describe('Logger', () => {
   // Store original console methods

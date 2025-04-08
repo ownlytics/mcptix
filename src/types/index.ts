@@ -36,14 +36,9 @@ export interface ComplexityMetadata {
 export interface Comment {
   id: string;
   ticket_id: string;
-  content?: string;
-  type: 'comment' | 'request_changes' | 'change_proposal';
+  content: string;
   author: 'developer' | 'agent';
-  status: 'open' | 'in_progress' | 'resolved' | 'wont_fix';
   timestamp: string;
-  summary?: string;
-  fullText?: string;
-  display?: 'expanded' | 'collapsed';
 }
 
 export interface TicketFilter {

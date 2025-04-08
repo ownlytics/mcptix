@@ -913,9 +913,7 @@ input[type='range']::-moz-range-thumb {
   margin-bottom: 0.75rem;
 }
 
-.comment-author-badge,
-.comment-type-badge,
-.comment-status-badge {
+.comment-author-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -924,9 +922,6 @@ input[type='range']::-moz-range-thumb {
   padding: 0.15rem 0.4rem;
   border-radius: 10px;
   white-space: nowrap;
-}
-
-.comment-author-badge {
   background-color: #e8f4fd;
   color: var(--primary-color);
 }
@@ -934,46 +929,6 @@ input[type='range']::-moz-range-thumb {
 .comment-author-agent .comment-author-badge {
   background-color: #f0f8ff;
   color: #0366d6;
-}
-
-.comment-type-badge {
-  background-color: #f1f2f6;
-  color: var(--dark-color);
-}
-
-.comment-type-request_changes .comment-type-badge {
-  background-color: #fff8e8;
-  color: var(--warning-color);
-}
-
-.comment-type-change_proposal .comment-type-badge {
-  background-color: #e8f8f5;
-  color: #16a085;
-}
-
-.comment-status-badge {
-  background-color: #f1f2f6;
-  color: var(--dark-color);
-}
-
-.comment-status-open .comment-status-badge {
-  background-color: #e8f4fd;
-  color: var(--primary-color);
-}
-
-.comment-status-in_progress .comment-status-badge {
-  background-color: #fff8e8;
-  color: var(--warning-color);
-}
-
-.comment-status-resolved .comment-status-badge {
-  background-color: #e8f8f5;
-  color: var(--success-color);
-}
-
-.comment-status-wont_fix .comment-status-badge {
-  background-color: #f8f9fa;
-  color: #7f8c8d;
 }
 
 .comment-timestamp {

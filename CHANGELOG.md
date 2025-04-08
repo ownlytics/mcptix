@@ -5,6 +5,30 @@ All notable changes to mcptix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.18] - 2025-04-07
+
+### Changed
+
+- Simplified comment system structure and API
+  - Removed unnecessary fields (type, status, summary, fullText, display)
+  - Comments now only track essential data: author, content, timestamp, and ticket_id
+  - Content field now fully supports markdown with expanded viewing capability
+  - Front-end expand/collapse functionality moved to client-side only (no server state)
+  - Author is either "developer" (for UI-created comments) or "agent" (for AI-created comments)
+
+### Fixed
+
+- Improved drag-and-drop functionality with proper order persistence
+- Fixed issues with schema migrations to preserve existing data
+- Ensured backward compatibility with existing tickets
+
+### Technical
+
+- Added database migration (v4) to consolidate comment data
+- Updated TypeScript interfaces for simplified structures
+- Streamlined MCP tool handler for comments
+- Improved test coverage for comment functionality
+
 ## [0.1.17] - 2025-04-07 [BETA]
 
 ### Fixed

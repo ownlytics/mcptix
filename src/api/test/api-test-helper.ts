@@ -1,5 +1,4 @@
 import request from 'supertest';
-
 import { TicketQueries } from '../../db/queries';
 import { ApiServer } from '../server';
 
