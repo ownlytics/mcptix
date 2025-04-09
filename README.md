@@ -84,7 +84,7 @@ The `agent_context` field is especially powerful - it gives AI assistants a plac
 
 ---
 
-### 💡⚡️ Cost-Effective Development with mcptix
+# 💡⚡️ Cost-Effective Development with mcptix
 
 Having an API-connected LLM agent continuously planning, executing code, handling errors, and debugging can quickly become expensive. API costs add up when your agent needs to repeatedly process the same context and maintain state across interactions.
 
