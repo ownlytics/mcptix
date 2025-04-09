@@ -294,7 +294,7 @@ You are welcome to use, modify, and explore this software for **non-commercial**
 
 We’re happy to support teams looking to integrate or scale with this tool. Please reach out to us for licensing or consulting:
 
-📧 [tim@ownlytics.ai](mailto:tim@ownlytics.ai)  
+📧 [hello@ownlytics.io](mailto:hello@ownlytics.io)  
 📄 [View full license terms](./LICENSE.md)
 
 _Respecting this license helps support ongoing development and innovation._

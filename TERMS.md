@@ -272,6 +272,6 @@ BY USING THE SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS AGREEMENT, UNDERS
 **CONTACT INFORMATION:**
 
 For questions regarding this Agreement or commercial licensing inquiries, please contact:
-tim@ownlytics.ai
+hello@ownlytics.io
 
 © 2025 Tesseract Labs, LLC. All rights reserved.

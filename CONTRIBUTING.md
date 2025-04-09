@@ -53,7 +53,7 @@ While we encourage exploration for personal and research purposes, please note:
 
 ## Get a Commercial License
 
-For commercial licensing inquiries, please contact: tim@ownlytics.ai
+For commercial licensing inquiries, please contact: hello@ownlytics.io
 
 ## Licensing Clarification
 
@@ -61,7 +61,7 @@ McpTix is provided under the Business Source License 1.1 (BSL 1.1) as detailed i
 
 ## Commercial Use
 
-For commercial licensing inquiries, please contact: tim@ownlytics.ai
+For commercial licensing inquiries, please contact: hello@ownlytics.io
 
 We offer flexible licensing programs for organizations interested in building on our technology.
 

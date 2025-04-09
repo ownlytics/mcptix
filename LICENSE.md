@@ -33,7 +33,7 @@ The methods and systems implemented in this software are covered under US Patent
 
 To inquire about commercial licensing, enterprise support, or consulting services related to this software, please contact:
 
-**📧 tim@ownlytics.ai**
+**📧 hello@ownlytics.io**
 
 We offer licensing packages and expert implementation services for companies and teams who want to accelerate delivery using this tool responsibly and legally.
 
