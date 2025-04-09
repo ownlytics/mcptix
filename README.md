@@ -13,13 +13,34 @@ mcptix is a ticket tracking system that helps you manage tasks, bugs, and featur
 - 📋 **Track tickets** - Create, update, and manage tickets for your projects
 - 🧠 **Measure complexity** - Track how complex your tickets are with the Complexity Intelligence Engine
 - 💬 **Add comments** - Collaborate with comments on tickets
-- 🤖 **AI integration** - Connect your AI assistants to mcptix
+- 🤖 **AI integration** - Connect your AI assistants to mcptix for enhanced planning and coding
 
-## Super Easy Setup (For Everyone)
+## Quick Start Guide
+
+For those who want to get up and running quickly with basic features:
+
+```bash
+# Install mcptix
+npm install @ownlytics/mcptix
+
+# Initialize mcptix in your project
+npx mcptix init
+
+# Start mcptix
+npx mcptix start
+```
+
+That's it for basic usage! For AI assistant integration, see the [AI Integration Guide](#ai-integration-guide) below.
+
+## Complete Installation Guide
+
+### Prerequisites
+
+- Node.js 14 or higher
+- npm or yarn
+- An AI assistant that supports MCP (Claude Desktop, Roo, etc.)
 
 ### Step 1: Install mcptix
-
-Open your terminal and run:
 
 ```bash
 npm install @ownlytics/mcptix
@@ -35,17 +56,177 @@ This will:
 
 - Create a `.mcptix` folder in your project
 - Add configuration files
-- Set up the necessary configuration files
+- Set up the database structure
 
-### Step 3: Start mcptix
+### Step 3: Start the mcptix UI
 
 ```bash
 npx mcptix start
 ```
 
-That's it! mcptix will start and open in your browser automatically.
+This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
 
-## Using mcptix
+## AI Integration Guide
+
+One of mcptix's most powerful features is its integration with AI assistants through the Model Context Protocol (MCP). This allows AI assistants to help with project planning, task decomposition, and more.
+
+### Understanding the mcptix AI Integration
+
+When properly configured, mcptix enables your AI assistant to:
+
+1. Create, read, update, and delete tickets
+2. Add comments to tickets
+3. Store detailed planning information in the `agent_context` field
+4. Break down complex tasks into manageable tickets
+5. Track complexity metrics
+
+The `agent_context` field is especially powerful - it gives AI assistants a place to store extensive planning documents using Markdown, without cluttering the conversation.
+
+### Configuration for Different AI Assistants
+
+#### For Roo
+
+1. **Copy the MCP configuration**:
+
+   When you run `npx mcptix init`, an MCP server configuration file is created at `.mcptix/mcp-server-config.json`. Copy this to Roo's configuration directory:
+
+   ```bash
+   mkdir -p .roo
+   cp .mcptix/mcp-server-config.json .roo/mcp.json
+   ```
+
+2. **Check the configuration file** to ensure paths are absolute:
+
+   ```json
+   {
+     "mcpServers": {
+       "mcptix": {
+         "command": "/absolute/path/to/node",
+         "args": ["/absolute/path/to/node_modules/@ownlytics/mcptix/dist/mcp/index.js"],
+         "env": {
+           "MCPTIX_HOME_DIR": "/absolute/path/to/your/project/.mcptix",
+           "HOME": "/home/your-username"
+         },
+         "disabled": false,
+         "alwaysAllow": []
+       }
+     }
+   }
+   ```
+
+   Ensure `/absolute/path/to/node` is the result of running `which node` in your terminal.
+
+   Ensure `/absolute/path/to/node_modules/@ownlytics/mcptix/dist/mcp/index.js` is the absolute path to the mcptix MCP server in your node_modules.
+
+   Ensure `/absolute/path/to/your/project/.mcptix` is the absolute path to your project's `.mcptix` directory.
+
+   Ensure `/home/your-username` is your home directory (result of `echo $HOME`).
+
+#### For Claude Desktop
+
+1. **Install desktop-commander** if you haven't already:
+
+   ```bash
+   npm install -g desktop-commander
+   ```
+
+2. **Connect Claude Desktop to your filesystem**:
+
+   ```bash
+   desktop-commander connect
+   ```
+
+3. **Configure Claude Desktop**:
+
+   In Claude Desktop:
+
+   - Go to Settings > Developer
+   - Add the MCP configuration in the "MCP Server Configuration" section:
+
+   ```json
+   {
+     "mcpServers": {
+       "mcptix": {
+         "command": "/absolute/path/to/node",
+         "args": ["/absolute/path/to/node_modules/@ownlytics/mcptix/dist/mcp/index.js"],
+         "env": {
+           "MCPTIX_HOME_DIR": "/absolute/path/to/your/project/.mcptix",
+           "HOME": "/home/your-username"
+         },
+         "disabled": false,
+         "alwaysAllow": []
+       },
+       "desktop-commander": {
+         "command": "npx",
+         "args": ["-y", "@smithery/cli@latest", "run", "@wonderwhy-er/desktop-commander", "--config", "{}"]
+       }
+     }
+   }
+   ```
+
+   Use the json as described in the coding agent configuration.
+
+4. **Create a project in Claude Desktop**:
+
+   - Click "New Project" in Claude Desktop
+   - Name your project appropriately
+   - Set your project directory to your development project's root directory
+
+5. **Edit the project system instructions**:
+
+   Add instructions for Claude about using mcptix:
+
+   ```
+   This project uses mcptix for ticket tracking. When planning work:
+
+   1. Use the mcptix MCP server to create and manage tickets
+   2. Break down complex tasks into smaller tickets
+   3. Use the agent_context field in tickets to store comprehensive planning in Markdown format
+   4. Project files are located in: /path/to/your/project
+   ```
+
+### Using mcptix with AI Assistants
+
+Once configured, you can start talking to your AI assistant about your project. Here's a workflow:
+
+1. **Start the mcptix UI**:
+
+   ```bash
+   npx mcptix start
+   ```
+
+2. **Initiate a conversation** with Claude Desktop or your AI assistant about planning your project
+
+3. **Ask for help breaking down complex tasks**:
+   Example: "I need to implement a user authentication system. Can you help me break this down into manageable tickets?"
+
+4. **The AI will create tickets** with detailed planning in the `agent_context` field
+
+5. **View the tickets** in the mcptix UI at http://localhost:3000 (or your configured port)
+
+6. **Execute tickets** following the plans in the `agent_context` field
+
+7. **Review progress** with your AI assistant and refine plans as needed
+
+### Working with Cline/Roo
+
+When working with Cline or Roo:
+
+1. **Tell the assistant to find tickets**:
+
+   ```
+   Find tickets in the 'in-progress' status.
+   ```
+
+2. **Ask the assistant to work on a specific ticket**:
+
+   ```
+   Work on ticket #42 following the plan in the agent_context.
+   ```
+
+3. **The assistant will execute the plan** in the agent_context field
+
+## Kanban Board Usage
 
 ### The Kanban Board
 
@@ -57,7 +238,7 @@ When you open mcptix, you'll see a Kanban board with columns for different ticke
 - **In Review** - Tickets that are being reviewed
 - **Completed** - Tickets that are done
 
-### Creating a Ticket
+### Creating a Ticket Manually
 
 1. Click the "New Ticket" button in the top right
 2. Fill in the ticket details:
@@ -80,86 +261,9 @@ When you open mcptix, you'll see a Kanban board with columns for different ticke
 3. Type your comment
 4. Click "Add Comment"
 
-## Connecting AI Assistants (MCP Configuration)
+## Advanced Configuration
 
-mcptix includes an MCP server that allows AI assistants to interact with your tickets. The MCP server is designed to be started by your AI assistant, not by mcptix itself.
-
-### 1. Install mcptix
-
-If you haven't already, install Epic Tracker:
-
-```bash
-npm install mcptix
-```
-
-### 2. Initialize mcptix in your project
-
-```bash
-npx mcptix init
-```
-
-This will create a `.mcptix` directory in your project with all necessary configuration files, including an MCP server configuration file at `.mcptix/mcp-server-config.json`.
-
-### 3. Configure your AI assistant to use the mcptix MCP server
-
-Copy the MCP server configuration file to your AI assistant's configuration directory:
-
-For Roo:
-
-```bash
-cp .mcptix/mcp-server-config.json .roo/mcp.json
-```
-
-For other AI assistants, consult their documentation on how to configure MCP servers.
-
-The configuration file contains all the necessary information for your AI assistant to start and connect to the Epic Tracker MCP server.
-
-#### mcptix MCP Server Configuration
-
-This file is used by LLM agents (like Roo) to connect to the mcptix MCP server. Copy this file to your LLM agent's configuration directory. For Roo, this would typically be .roo/mcp.json in your project root.
-
-IMPORTANT: _The MCP server should be started started by the LLM agent/extension, not by mcptix._ You only need to run 'npx mcptix start' to start the UI.
-
-```json
-{
-  "mcpServers": {
-    "mcptix": {
-      "command": "/absolute/path/to/your/node",
-      "args": ["/absolute/path/to/node_modules/mcptix/dist/mcp/index.js"],
-      "env": {
-        "MCPTIX_HOME_DIR": "/absolute/path/to/.mcptix",
-        "HOME": "/home/your-username"
-      },
-      "disabled": false,
-      "alwaysAllow": []
-    }
-  }
-}
-```
-
-### 4. Start the mcptix UI
-
-```bash
-npx mcptix start
-```
-
-This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
-This will start only the mcptix UI (API server). The MCP server will be started by your AI assistant when needed.
-
-### 5. Use mcptix with your AI assistant
-
-Once configured, your AI assistant will be able to:
-
-- List, create, update, and delete tickets
-- Add comments to tickets
-- Search for tickets
-- Get statistics about your tickets
-
-The MCP server provides these capabilities through tools and resources that your AI assistant can use.
-
-## Customizing mcptix
-
-You can customize mcptix by editing the `.mcptix/mcptix.config.js` file in your project:
+You can customize mcptix by editing the `.mcptix/mcptix.config.js` file:
 
 ```javascript
 module.exports = {
@@ -185,33 +289,51 @@ module.exports = {
 ### Common Customizations
 
 - **Change the port**: If port 3000 is already in use, change `apiPort` to another number
-- **Enable MCP for testing**: If you want to test the MCP server directly, set `mcpEnabled` to `true`
 - **Change data location**: If you want to store data elsewhere, change `dbPath`
-
-## Development Workflow
-
-If you're looking to develop mcptix locally, check out the [Development Workflow](DEVELOPMENT.md) guide.
 
 ## Troubleshooting
 
-### mcptix won't start
+### Installation Issues
 
-If mcptix won't start, check:
+- **"Command not found" when running mcptix**
 
-1. Is another application using port 3000? Change the port in the config file.
-2. Do you have permission to write to the data directory? Check file permissions.
-3. Is Node.js installed and up to date? mcptix requires Node.js 14 or higher.
+  - Make sure you've installed mcptix (`npm install @ownlytics/mcptix`)
+  - Try using the full path: `./node_modules/.bin/mcptix`
 
-### Can't connect AI assistant
+- **Initialization fails**
+  - Check if you have permission to write to the current directory
+  - Make sure Node.js is installed and up to date
 
-If your AI assistant can't connect to mcptix:
+### mcptix UI Won't Start
 
-1. Check that your MCP configuration file is correctly copied to your AI assistant's configuration directory
-2. Verify that the paths in the MCP configuration file are correct
-3. Ensure your AI assistant supports the Model Context Protocol
-4. Make sure the database path is accessible to the MCP server
+- **Port already in use**
 
-## Command Line Options
+  - Change the port in `.mcptix/mcptix.config.js`
+  - Check if another instance is already running
+
+- **Database errors**
+  - Ensure the database path is accessible
+  - Check file permissions on the `.mcptix` directory
+
+### AI Integration Issues
+
+- **AI assistant can't connect to mcptix**
+
+  - Verify that the MCP configuration paths are absolute and correct
+  - Check that your AI assistant supports MCP
+  - Ensure the database path in the configuration is accessible to the MCP server
+
+- **MCP server won't start**
+
+  - Check the environment variables in your MCP configuration
+  - Verify the path to Node.js and the mcptix MCP server
+  - Look for error messages in your AI assistant's logs
+
+- **"Module not found" errors**
+  - Ensure mcptix is properly installed
+  - Check that the paths in your MCP configuration are correct
+
+## Command Line Reference
 
 mcptix provides several command line options:
 
@@ -232,15 +354,13 @@ npx mcptix start --no-open
 npx mcptix mcp
 ```
 
-## Important Note About MCP Server
+## Understanding the MCP Architecture
 
-The MCP server is designed to be started by your AI assistant, not by mcptix itself. This is why:
+The MCP (Model Context Protocol) server is designed to be started by your AI assistant, not by mcptix itself. This architecture ensures:
 
-1. The `mcpEnabled` option is set to `false` by default
-2. The `npx mcptix start` command only starts the UI (API server)
-3. The MCP server configuration file is generated during initialization
-
-The `npx mcptix mcp` command is provided for development and testing purposes only. In normal operation, you should not need to start the MCP server manually.
+1. The MCP server is only running when needed
+2. The MCP server has access to the correct database
+3. The MCP server is properly configured for your AI assistant
 
 When your AI assistant needs to interact with mcptix, it will:
 
@@ -248,41 +368,6 @@ When your AI assistant needs to interact with mcptix, it will:
 2. Start the MCP server as specified in the configuration
 3. Connect to the MCP server
 4. Use the tools and resources provided by the MCP server to interact with mcptix
-
-This architecture ensures that:
-
-1. The MCP server is only running when needed
-2. The MCP server has access to the correct database
-3. The MCP server is properly configured for your AI assistant
-
-## For Advanced Users
-
-If you're comfortable with code, you can also use mcptix programmatically:
-
-```javascript
-const { createMcpTix } = require('mcptix');
-
-// Create a mcptix instance
-const mcpTix = createMcpTix();
-
-// Start the API server (UI)
-// Note: MCP server is disabled by default
-await mcpTix.start();
-
-// Get the ticket queries for programmatic access
-const ticketQueries = mcpTix.getTicketQueries();
-
-// Create a ticket
-const ticketId = ticketQueries.createTicket({
-  title: 'Example Ticket',
-  description: 'This is an example ticket.',
-  priority: 'medium',
-  status: 'backlog',
-});
-
-// Shut down when done
-await mcpTix.shutdown();
-```
 
 ## 🛡️ License & Usage
 
@@ -292,7 +377,7 @@ You are welcome to use, modify, and explore this software for **non-commercial**
 
 **Commercial use — including in production, paid services, or enterprise environments — requires a commercial license from Tesseract Labs, LLC.**
 
-We’re happy to support teams looking to integrate or scale with this tool. Please reach out to us for licensing or consulting:
+We're happy to support teams looking to integrate or scale with this tool. Please reach out to us for licensing or consulting:
 
 📧 [hello@ownlytics.io](mailto:hello@ownlytics.io)  
 📄 [View full license terms](./LICENSE.md)
