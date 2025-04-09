@@ -1,13 +1,18 @@
 "use strict";
-/**
- * Configuration module for McpTix
- * Provides types and utilities for configuring the McpTix package
- */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultConfig = void 0;
 exports.mergeConfig = mergeConfig;
 exports.validateConfig = validateConfig;
 exports.ensureHomeDirectory = ensureHomeDirectory;
+/**
+ * Configuration module for McpTix
+ * Provides types and utilities for configuring the McpTix package
+ */
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 /**
  * Default configuration values
  */
@@ -33,14 +38,14 @@ function mergeConfig(userConfig = {}) {
     const config = { ...exports.defaultConfig, ...userConfig };
     // Set derived paths if not explicitly provided
     if (config.homeDir) {
-        const path = require('path');
+        // Use the imported path module
         // Set dbPath if not provided
         if (!userConfig.dbPath) {
-            config.dbPath = path.join(config.homeDir, 'data', 'mcptix.db');
+            config.dbPath = path_1.default.join(config.homeDir, 'data', 'mcptix.db');
         }
         // Set logDir if not provided
         if (!userConfig.logDir) {
-            config.logDir = path.join(config.homeDir, 'logs');
+            config.logDir = path_1.default.join(config.homeDir, 'logs');
         }
         // Set environment variable for logger
         process.env.MCPTIX_HOME_DIR = config.homeDir;
@@ -78,21 +83,20 @@ function ensureHomeDirectory(config) {
     if (!config.homeDir) {
         throw new Error('Home directory must be specified');
     }
-    const fs = require('fs');
-    const path = require('path');
+    // Use the imported fs and path modules
     // Create home directory
-    if (!fs.existsSync(config.homeDir)) {
-        fs.mkdirSync(config.homeDir, { recursive: true });
+    if (!fs_1.default.existsSync(config.homeDir)) {
+        fs_1.default.mkdirSync(config.homeDir, { recursive: true });
     }
     // Create data directory
-    const dataDir = path.join(config.homeDir, 'data');
-    if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
+    const dataDir = path_1.default.join(config.homeDir, 'data');
+    if (!fs_1.default.existsSync(dataDir)) {
+        fs_1.default.mkdirSync(dataDir, { recursive: true });
     }
     // Create logs directory
-    const logDir = config.logDir || path.join(config.homeDir, 'logs');
-    if (!fs.existsSync(logDir)) {
-        fs.mkdirSync(logDir, { recursive: true });
+    const logDir = config.logDir || path_1.default.join(config.homeDir, 'logs');
+    if (!fs_1.default.existsSync(logDir)) {
+        fs_1.default.mkdirSync(logDir, { recursive: true });
     }
 }
 //# sourceMappingURL=config.js.map

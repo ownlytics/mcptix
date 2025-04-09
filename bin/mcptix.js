@@ -5,20 +5,15 @@
  * Command-line interface for McpTix
  */
 
-import { program } from 'commander';
-import path from 'path';
-import fs from 'fs';
-import chalk from 'chalk';
-import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
+const { program } = require('commander');
+const path = require('path');
+const fs = require('fs');
+const chalk = require('chalk');
 
-// Create a require function for loading JSON
-const require = createRequire(import.meta.url);
+// Read package json
 const packageJson = require('../package.json');
 
-// Get the directory name of the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// In CommonJS, __filename and __dirname are automatically available
 
 // Print a colorful banner
 console.log(

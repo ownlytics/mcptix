@@ -1,8 +1,4 @@
 /**
- * Configuration module for McpTix
- * Provides types and utilities for configuring the McpTix package
- */
-/**
  * Configuration interface for mcptix
  */
 export interface McpTixConfig {

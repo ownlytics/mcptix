@@ -146,7 +146,8 @@ export function createMcpTix(config?: Partial<McpTixConfig>): McpTix {
 }
 
 // If this file is run directly, start the servers based on command line arguments
-if (require.main === module) {
+const isDirectlyExecuted = process.argv.length > 1 && process.argv[1] === __filename;
+if (isDirectlyExecuted) {
   const args = process.argv.slice(2);
   const runApi = args.includes('--api');
   const runMcp = args.includes('--mcp');

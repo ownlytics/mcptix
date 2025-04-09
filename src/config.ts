@@ -2,6 +2,8 @@
  * Configuration module for McpTix
  * Provides types and utilities for configuring the McpTix package
  */
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Configuration interface for mcptix
@@ -95,7 +97,7 @@ export function mergeConfig(userConfig: Partial<McpTixConfig> = {}): McpTixConfi
 
   // Set derived paths if not explicitly provided
   if (config.homeDir) {
-    const path = require('path');
+    // Use the imported path module
 
     // Set dbPath if not provided
     if (!userConfig.dbPath) {
@@ -150,8 +152,7 @@ export function ensureHomeDirectory(config: McpTixConfig): void {
     throw new Error('Home directory must be specified');
   }
 
-  const fs = require('fs');
-  const path = require('path');
+  // Use the imported fs and path modules
 
   // Create home directory
   if (!fs.existsSync(config.homeDir)) {
