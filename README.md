@@ -237,7 +237,7 @@ When working with Cline or Roo:
 2. **Ask the assistant to work on a specific ticket**:
 
    ```
-   Work on ticket #42 following the plan in the agent_context.
+   Work on ticket id `ticket-1234567890 following the plan in the agent_context.
    ```
 
 3. **The assistant will execute the plan** in the agent_context field
