@@ -143,7 +143,7 @@ What makes this system particularly powerful is that both your coding agent (lik
 1. **Install desktop-commander** if you haven't already:
 
    ```bash
-   npm install -g desktop-commander
+   npm install -g @wonderwhy-er/desktop-commander
    ```
 
 2. **Connect Claude Desktop to your filesystem**:
