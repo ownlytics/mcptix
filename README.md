@@ -82,17 +82,21 @@ When properly configured, mcptix enables your AI assistant to:
 
 The `agent_context` field is especially powerful - it gives AI assistants a place to store extensive planning documents using Markdown, without cluttering the conversation.
 
-> ### 💡 Cost-Effective Development with mcptix
->
-> Having an API-connected LLM agent continuously planning, executing code, handling errors, and debugging can quickly become expensive. API costs add up when your agent needs to repeatedly process the same context and maintain state across interactions.
->
-> **A more cost-effective approach:** Configure Claude Desktop (with a Pro account running Claude 3.7 Sonnet) with mcptix and filesystem access. This local setup dramatically reduces API usage while maintaining powerful AI assistance.
->
-> By storing comprehensive plans in the `agent_context` field—complete with filenames, line numbers, method names, and other reference points organized into logical, workable chunks—you can reduce API usage by up to 80%.
->
-> mcptix acts as a next-generation memory bank for LLM coding agents, allowing them to offload detailed planning and context into a persistent storage system that they can reference as needed, rather than keeping everything in their limited context window.
->
-> What makes this system particularly powerful is that both your coding agent (like Roo/Cline) and Claude Desktop access the same underlying mcptix database. This creates a seamless collaborative environment where Claude Desktop can create comprehensive plans and store them in tickets, while your coding agent can retrieve these tickets and execute the plans precisely. They effectively communicate through the shared ticket system—Claude Desktop breaking down complex tasks into executable chunks, and your coding agent implementing them without needing to regenerate the context each time.
+---
+
+### 💡⚡️ Cost-Effective Development with mcptix
+
+Having an API-connected LLM agent continuously planning, executing code, handling errors, and debugging can quickly become expensive. API costs add up when your agent needs to repeatedly process the same context and maintain state across interactions.
+
+**A more cost-effective approach:** Configure Claude Desktop (with a Pro account running Claude 3.7 Sonnet) with mcptix and filesystem access. This local setup dramatically reduces API usage while maintaining powerful AI assistance.
+
+By storing comprehensive plans in the `agent_context` field—complete with filenames, line numbers, method names, and other reference points organized into logical, workable chunks—you can reduce API usage by up to 80%.
+
+mcptix acts as a next-generation memory bank for LLM coding agents, allowing them to offload detailed planning and context into a persistent storage system that they can reference as needed, rather than keeping everything in their limited context window.
+
+What makes this system particularly powerful is that both your coding agent (like Roo/Cline) and Claude Desktop access the same underlying mcptix database. This creates a seamless collaborative environment where Claude Desktop can create comprehensive plans and store them in tickets, while your coding agent can retrieve these tickets and execute the plans precisely. They effectively communicate through the shared ticket system—Claude Desktop breaking down complex tasks into executable chunks, and your coding agent implementing them without needing to regenerate the context each time.
+
+---
 
 ### Configuration for Different AI Assistants
 
