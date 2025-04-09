@@ -257,7 +257,7 @@ Tesseract Labs, LLC
 Spring, TX 77380
 Attention: Legal Department
 
-With a copy by email to: tim@ownlytics.ai
+With a copy by email to: legal@ownlytics.io
 
 ### 13.9 Third-Party Beneficiaries
 
