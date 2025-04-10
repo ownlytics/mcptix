@@ -125,7 +125,7 @@ function setupToolHandlers(server, ticketQueries) {
             },
             {
                 name: 'update_ticket',
-                description: 'Update an existing ticket',
+                description: 'Update an existing ticket (use edit_field instead for targeted text changes to save context space)',
                 inputSchema: {
                     type: 'object',
                     properties: {
@@ -335,6 +335,65 @@ function setupToolHandlers(server, ticketQueries) {
                     required: ['id', 'status'],
                 },
             },
+            {
+                name: 'edit_field',
+                description: 'Efficiently perform targeted text changes on a ticket field (PREFERRED over update_ticket for field edits, supports regex and partial replacements to save context space compared to rewriting entire fields)',
+                inputSchema: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            description: 'Ticket ID',
+                        },
+                        field: {
+                            type: 'string',
+                            description: 'Field name to edit',
+                            enum: ['title', 'description', 'agent_context'],
+                        },
+                        search: {
+                            type: 'string',
+                            description: 'Text to search for (or regex pattern if useRegex is true). Use this to target specific portions of text without rewriting the entire field.',
+                        },
+                        replace: {
+                            type: 'string',
+                            description: 'Replacement text (can include regex capturing groups like $1 if useRegex is true). This will replace only the matched text, preserving the rest of the field content.',
+                        },
+                        useRegex: {
+                            type: 'boolean',
+                            description: 'Use regular expressions for search and replace. Enables powerful pattern matching for complex replacements in code blocks, markdown, etc.',
+                            default: false,
+                        },
+                        caseSensitive: {
+                            type: 'boolean',
+                            description: 'Whether the search is case-sensitive. Set to false to match text regardless of casing.',
+                            default: true,
+                        },
+                    },
+                    required: ['id', 'field', 'search', 'replace'],
+                    markdownDescription: `
+## Edit Field Tool
+This tool efficiently performs targeted text replacements within specific ticket fields, saving valuable context space compared to rewriting entire fields.
+
+### Benefits
+- **Context Efficiency**: Makes small updates without resending large text blocks
+- **Precision Editing**: Changes only what needs to be changed
+- **Advanced Pattern Matching**: Supports regex for sophisticated replacements
+- **Preserves Structure**: Maintains the overall structure of the field
+
+### When to Use
+- Updating code snippets in documentation
+- Fixing typos or terminology
+- Editing specific sections of a large field
+- Refactoring code examples
+- Making formatting changes
+
+### Best Practices
+- For small to medium changes, always prefer this over update_ticket
+- Use regex mode for complex pattern matching
+- Use capturing groups ($1, $2) to preserve parts of matched text
+`,
+                },
+            },
         ],
     }));
     // Handle tool calls
@@ -367,6 +426,8 @@ function setupToolHandlers(server, ticketQueries) {
                     return handleReorderTicket(ticketQueries, args);
                 case 'move_ticket':
                     return handleMoveTicket(ticketQueries, args);
+                case 'edit_field':
+                    return handleEditField(ticketQueries, args);
                 default:
                     throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
             }
@@ -682,6 +743,137 @@ function handleGetStats(ticketQueries, args) {
             {
                 type: 'text',
                 text: JSON.stringify(stats, null, 2),
+            },
+        ],
+    };
+}
+// Handler for edit_field tool
+function handleEditField(ticketQueries, args) {
+    logger_1.Logger.debug('McpServer', `handleEditField called with args: ${JSON.stringify(args)}`);
+    if (!args.id) {
+        logger_1.Logger.warn('McpServer', 'Ticket ID is required');
+        throw new Error('Ticket ID is required');
+    }
+    if (!args.field || !['title', 'description', 'agent_context'].includes(args.field)) {
+        logger_1.Logger.warn('McpServer', 'Valid field name is required (title, description, agent_context)');
+        throw new Error('Valid field name is required (title, description, agent_context)');
+    }
+    if (args.search === undefined || args.replace === undefined) {
+        logger_1.Logger.warn('McpServer', 'Both search and replace parameters are required');
+        throw new Error('Both search and replace parameters are required');
+    }
+    // Check if ticket exists
+    logger_1.Logger.debug('McpServer', `Getting ticket with ID: ${args.id}`);
+    const existingTicket = ticketQueries.getTicketById(args.id);
+    if (!existingTicket) {
+        logger_1.Logger.warn('McpServer', `Ticket with ID ${args.id} not found`);
+        throw new Error(`Ticket with ID ${args.id} not found`);
+    }
+    // Get current field value
+    const currentValue = existingTicket[args.field] || '';
+    logger_1.Logger.debug('McpServer', `Current value of ${args.field}: ${currentValue.substring(0, 50)}${currentValue.length > 50 ? '...' : ''}`);
+    // Get search/replace parameters
+    const useRegex = args.useRegex === true;
+    const caseSensitive = args.caseSensitive !== false;
+    logger_1.Logger.debug('McpServer', `Performing find/replace: Mode=${useRegex ? 'regex' : 'literal'}, CaseSensitive=${caseSensitive}`);
+    logger_1.Logger.debug('McpServer', `Search: '${args.search.substring(0, 30)}${args.search.length > 30 ? '...' : ''}'`);
+    logger_1.Logger.debug('McpServer', `Replace: '${args.replace.substring(0, 30)}${args.replace.length > 30 ? '...' : ''}'`);
+    let newValue;
+    let replacementCount = 0;
+    try {
+        if (useRegex) {
+            // Use the search string directly as a regex pattern
+            const flags = caseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(args.search, flags);
+            newValue = currentValue.replace(regex, args.replace);
+            // Count replacements
+            try {
+                const countRegex = new RegExp(args.search, caseSensitive ? 'g' : 'gi');
+                const matches = currentValue.match(countRegex);
+                replacementCount = matches ? matches.length : 0;
+            }
+            catch (countError) {
+                // If counting fails, just set to 0
+                logger_1.Logger.warn('McpServer', `Could not count replacements: ${countError instanceof Error ? countError.message : String(countError)}`);
+            }
+        }
+        else {
+            // Perform literal string replacement (escape regex special chars)
+            const safeSearch = args.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const flags = caseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(safeSearch, flags);
+            newValue = currentValue.replace(regex, args.replace);
+            // Count literal string occurrences
+            let count = 0;
+            let lastIndex = 0;
+            if (caseSensitive) {
+                while ((lastIndex = currentValue.indexOf(args.search, lastIndex)) !== -1) {
+                    count++;
+                    lastIndex += args.search.length;
+                }
+            }
+            else {
+                const lowerText = currentValue.toLowerCase();
+                const lowerSearch = args.search.toLowerCase();
+                while ((lastIndex = lowerText.indexOf(lowerSearch, lastIndex)) !== -1) {
+                    count++;
+                    lastIndex += lowerSearch.length;
+                }
+            }
+            replacementCount = count;
+        }
+    }
+    catch (error) {
+        logger_1.Logger.error('McpServer', `Invalid regex pattern: ${error instanceof Error ? error.message : String(error)}`);
+        throw new Error(`Invalid regex pattern: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    // Only update if something changed
+    if (currentValue === newValue) {
+        logger_1.Logger.debug('McpServer', `No changes needed for ticket ${args.id}`);
+        return {
+            content: [
+                {
+                    type: 'text',
+                    text: JSON.stringify({
+                        id: args.id,
+                        success: true,
+                        changed: false,
+                        message: 'No changes made - search text not found',
+                    }, null, 2),
+                },
+            ],
+        };
+    }
+    logger_1.Logger.debug('McpServer', `Updating ${args.field} for ticket ${args.id} (${replacementCount} replacements)`);
+    // Create updated ticket with the modified field
+    let ticket = {
+        ...existingTicket,
+        updated: new Date().toISOString(),
+    };
+    // Update the specific field based on field name
+    if (args.field === 'title') {
+        ticket.title = newValue;
+    }
+    else if (args.field === 'description') {
+        ticket.description = newValue;
+    }
+    else if (args.field === 'agent_context') {
+        ticket.agent_context = newValue;
+    }
+    // Update ticket
+    const success = ticketQueries.updateTicket(ticket);
+    logger_1.Logger.debug('McpServer', `Update result for ticket ${args.id}: ${success}`);
+    return {
+        content: [
+            {
+                type: 'text',
+                text: JSON.stringify({
+                    id: args.id,
+                    success,
+                    changed: true,
+                    message: 'Field updated successfully',
+                    replacement_count: replacementCount,
+                }, null, 2),
             },
         ],
     };
