@@ -5,6 +5,31 @@ All notable changes to mcptix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.21] - 2025-04-10
+
+### Changed
+
+- Refactored MCP tools.ts into a modular directory structure
+  - Split monolithic tools.ts file into organized tool-specific modules
+  - Created dedicated handlers directory with individual files for each tool handler
+  - Improved maintainability and code organization
+  - Maintained backward compatibility through proxy exports
+
+### Fixed
+
+- Fixed TypeScript error in MCP CallToolRequestSchema handler
+  - Updated ToolResponse interface to align with MCP SDK's expected response format
+  - Ensured compatibility with existing handler implementations
+  - Resolved type checking issues without changing runtime behavior
+
+### Technical
+
+- Refactored MCP tools tests to match the modular directory structure
+  - Organized tests into focused files that mirror the new implementation structure
+  - Created shared test utilities to reduce code duplication
+  - Improved test maintainability and organization
+  - Enhanced test focus with files dedicated to specific handlers
+
 ## [0.1.20] - 2025-04-09
 
 ### Added
