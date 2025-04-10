@@ -43,7 +43,7 @@ export default [
 
       // More lenient import rules
       'import/order': [
-        'warn',
+        'never',
         {
           'newlines-between': 'never',
           alphabetize: {

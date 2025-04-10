@@ -1,0 +1,1 @@
+{"version":3,"file":"get-next-ticket.d.ts","sourceRoot":"","sources":["../../../../src/mcp/tools/handlers/get-next-ticket.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,qBAAqB,CAAC;AACpD,OAAO,EAAyB,YAAY,EAAE,MAAM,UAAU,CAAC;AAE/D,wBAAgB,mBAAmB,CAAC,aAAa,EAAE,aAAa,EAAE,IAAI,EAAE,GAAG,GAAG,YAAY,CAczF"}
